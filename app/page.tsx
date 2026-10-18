@@ -1,36 +1,34 @@
-import Link from "next/link";
+import { Footer } from "@/components/layout/footer";
+import { Navbar } from "@/components/layout/navbar";
+import { LandingHero } from "@/components/landing/landing-hero";
+import { getLandingSample } from "@/components/landing/sample-data";
+import { ClosingCta, HowItWorks, PersonaEntry, TrustStrip } from "@/components/landing/sections";
 
-// Sementara: indeks halaman dev. Diganti Landing final setelah varian dipilih (PRD §8, §12).
-const pages = [
-  { href: "/dev/components", title: "Komponen inti", note: "Tahap 1 · PRD §23" },
-  { href: "/dev/landing-a", title: "Landing A — Hybrid", note: "Tahap 2 · PRD §12 Concept D, §13" },
-  { href: "/dev/landing-b", title: "Landing B — Editorial", note: "Tahap 2 · PRD §12 Concept B" },
-  { href: "/dev/landing-c", title: "Landing C — Konsultasi", note: "Tahap 2 · PRD §12 Concept C" },
-];
+// Landing final (PRD §8, §12–14). Arah: varian A (Hybrid) + preview langsung dari varian C,
+// dipilih Fahren setelah eksplorasi di /dev/landing-a|b|c.
 
-export default function Home() {
+export default async function Home() {
+  const sample = await getLandingSample();
+
   return (
-    <main className="page-container flex flex-col gap-8 py-16">
-      <header className="flex flex-col gap-2">
-        <p className="type-small text-text-muted">NEXORA · prototype frontend</p>
-        <h1 className="type-h1 text-text">Halaman eksplorasi</h1>
-        <p className="max-w-xl type-body text-text-muted">
-          Landing final belum dibuat. Pilih salah satu halaman di bawah untuk review.
-        </p>
-      </header>
-      <ul className="flex flex-col divide-y divide-border rounded-card border border-border">
-        {pages.map((p) => (
-          <li key={p.href}>
-            <Link
-              href={p.href}
-              className="flex min-h-14 flex-col justify-center gap-0.5 px-5 py-4 hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
-            >
-              <span className="type-body font-semibold text-text">{p.title}</span>
-              <span className="type-small font-normal text-text-muted">{p.note}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <>
+      <Navbar />
+      <main className="flex-1">
+        <LandingHero
+          defaultRequirement={sample.requirement}
+          bestMatch={{
+            matchScore: sample.best.result.matchScore,
+            laptopName: `${sample.best.laptop.brand} ${sample.best.laptop.model}`,
+          }}
+          majorLabel={sample.majorLabel}
+          softwareLabels={sample.softwareLabels}
+        />
+        <HowItWorks sample={sample} />
+        <PersonaEntry />
+        <TrustStrip />
+        <ClosingCta />
+      </main>
+      <Footer />
+    </>
   );
 }

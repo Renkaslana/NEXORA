@@ -62,7 +62,13 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Tahap 0 — scaffold + CLAUDE.md
 - [x] Tahap 1 — fondasi (token, tipe, mock data, `lib/api.ts`, komponen, `/dev/components`)
 - [x] Tahap 2 — tiga varian landing di `/dev/landing-a|b|c`
-- [ ] **Menunggu Fahren memilih varian landing** sebelum Landing final, Wizard, dan halaman lain.
+- [x] Landing final di `/`: varian A (Hybrid) + preview langsung dari C, dipilih Fahren.
+  Varian `/dev/landing-*` disimpan sebagai arsip; indeks dev di `/dev`.
+- [ ] Berikutnya: Wizard `/rekomendasi/*` (tunggu persetujuan rencana Fahren).
+
+Landing final: chip preset mengubah kartu Profil Kebutuhan (persona Informatika); badge skor
+94% hanya di tier Rp8–10 jt (satu-satunya tier dengan skenario hasil), tier lain menampilkan
+jumlah laptop di katalog. CTA membawa `?budget=` (dan `&jurusan=` dari baris persona) ke Wizard.
 
 Catatan keputusan:
 - `type-display-xl` (96px desktop) adalah token tambahan khusus varian B, bukan bagian PRD §22.

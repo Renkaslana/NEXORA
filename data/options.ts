@@ -11,11 +11,40 @@ import type {
 
 // Pilihan wizard (PRD §15, §29). Jangan diimpor dari komponen: akses lewat `lib/api.ts`.
 
+// PRD §5 (kartu Persona Trello)
 export const personas: Persona[] = [
-  { id: "teknik", label: "Teknik & Informatika", example: "Raka, 19, Informatika" },
-  { id: "desain", label: "Desain, Multimedia & Arsitektur", example: "Salsa, 20, DKV" },
-  { id: "umum", label: "Mahasiswa Umum", example: "Dinda, 18, Hukum" },
-  { id: "profesional", label: "Karyawan & Profesional", example: "Bima, 24, staf admin" },
+  {
+    id: "teknik",
+    label: "Teknik & Informatika",
+    example: "Raka, 19, Informatika",
+    budgetLabel: "Rp8–12 jt",
+    needs: "CPU multi-core, RAM 16 GB, SSD 512 GB untuk VS Code, Docker, Android Studio",
+    fear: "Laptop lemot saat compile, RAM tidak bisa di-upgrade",
+  },
+  {
+    id: "desain",
+    label: "Desain, Multimedia & Arsitektur",
+    example: "Salsa, 20, DKV",
+    budgetLabel: "Rp12–20 jt",
+    needs: "Layar 100% sRGB/OLED, GPU dedicated untuk Blender, Premiere, AutoCAD",
+    fear: "Warna layar tidak akurat, render lama",
+  },
+  {
+    id: "umum",
+    label: "Mahasiswa Umum",
+    example: "Dinda, 18, Hukum",
+    budgetLabel: "Rp5–8 jt",
+    needs: "Bobot di bawah 1,4 kg, baterai di atas 8 jam, keyboard nyaman",
+    fear: "Terlalu berat dibawa, terjebak beli laptop gaming",
+  },
+  {
+    id: "profesional",
+    label: "Karyawan & Profesional",
+    example: "Bima, 24, staf admin",
+    budgetLabel: "Rp8–14 jt",
+    needs: "Portabel, webcam FHD, port lengkap (HDMI, USB-C), baterai awet",
+    fear: "Laptop terlihat murahan saat meeting, port kurang",
+  },
 ];
 
 export const majors: Major[] = [

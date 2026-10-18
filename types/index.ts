@@ -120,6 +120,10 @@ export interface Persona {
   id: PersonaId;
   label: string;
   example: string;
+  /** PRD §5 */
+  budgetLabel: string;
+  needs: string;
+  fear: string;
 }
 
 // ---------------------------------------------------------------- Profil pengguna

@@ -395,7 +395,7 @@ export function Showcase() {
   return (
     <main className="page-container pb-24">
       <header className="flex flex-col gap-3 py-12 md:py-16">
-        <Link href="/" className="type-small text-primary hover:underline">
+        <Link href="/dev" className="type-small text-primary hover:underline">
           ← Indeks dev
         </Link>
         <h1 className="type-h1 text-text">Komponen inti</h1>
