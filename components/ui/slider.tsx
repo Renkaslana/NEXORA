@@ -10,8 +10,15 @@ function Slider({
   value,
   min = 0,
   max = 100,
+  thumbLabel,
+  getValueText,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+  /** Label aksesibel untuk thumb (PRD §28). */
+  thumbLabel?: string
+  /** Teks `aria-valuetext`, mis. "8 juta rupiah" (PRD §28). */
+  getValueText?: (value: number) => string
+}) {
   const _values = React.useMemo(
     () =>
       Array.isArray(value)
@@ -48,6 +55,8 @@ function Slider({
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
           key={index}
+          aria-label={thumbLabel}
+          aria-valuetext={getValueText?.(_values[index])}
           className="relative block size-6 shrink-0 cursor-grab rounded-full border-2 border-primary bg-bg shadow-sm transition-[box-shadow,transform] duration-150 select-none after:absolute after:-inset-2.5 hover:ring-4 hover:ring-primary-soft active:cursor-grabbing active:ring-4 active:ring-primary-soft disabled:pointer-events-none disabled:opacity-50"
         />
       ))}
