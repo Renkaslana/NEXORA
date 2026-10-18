@@ -45,6 +45,8 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - Kalau PRD tidak menjawab sesuatu, **tanya Fahren**, jangan menebak.
 - Jangan menimpa atau menghapus file tanpa bertanya.
 - Commit setiap penambahan penting (pesan commit jelas). Jangan push tanpa izin.
+- Commit hanya atas nama Fahren: **jangan** tambahkan baris `Co-Authored-By` (termasuk Claude)
+  atau atribusi AI lain di pesan commit maupun deskripsi PR.
 - Halaman eksplorasi/QA ada di `/dev/*` (bukan halaman final).
 
 ## Catatan teknis
