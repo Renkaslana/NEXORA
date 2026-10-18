@@ -66,7 +66,19 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
   Varian `/dev/landing-*` disimpan sebagai arsip; indeks dev di `/dev`.
 - [x] Wizard `/rekomendasi/budget|jurusan|aktivitas|software|prioritas` + store.
 - [x] Profil Kebutuhan `/rekomendasi/profil` (PRD §16).
-- [ ] Berikutnya: layar Analisis `/rekomendasi/analisis` (tunggu persetujuan rencana Fahren).
+- [x] Layar Analisis `/rekomendasi/analisis` (PRD §14, §25).
+- [ ] Berikutnya: Hasil `/rekomendasi/hasil` + Compare Tray (tunggu persetujuan rencana Fahren).
+
+Analisis (PRD §14, §25, §26):
+- 4 tahap (`AnalyzingSteps`) selesai di 0,7/1,3/1,9/2,5 detik; tahap terakhir menunggu
+  `getRecommendations()`. Lalu `router.replace("/rekomendasi/hasil")`, jadi Back dari Hasil ke Profil.
+- Hasil diserahkan lewat `store/results.ts` (memori saja, `profileKey()` untuk mencocokkan profil).
+  Hasil harus memakai data itu bila key cocok, dan memuat ulang dengan skeleton bila tidak ada.
+- Angka di teks tahap dari katalog mock (12 laptop), bukan "50 laptop" seperti copy PRD (disetujui Fahren).
+- `?mock=error` menampilkan error §26; `?mock=empty` diteruskan ke `/rekomendasi/hasil?mock=empty`.
+- `StateMessage` (`components/ui/state-message.tsx`) dan `firstMissingStep()` dipakai bersama
+  Profil dan Analisis.
+- Selama `/rekomendasi/hasil` belum dibuat, URL itu ditangkap rute dinamis `[step]` dan menjadi 404.
 
 Profil Kebutuhan (PRD §16, §26):
 - `ProfileView` di luar route group Wizard; header bersama `FlowHeader`. `?mock=error` didukung.

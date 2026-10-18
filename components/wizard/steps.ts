@@ -55,6 +55,11 @@ export const isWizardStep = (id: string | null | undefined): id is WizardStepId 
 
 export const stepHref = (id: WizardStepId) => `/rekomendasi/${id}`
 
+/** Langkah wajib pertama yang belum valid (jurusan, aktivitas), untuk halaman setelah Wizard. */
+export function firstMissingStep(profile: UserProfile): WizardStep | undefined {
+  return wizardSteps.find((s) => (s.id === "jurusan" || s.id === "aktivitas") && validateStep(s.id, profile))
+}
+
 /** Pesan validasi untuk langkah ini, atau null bila valid (PRD §15, §28). */
 export function validateStep(id: WizardStepId, profile: UserProfile): string | null {
   switch (id) {

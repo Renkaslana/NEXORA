@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileChips } from "@/components/profile/profile-chips";
 import { SpecRequirementCard } from "@/components/profile/spec-requirement-card";
 import { WarningPanel } from "@/components/profile/warning-panel";
+import { AnalyzingSteps } from "@/components/results/analyzing-steps";
 import { LaptopCard } from "@/components/results/laptop-card";
 import { ScoreRing } from "@/components/results/score-ring";
 import { BudgetSlider } from "@/components/wizard/budget-slider";
@@ -367,6 +368,30 @@ function ProfileParts() {
   );
 }
 
+const demoAnalysisSteps = [
+  { label: "Membaca profilmu", detail: "Informatika · Rp8 jt · Programming" },
+  { label: "Menyaring laptop sesuai budget", detail: "12 laptop di katalog → 9 dalam budget" },
+  { label: "Menghitung kecocokan per kriteria", detail: "Prioritasmu: Performa, Ringan dibawa" },
+  { label: "Menyusun alasan dan trade-off", detail: "Untuk Best Match dan alternatifnya" },
+];
+
+function AnalysisStepsDemo() {
+  return (
+    <div className="grid gap-8 md:grid-cols-3">
+      {[
+        { completed: 0, label: "Awal (tahap 1 aktif)" },
+        { completed: 2, label: "Tengah (2 selesai, 1 aktif)" },
+        { completed: 4, label: "Selesai semua" },
+      ].map((v) => (
+        <div key={v.completed} className="flex flex-col gap-3">
+          <Label>{v.label}</Label>
+          <AnalyzingSteps steps={demoAnalysisSteps} completed={v.completed} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function LaptopCards() {
   const state = useApi(loadRaka);
   const [compared, setCompared] = React.useState<string[]>(["lp-003"]);
@@ -464,6 +489,9 @@ export function Showcase() {
       </Section>
       <Section id="profile" title="Profil Kebutuhan" prd="PRD §16, §23, §26 · Spec Requirement Card, chip profil, banner budget">
         <ProfileParts />
+      </Section>
+      <Section id="analyzing" title="Analyzing Steps" prd="PRD §23, §25 · 4 tahap · Pending, Active, Done">
+        <AnalysisStepsDemo />
       </Section>
       <Section id="laptop-card" title="Laptop Card" prd="PRD §17, §23, §25 · Best Match, Default, Compact">
         <LaptopCards />

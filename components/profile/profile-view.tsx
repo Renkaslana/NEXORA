@@ -11,7 +11,8 @@ import { SpecRequirementCard } from "@/components/profile/spec-requirement-card"
 import { WarningPanel } from "@/components/profile/warning-panel"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { stepHref, validateStep, wizardSteps } from "@/components/wizard/steps"
+import { StateMessage } from "@/components/ui/state-message"
+import { firstMissingStep, stepHref } from "@/components/wizard/steps"
 import { getGlossary, getPersonaForMajor, getRequirements, getWizardOptions, parseMockMode, type MockMode } from "@/lib/api"
 import { useApi } from "@/lib/use-api"
 import { emptyProfile, rehydrateProfile, useProfileHydrated, useProfileStore } from "@/store/profile"
@@ -35,34 +36,6 @@ function GridSkeleton() {
         ))}
       </div>
     </div>
-  )
-}
-
-function StateMessage({
-  icon: Icon,
-  title,
-  body,
-  children,
-  tone = "neutral",
-}: {
-  icon: typeof CircleAlert
-  title: string
-  body: string
-  children: React.ReactNode
-  tone?: "neutral" | "danger"
-}) {
-  return (
-    <section
-      role={tone === "danger" ? "alert" : undefined}
-      className="flex max-w-2xl flex-col items-start gap-4 rounded-card bg-surface p-6 md:p-8"
-    >
-      <Icon className={tone === "danger" ? "size-8 text-danger" : "size-8 text-text-muted"} strokeWidth={1.5} aria-hidden="true" />
-      <div className="flex flex-col gap-2">
-        <h2 className="type-h2 text-text">{title}</h2>
-        <p className="type-body text-text-muted">{body}</p>
-      </div>
-      <div className="flex flex-wrap gap-2">{children}</div>
-    </section>
   )
 }
 
@@ -203,9 +176,7 @@ export function ProfileView() {
     rehydrateProfile()
   }, [])
 
-  const missing = hydrated
-    ? wizardSteps.find((s) => (s.id === "jurusan" || s.id === "aktivitas") && validateStep(s.id, profile))
-    : undefined
+  const missing = hydrated ? firstMissingStep(profile) : undefined
   const ready = hydrated && !missing
 
   const actions = (
