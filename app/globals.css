@@ -1,26 +1,213 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * Design token NEXORA — arah visual "Clear Spec" (PRD §22).
+ * Light mode saja; dark mode masuk Nice to have (PRD §31).
+ */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Warna PRD §22 */
+  --bg: #ffffff;
+  --surface: #f7f7f8;
+  --border: #e4e4e7;
+  --text: #18181b;
+  --text-muted: #52525b;
+  --primary: #1d4ed8;
+  --primary-soft: #eff6ff;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #b91c1c;
+
+  /* State turunan (bukan warna aksen baru): hover/active */
+  --primary-hover: #1e40af;
+  --primary-active: #1e3a8a;
+  --surface-hover: #efeff1;
+  --border-strong: #d4d4d8;
+
+  /* Variabel shadcn diarahkan ke token yang sama */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--bg);
+  --card-foreground: var(--text);
+  --popover: var(--bg);
+  --popover-foreground: var(--text);
+  --primary-foreground: #ffffff;
+  --secondary: var(--surface);
+  --secondary-foreground: var(--text);
+  --muted: var(--surface);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--surface);
+  --accent-foreground: var(--text);
+  --destructive: var(--danger);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Radius dasar shadcn = 8px (tombol & input, PRD §22) */
+  --radius: 0.5rem;
 }
 
 @theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-active: var(--primary-active);
+  --color-surface-hover: var(--surface-hover);
+  --color-border-strong: var(--border-strong);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Font PRD §22: Plus Jakarta Sans + JetBrains Mono (next/font di app/layout.tsx) */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  /* Radius PRD §22 */
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-modal: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* Shadow PRD §22: hanya dua level */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  /* Motion PRD §22/§25 */
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Skala tipografi PRD §22 (mobile-first, desktop mulai md = 768px) */
+@utility type-display {
+  font-size: 2.25rem;
+  line-height: 2.75rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  @media (width >= 48rem) {
+    font-size: 3.5rem;
+    line-height: 4rem;
+  }
+}
+@utility type-h1 {
+  font-size: 1.875rem;
+  line-height: 2.375rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  @media (width >= 48rem) {
+    font-size: 2.5rem;
+    line-height: 3rem;
+  }
+}
+@utility type-h2 {
+  font-size: 1.75rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+@utility type-h3 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+}
+@utility type-body-l {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  font-weight: 400;
+}
+@utility type-body {
+  font-size: 1rem;
+  line-height: 1.5rem;
+  font-weight: 400;
+}
+@utility type-small {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+}
+@utility type-micro {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 500;
+}
+
+/* Grid PRD §22: konten max 1200px, margin mobile 16px, gutter 24px */
+@utility page-container {
+  width: 100%;
+  max-width: calc(1200px + 3rem);
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (width >= 48rem) {
+    padding-inline: 1.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Angka spek & skor sejajar (PRD §22) */
+@utility num {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply font-sans;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-bg text-text type-body antialiased;
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Focus PRD §28: ring 2px primary + offset 2px, tidak pernah dihilangkan */
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+/* PRD §22/§28: semua animasi dimatikan saat prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
