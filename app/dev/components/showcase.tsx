@@ -267,7 +267,7 @@ function BudgetSliders() {
   const [flexible, setFlexible] = React.useState(true);
   const insight = getBudgetInsight(value, flexible);
   return (
-    <div className="grid gap-10 lg:grid-cols-2">
+    <div className="grid gap-10 lg:grid-cols-2 [&>*]:min-w-0">
       <div className="flex flex-col gap-3">
         <Label>Default</Label>
         <BudgetSlider value={plain} onValueChange={setPlain} range={options.budgetRange} showInput={false} />

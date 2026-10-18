@@ -53,7 +53,7 @@ function BudgetSlider({
   const isMax = value >= range.max
 
   return (
-    <div className={cn("flex flex-col gap-5", className)}>
+    <div className={cn("flex min-w-0 flex-col gap-5", className)}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="flex flex-col gap-1">
           <span id={`${id}-label`} className="type-small text-text-muted">

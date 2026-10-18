@@ -52,13 +52,23 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - Next.js 16 dengan `cacheComponents` aktif. Baca `node_modules/next/dist/docs/`
   sebelum memakai API Next yang belum familiar.
 - Tailwind v4: token desain ada di `app/globals.css` (`@theme`), bukan `tailwind.config`.
-- `lib/api.ts` memberi jeda palsu 600–2500 ms dan dipanggil dari komponen klien
-  (profil pengguna hidup di store Zustand + `sessionStorage`).
+- `lib/api.ts` memberi jeda palsu 600–2500 ms. Profil pengguna hidup di store Zustand +
+  `sessionStorage` (`store/profile.ts`); panggilan dari klien memakai hook `lib/use-api.ts`.
 - Skor mock harus konsisten: `matchScore = round(Σ bobot × skor / 100)`; diverifikasi
   oleh `lib/mock-check.ts` dan ditampilkan di `/dev/components`.
 
 ## Status
 
 - [x] Tahap 0 — scaffold + CLAUDE.md
-- [ ] Tahap 1 — fondasi (token, tipe, mock data, `lib/api.ts`, komponen, `/dev/components`)
-- [ ] Tahap 2 — tiga varian landing di `/dev/landing-a|b|c` (menunggu pilihan Fahren)
+- [x] Tahap 1 — fondasi (token, tipe, mock data, `lib/api.ts`, komponen, `/dev/components`)
+- [x] Tahap 2 — tiga varian landing di `/dev/landing-a|b|c`
+- [ ] **Menunggu Fahren memilih varian landing** sebelum Landing final, Wizard, dan halaman lain.
+
+Catatan keputusan:
+- `type-display-xl` (96px desktop) adalah token tambahan khusus varian B, bukan bagian PRD §22.
+- `lib/api.ts`: `getWizardOptions()` dan `getBudgetInsight()` sinkron (konfigurasi statis & umpan
+  balik slider real-time); fungsi data lain async dengan jeda 600–2500 ms.
+- Landing A/B mengambil data lewat `lib/api.ts` di server dengan `"use cache"` (prerender statis);
+  C memanggil API di klien dan meng-cache 5 preset sekaligus.
+- Skill `design-taste-frontend` melarang monospace, border 1px, dan label kecil di atas judul;
+  di proyek ini PRD menang (JetBrains Mono, kartu ber-border, label hero §13).

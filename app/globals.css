@@ -117,6 +117,22 @@
     line-height: 4rem;
   }
 }
+/* Tambahan eksplorasi landing B (bukan token PRD §22): display editorial sangat besar */
+@utility type-display-xl {
+  font-size: 2.5rem;
+  line-height: 2.875rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  @media (width >= 48rem) {
+    font-size: 4.5rem;
+    line-height: 4.875rem;
+  }
+  @media (width >= 64rem) {
+    font-size: 6rem;
+    line-height: 6.25rem;
+    letter-spacing: -0.035em;
+  }
+}
 @utility type-h1 {
   font-size: 1.875rem;
   line-height: 2.375rem;
