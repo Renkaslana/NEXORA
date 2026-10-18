@@ -29,7 +29,7 @@ export function checkScenarios(scenarios: Scenario[], laptops: Laptop[]): MockCh
   const rows: MockCheckRow[] = [];
 
   for (const sc of scenarios) {
-    const weightTotal = sc.profile.priorities.reduce((sum, p) => sum + p.weight, 0);
+    const weightTotal = sc.profile.priorities.reduce((sum, p) => sum + (p.weight ?? 0), 0);
     if (weightTotal !== 100) {
       issues.push({ scenarioId: sc.id, message: `Jumlah bobot profil ${weightTotal}%, harus 100%` });
     }

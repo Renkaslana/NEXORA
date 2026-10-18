@@ -216,6 +216,19 @@
   }
 }
 
+/* PRD §25: item baru di panel ringkasan masuk dengan highlight singkat */
+@keyframes nexora-flash {
+  from {
+    background-color: var(--primary-soft);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+@utility animate-flash {
+  animation: nexora-flash 1.2s ease-out;
+}
+
 /* PRD §22/§28: semua animasi dimatikan saat prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,

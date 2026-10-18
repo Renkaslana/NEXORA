@@ -13,7 +13,8 @@ function bd(weights: Weights, scores: number[]): BreakdownItem[] {
   return weights.map(([criterion, weight], i) => ({ criterion, weight, score: scores[i] }));
 }
 
-const toPriorities = (weights: Weights) => weights.map(([criterion, weight]) => ({ criterion, weight }));
+const toPriorities = (weights: Weights) =>
+  weights.map(([criterion, weight], i) => ({ criterion, rank: i + 1, weight }));
 
 // ---------------------------------------------------------------- Raka · Teknik
 // Bobot persis contoh PRD §27.
@@ -37,6 +38,7 @@ const raka: Scenario = {
     activities: ["programming", "uiux"],
     primaryActivity: "programming",
     software: ["vscode", "docker", "android-studio", "figma"],
+    priorityMode: "weights",
     priorities: toPriorities(W_RAKA),
     hardFilters: [],
   },
@@ -172,6 +174,7 @@ const salsa: Scenario = {
     activities: ["desain-grafis", "video", "3d"],
     primaryActivity: "desain-grafis",
     software: ["photoshop", "premiere", "blender", "figma"],
+    priorityMode: "weights",
     priorities: toPriorities(W_SALSA),
     hardFilters: ["layar-akurat"],
   },
@@ -264,6 +267,7 @@ const dinda: Scenario = {
     activities: ["office"],
     primaryActivity: "office",
     software: ["excel", "zoom"],
+    priorityMode: "weights",
     priorities: toPriorities(W_DINDA),
     hardFilters: [],
   },
@@ -350,6 +354,7 @@ const bima: Scenario = {
     activities: ["office", "data"],
     primaryActivity: "office",
     software: ["excel", "zoom", "spss"],
+    priorityMode: "weights",
     priorities: toPriorities(W_BIMA),
     hardFilters: ["port-hdmi"],
   },

@@ -135,7 +135,12 @@ export interface UserProfile {
   activities: ActivityId[];
   primaryActivity: ActivityId | null;
   software: string[];
-  priorities: { criterion: CriterionId; weight: number }[];
+  /**
+   * PRD §15 step 5. "rank": 1–3 prioritas berurutan, `weight` null (bobot ditentukan backend).
+   * "weights": bobot diatur sendiri oleh pengguna lewat "Atur bobot detail", Σ weight = 100.
+   */
+  priorityMode: "rank" | "weights";
+  priorities: { criterion: CriterionId; rank: number; weight: number | null }[];
   hardFilters: HardFilterId[];
 }
 
