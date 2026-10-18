@@ -112,11 +112,36 @@ export const priorities: Priority[] = [
 ];
 
 export const hardFilters: HardFilter[] = [
-  { id: "bobot-1-3", label: "Bobot di bawah 1,3 kg", description: "Untuk yang membawa laptop setiap hari" },
-  { id: "baterai-awet", label: "Baterai awet", description: "Minimal 60 Wh, sekitar 9 jam pemakaian ringan" },
-  { id: "port-hdmi", label: "Port HDMI", description: "Untuk presentasi tanpa adaptor" },
-  { id: "layar-akurat", label: "Layar akurat warna", description: "Minimal 100% sRGB" },
-  { id: "ram-upgrade", label: "RAM bisa di-upgrade", description: "Bisa ditambah nanti saat kebutuhan naik" },
+  {
+    id: "bobot-1-3",
+    label: "Bobot di bawah 1,3 kg",
+    description: "Untuk yang membawa laptop setiap hari",
+    limitingReason: "Bobot di bawah 1,3 kg jarang ada di bawah Rp10 jt, apalagi dengan GPU dedicated",
+  },
+  {
+    id: "baterai-awet",
+    label: "Baterai awet",
+    description: "Minimal 60 Wh, sekitar 9 jam pemakaian ringan",
+    limitingReason: "Baterai 60 Wh ke atas umumnya baru ada di kisaran Rp8 jt ke atas",
+  },
+  {
+    id: "port-hdmi",
+    label: "Port HDMI",
+    description: "Untuk presentasi tanpa adaptor",
+    limitingReason: "Beberapa laptop tipis hanya punya USB-C, sehingga HDMI butuh adaptor",
+  },
+  {
+    id: "layar-akurat",
+    label: "Layar akurat warna",
+    description: "Minimal 100% sRGB",
+    limitingReason: "Layar 100% sRGB atau OLED jarang ada di bawah Rp7 jt",
+  },
+  {
+    id: "ram-upgrade",
+    label: "RAM bisa di-upgrade",
+    description: "Bisa ditambah nanti saat kebutuhan naik",
+    limitingReason: "Banyak laptop tipis memakai RAM yang disolder dan tidak bisa ditambah",
+  },
 ];
 
 export const budgetPresets: BudgetPreset[] = [

@@ -67,7 +67,22 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Wizard `/rekomendasi/budget|jurusan|aktivitas|software|prioritas` + store.
 - [x] Profil Kebutuhan `/rekomendasi/profil` (PRD §16).
 - [x] Layar Analisis `/rekomendasi/analisis` (PRD §14, §25).
-- [ ] Berikutnya: Hasil `/rekomendasi/hasil` + Compare Tray (tunggu persetujuan rencana Fahren).
+- [x] Hasil `/rekomendasi/hasil` + Compare Tray (PRD §17).
+- [ ] Berikutnya: Detail `/laptop/[slug]` (tunggu persetujuan rencana Fahren).
+
+Hasil (PRD §17, §26, §27), keputusan Fahren:
+- Data dari `store/results.ts` bila `profileKey` cocok; selain itu `getRecommendations()` + skeleton.
+- Switch persona hanya mengganti tampilan (jawaban di store tidak berubah).
+- Bar filter (merek, ukuran layar, urutan) di atas alternatif; Best Match selalu tampil.
+- Simpan: `store/saved.ts` (localStorage, §20) dengan umpan balik inline/aria-live, tanpa toast.
+- Compare Tray: `store/compare.ts` (sessionStorage, maks 3, ringkasan laptop disimpan);
+  mobile bar bawah tertutup default, desktop kotak kanan bawah. "Bandingkan (N)" ke
+  `/bandingkan?ids=` aktif mulai 2 laptop. Efek "terbang" ke tray belum dibuat.
+- Modal "Bagaimana skor dihitung?" memakai `components/ui/dialog.tsx` (shadcn, disesuaikan:
+  tanpa blur, radius modal 16px, label Indonesia). Menampilkan contoh breakdown Best Match.
+- `?mock=empty`: saran dari `getNoResultSuggestions()` (filter keras + preset berikutnya);
+  Longgarkan/Naikkan budget mengubah store lalu menghapus `?mock`.
+- Saat menambah komponen shadcn, jawab "tidak" bila diminta menimpa `button.tsx` (kustom).
 
 Analisis (PRD §14, §25, §26):
 - 4 tahap (`AnalyzingSteps`) selesai di 0,7/1,3/1,9/2,5 detik; tahap terakhir menunggu

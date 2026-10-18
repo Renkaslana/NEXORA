@@ -103,6 +103,20 @@ export function getWizardOptions() {
   };
 }
 
+/**
+ * Saran saat tidak ada hasil (PRD §26): syarat yang paling membatasi (dari filter keras pengguna,
+ * dengan teks alasan mock) dan budget preset berikutnya. Bukan perhitungan; hanya lookup statis.
+ */
+export function getNoResultSuggestions(profile: UserProfile) {
+  const constraints = profile.hardFilters.map((id) => {
+    const filter = hardFilters.find((f) => f.id === id)!;
+    return { id, label: filter.label, reason: filter.limitingReason };
+  });
+  const index = budgetPresets.findIndex((p) => p.id === getBudgetPreset(profile.budget.max).id);
+  const next = budgetPresets[index + 1];
+  return { constraints, suggestedBudget: next && next.value > profile.budget.max ? next.value : null };
+}
+
 /** Penjelasan awam istilah teknis per komponen (PRD §28). Sinkron: konfigurasi statis. */
 export function getGlossary() {
   return glossary;

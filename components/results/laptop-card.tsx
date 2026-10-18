@@ -136,7 +136,7 @@ function LaptopCard({
   // ------------------------------------------------------------ Compact
   if (variant === "compact") {
     return (
-      <article className={cn(frame, "flex items-center gap-3 p-3")}>
+      <article className={cn(frame, "flex min-w-0 items-center gap-3 p-3")}>
         <PhotoPlaceholder label="Foto" className="w-24 shrink-0 rounded-control" iconClassName="size-6" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {shownCategory && (

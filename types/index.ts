@@ -102,6 +102,8 @@ export interface HardFilter {
   id: HardFilterId;
   label: string;
   description: string;
+  /** Kenapa syarat ini sering membuat hasil kosong (PRD §26 no-result). Teks mock. */
+  limitingReason: string;
 }
 
 export interface BudgetPreset {
