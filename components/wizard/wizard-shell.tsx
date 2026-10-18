@@ -61,6 +61,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
   const reduceMotion = useReducedMotion()
   const profile = useProfileStore((s) => s.profile)
   const markAnswered = useProfileStore((s) => s.markAnswered)
+  const answered = useProfileStore((s) => s.answered)
   const headingRef = React.useRef<HTMLHeadingElement>(null)
   const [attempted, setAttempted] = React.useState<string | null>(null)
 
@@ -74,6 +75,14 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
   const prev = wizardSteps[index - 1]
   const next = wizardSteps[index + 1]
   const nextHref = next ? stepHref(next.id) : PROFILE_HREF
+
+  // Judul tab per langkah (metadata statis halaman tidak tahu langkahnya).
+  React.useEffect(() => {
+    const title = `${step.label} · Rekomendasi · NEXORA`
+    document.title = title
+    const t = window.setTimeout(() => (document.title = title), 50)
+    return () => window.clearTimeout(t)
+  }, [step.label])
 
   // Fokus ke pertanyaan saat langkah berganti (PRD §28: urutan fokus logis).
   React.useEffect(() => {
@@ -102,13 +111,13 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
       {prev ? (
         <Button asChild variant="secondary">
           <Link href={stepHref(prev.id)}>
-            <ArrowLeft aria-hidden="true" /> Kembali
+            <ArrowLeft aria-hidden="true" /> <span className="max-[400px]:sr-only">Kembali</span>
           </Link>
         </Button>
       ) : (
         <Button asChild variant="secondary">
           <Link href="/">
-            <ArrowLeft aria-hidden="true" /> Beranda
+            <ArrowLeft aria-hidden="true" /> <span className="max-[400px]:sr-only">Beranda</span>
           </Link>
         </Button>
       )}
@@ -124,7 +133,15 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
           aria-describedby={error ? "step-error" : undefined}
           className={cn((error || !hydrated) && "cursor-not-allowed opacity-50 hover:bg-primary")}
         >
-          {next ? "Lanjut" : "Lihat Profil Kebutuhan"} <ArrowRight aria-hidden="true" />
+          {next ? (
+            "Lanjut"
+          ) : (
+            <>
+              <span className="sm:hidden">Lihat Profil</span>
+              <span className="hidden sm:inline">Lihat Profil Kebutuhan</span>
+            </>
+          )}
+          <ArrowRight aria-hidden="true" />
         </Button>
       </div>
     </div>
@@ -152,6 +169,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
         <Stepper
           steps={wizardSteps}
           current={index}
+          done={hydrated ? wizardSteps.flatMap((s, i) => (answered.includes(s.id) ? [i] : [])) : []}
           onStepClick={(i) => router.push(stepHref(wizardSteps[i].id))}
           className="lg:max-w-[calc(66.666%-0.5rem)]"
         />
@@ -189,7 +207,10 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
                 )}
               </header>
 
-              {hydrated ? children : <StepSkeleton />}
+              {/* Isi langkah selalu dirender (validasi instant navigation Next 16), tapi
+                  disembunyikan sampai isian sessionStorage terbaca agar tidak berkedip. */}
+              {!hydrated && <StepSkeleton />}
+              <div hidden={!hydrated}>{children}</div>
             </motion.div>
 
             <div className="hidden lg:block">{nav}</div>

@@ -13,8 +13,10 @@ interface StepperStep {
 
 interface StepperProps {
   steps: StepperStep[]
-  /** Indeks langkah aktif (0-based). Langkah sebelum ini dianggap selesai. */
+  /** Indeks langkah aktif (0-based). */
   current: number
+  /** Indeks langkah yang sudah selesai. Default: semua langkah sebelum `current`. */
+  done?: number[]
   onStepClick?: (index: number) => void
   /** auto = bar di < md, titik di ≥ md. */
   variant?: "auto" | "dots" | "bar"
@@ -51,11 +53,12 @@ function StepperBar({ steps, current }: Pick<StepperProps, "steps" | "current">)
   )
 }
 
-function StepperDots({ steps, current, onStepClick }: Omit<StepperProps, "variant" | "className">) {
+function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "variant" | "className">) {
+  const isDone = (i: number) => (done ? done.includes(i) : i < current)
   return (
     <ol className="flex items-start">
       {steps.map((step, index) => {
-        const state = index < current ? "done" : index === current ? "current" : "upcoming"
+        const state = index === current ? "current" : isDone(index) ? "done" : "upcoming"
         const clickable = state === "done" && onStepClick
         const content = (
           <>
@@ -104,7 +107,7 @@ function StepperDots({ steps, current, onStepClick }: Omit<StepperProps, "varian
               <span aria-hidden="true" className="mx-1 mt-4 h-0.5 flex-1 overflow-hidden rounded-full bg-border">
                 <span
                   className="block h-full bg-primary transition-[width] duration-300 ease-out"
-                  style={{ width: index < current ? "100%" : "0%" }}
+                  style={{ width: isDone(index) ? "100%" : "0%" }}
                 />
               </span>
             )}
@@ -115,7 +118,7 @@ function StepperDots({ steps, current, onStepClick }: Omit<StepperProps, "varian
   )
 }
 
-function Stepper({ steps, current, onStepClick, variant = "auto", className }: StepperProps) {
+function Stepper({ steps, current, done, onStepClick, variant = "auto", className }: StepperProps) {
   return (
     <nav aria-label="Langkah rekomendasi" className={className}>
       {variant !== "dots" && (
@@ -125,7 +128,7 @@ function Stepper({ steps, current, onStepClick, variant = "auto", className }: S
       )}
       {variant !== "bar" && (
         <div className={cn(variant === "auto" && "hidden md:block")}>
-          <StepperDots steps={steps} current={current} onStepClick={onStepClick} />
+          <StepperDots steps={steps} current={current} done={done} onStepClick={onStepClick} />
         </div>
       )}
     </nav>

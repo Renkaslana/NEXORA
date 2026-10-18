@@ -64,7 +64,19 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Tahap 2 — tiga varian landing di `/dev/landing-a|b|c`
 - [x] Landing final di `/`: varian A (Hybrid) + preview langsung dari C, dipilih Fahren.
   Varian `/dev/landing-*` disimpan sebagai arsip; indeks dev di `/dev`.
-- [ ] Berikutnya: Wizard `/rekomendasi/*` (tunggu persetujuan rencana Fahren).
+- [x] Wizard `/rekomendasi/budget|jurusan|aktivitas|software|prioritas` + store.
+- [ ] Berikutnya: Profil Kebutuhan `/rekomendasi/profil` (tunggu persetujuan rencana Fahren).
+
+Wizard (PRD §15):
+- Route group `app/rekomendasi/(wizard)/` dengan `WizardShell` di layout (tetap terpasang antar
+  langkah). `params` di-await di dalam `<Suspense>` dan metadata statis, mengikuti validasi
+  instant navigation Next 16. Profil/Analisis/Hasil nanti di luar group ini.
+- Store `skipHydration` + `rehydrateProfile()`; isi langkah dirender tapi `hidden` sampai terhidrasi.
+- `answered[]` menentukan status "selesai" di stepper; `?budget=`/`?jurusan=` hanya mengisi
+  langkah yang belum dijawab.
+- Prioritas: mode "rank" (tombol naik/turun, maks 3, `weight: null` — bobot urusan backend) atau
+  "weights" ("Atur bobot detail", 9 slider, mulai rata, rebalance proporsional di `lib/weights.ts`).
+- Saran software hanya berdasarkan jurusan (`suggestedFor`); data software belum punya pemetaan aktivitas.
 
 Landing final: chip preset mengubah kartu Profil Kebutuhan (persona Informatika); badge skor
 94% hanya di tier Rp8–10 jt (satu-satunya tier dengan skenario hasil), tier lain menampilkan
