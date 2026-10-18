@@ -10,6 +10,8 @@ import { ProfileChips } from "@/components/profile/profile-chips";
 import { SpecRequirementCard } from "@/components/profile/spec-requirement-card";
 import { WarningPanel } from "@/components/profile/warning-panel";
 import { AnalyzingSteps } from "@/components/results/analyzing-steps";
+import { RequirementCheck, RequirementCheckHeader } from "@/components/results/requirement-check";
+import { ScoreBreakdown } from "@/components/results/score-breakdown";
 import { LaptopCard } from "@/components/results/laptop-card";
 import { ScoreRing } from "@/components/results/score-ring";
 import { BudgetSlider } from "@/components/wizard/budget-slider";
@@ -26,6 +28,7 @@ import {
   getWizardOptions,
 } from "@/lib/api";
 import { formatDecimal } from "@/lib/format";
+import { checkSpecs } from "@/lib/spec-check";
 import { useApi } from "@/lib/use-api";
 import type { ActivityId } from "@/types";
 
@@ -42,6 +45,8 @@ const wizardSteps = [
 const loadRaka = () => getRecommendations(getSampleProfile("teknik"));
 const tightProfile = { ...getSampleProfile("teknik"), budget: { min: 0, max: 5_000_000, flexible: false } };
 const loadTight = () => getRequirements(tightProfile);
+const loadDetailDemo = () =>
+  Promise.all([getRecommendations(getSampleProfile("teknik")), getRequirements(getSampleProfile("teknik"))]);
 
 function Section({ id, title, prd, children }: { id: string; title: string; prd: string; children: React.ReactNode }) {
   return (
@@ -392,6 +397,33 @@ function AnalysisStepsDemo() {
   );
 }
 
+function DetailParts() {
+  const state = useApi(loadDetailDemo);
+  if (state.status !== "success") {
+    return <Skeleton className="h-64 rounded-card bg-surface" aria-label="Memuat contoh detail" />;
+  }
+  const [set, req] = state.data;
+  const best = set.items[0];
+  const weak = set.items[set.items.length - 1];
+  return (
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-3">
+        <Label>Score Breakdown · bar berbobot ({best.laptop.brand} {best.laptop.model})</Label>
+        <ScoreBreakdown result={best.result} className="max-w-3xl" />
+      </div>
+      <div className="flex flex-col gap-3">
+        <Label>Requirement vs laptop · semua memenuhi ({best.laptop.model})</Label>
+        <RequirementCheckHeader />
+        <RequirementCheck specs={req.specs} results={checkSpecs(req, best.laptop)} />
+      </div>
+      <div className="flex flex-col gap-3">
+        <Label>Requirement vs laptop · ada yang kurang ({weak.laptop.model})</Label>
+        <RequirementCheck specs={req.specs} results={checkSpecs(req, weak.laptop)} />
+      </div>
+    </div>
+  );
+}
+
 function LaptopCards() {
   const state = useApi(loadRaka);
   const [compared, setCompared] = React.useState<string[]>(["lp-003"]);
@@ -492,6 +524,9 @@ export function Showcase() {
       </Section>
       <Section id="analyzing" title="Analyzing Steps" prd="PRD §23, §25 · 4 tahap · Pending, Active, Done">
         <AnalysisStepsDemo />
+      </Section>
+      <Section id="detail" title="Score Breakdown & Requirement Check" prd="PRD §19, §23, §27 · bar berbobot, ✓ Memenuhi / ✕ Kurang">
+        <DetailParts />
       </Section>
       <Section id="laptop-card" title="Laptop Card" prd="PRD §17, §23, §25 · Best Match, Default, Compact">
         <LaptopCards />

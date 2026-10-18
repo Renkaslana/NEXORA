@@ -16,7 +16,13 @@ export function compareHref(ids: string[]) {
   return `/bandingkan?ids=${ids.join(",")}`
 }
 
-export function CompareTray({ notice }: { notice?: string | null }) {
+interface CompareTrayProps {
+  notice?: string | null
+  /** Mobile: tray naik di atas bar CTA halaman (Detail). */
+  raised?: boolean
+}
+
+export function CompareTray({ notice, raised = false }: CompareTrayProps) {
   const hydrated = useCompareHydrated()
   const items = useCompareStore((s) => s.items)
   const remove = useCompareStore((s) => s.remove)
@@ -43,7 +49,8 @@ export function CompareTray({ notice }: { notice?: string | null }) {
     <aside
       aria-label="Daftar komparasi"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-bg shadow-lg",
+        "fixed inset-x-0 z-40 border-t border-border bg-bg shadow-lg",
+        raised ? "bottom-[81px]" : "bottom-0",
         "md:inset-x-auto md:right-6 md:bottom-6 md:w-[23rem] md:rounded-card md:border"
       )}
     >

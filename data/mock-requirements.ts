@@ -1,4 +1,4 @@
-import type { RequirementProfile, RequirementWarning, SpecRequirement } from "@/types";
+import type { RequirementProfile, RequirementWarning, SpecCheck, SpecComponent, SpecRequirement } from "@/types";
 
 // Profil Kebutuhan mock (PRD §16). Statis per persona; persona teknik punya varian
 // per tier budget (dipakai preview landing C). Bukan hasil perhitungan.
@@ -116,7 +116,7 @@ const desainLowBudget = (["lt-6", "6-8", "8-10"] as const).map(
   })
 );
 
-export const requirementProfiles: RequirementProfile[] = [
+const rawProfiles: RequirementProfile[] = [
   // ---------------------------------------------------------------- Teknik per tier budget
   {
     id: "req-teknik-lt-6",
@@ -331,3 +331,65 @@ export const requirementProfiles: RequirementProfile[] = [
     isMock: true,
   },
 ];
+
+// ---------------------------------------------------------------- Ambang daftar periksa (PRD §19)
+// Disetujui Fahren: angka batas terstruktur per profil. Frontend hanya membandingkan
+// nilai spek laptop dengan angka ini (lib/spec-check.ts); bukan SAW, bukan pemeringkatan.
+// cpuBench memakai skala `cpu.benchScore` di data/laptops.ts (0–100).
+
+type Checks = Partial<Record<SpecComponent, SpecCheck>>;
+
+const teknikChecks: Checks = {
+  cpu: { metric: "cpuBench", min: 70 },
+  ram: { metric: "ramGb", min: 16 },
+  storage: { metric: "storageGb", min: 512 },
+  layar: { metric: "screenInch", min: 14 },
+  baterai: { metric: "batteryWh", min: 50 },
+};
+const desainChecks: Checks = {
+  cpu: { metric: "cpuBench", min: 75 },
+  ram: { metric: "ramGb", min: 16 },
+  storage: { metric: "storageGb", min: 512 },
+  gpu: { metric: "gpuDedicated", min: 1 },
+  layar: { metric: "srgbPercent", min: 100 },
+  baterai: { metric: "batteryWh", min: 60 },
+};
+
+const specChecks: Record<string, Checks> = {
+  "req-teknik-lt-6": {
+    ...teknikChecks,
+    cpu: { metric: "cpuBench", min: 55 },
+    ram: { metric: "ramMaxGb", min: 16 },
+  },
+  "req-teknik-6-8": teknikChecks,
+  "req-teknik-8-10": teknikChecks,
+  "req-teknik-10-15": { ...teknikChecks, cpu: { metric: "cpuBench", min: 85 } },
+  "req-teknik-15-plus": {
+    ...teknikChecks,
+    cpu: { metric: "cpuBench", min: 88 },
+    storage: { metric: "storageGb", min: 1024 },
+  },
+  "req-desain": desainChecks,
+  "req-desain-lt-6": desainChecks,
+  "req-desain-6-8": desainChecks,
+  "req-desain-8-10": desainChecks,
+  "req-umum": {
+    cpu: { metric: "cpuBench", min: 45 },
+    ram: { metric: "ramGb", min: 8 },
+    storage: { metric: "storageGb", min: 256 },
+    layar: { metric: "screenInch", min: 14 },
+    baterai: { metric: "batteryWh", min: 50 },
+  },
+  "req-profesional": {
+    cpu: { metric: "cpuBench", min: 60 },
+    ram: { metric: "ramGb", min: 16 },
+    storage: { metric: "storageGb", min: 512 },
+    layar: { metric: "screenInch", min: 14 },
+    baterai: { metric: "batteryWh", min: 60 },
+  },
+};
+
+export const requirementProfiles: RequirementProfile[] = rawProfiles.map((p) => ({
+  ...p,
+  checks: specChecks[p.id],
+}));

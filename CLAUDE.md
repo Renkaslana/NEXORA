@@ -68,7 +68,19 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Profil Kebutuhan `/rekomendasi/profil` (PRD §16).
 - [x] Layar Analisis `/rekomendasi/analisis` (PRD §14, §25).
 - [x] Hasil `/rekomendasi/hasil` + Compare Tray (PRD §17).
-- [ ] Berikutnya: Detail `/laptop/[slug]` (tunggu persetujuan rencana Fahren).
+- [x] Detail `/laptop/[slug]` + Score Breakdown (PRD §19, §27).
+- [ ] Berikutnya: Komparasi `/bandingkan?ids=` (tunggu persetujuan rencana Fahren).
+
+Detail (PRD §19, §27, §14), keputusan Fahren:
+- `generateStaticParams` dari `getLaptopSlugs()`; slug tak dikenal → `not-found.tsx` (copy §26).
+- Daftar periksa ✓/✕ memakai ambang terstruktur di mock (`checks` pada RequirementProfile,
+  `specChecks` di data/mock-requirements.ts) dan `lib/spec-check.ts` yang hanya membandingkan
+  nilai ≥ min. Komponen tanpa ambang = "Tidak dicek".
+- Bagian 5–8 (Spesifikasi kunci, Kelebihan & kekurangan, Cocok untuk, Spesifikasi lengkap) =
+  tabs di ≥ md, accordion di mobile (`components/ui/tabs.tsx`, `accordion.tsx`, shadcn disesuaikan).
+- Laptop di luar hasil profil: tanpa skor/breakdown, daftar periksa tetap tampil. Profil kosong:
+  ajakan isi Wizard.
+- Mobile: bar CTA (Bandingkan, Simpan) menempel di bawah; `CompareTray raised` menumpuk di atasnya.
 
 Hasil (PRD §17, §26, §27), keputusan Fahren:
 - Data dari `store/results.ts` bila `profileKey` cocok; selain itu `getRecommendations()` + skeleton.

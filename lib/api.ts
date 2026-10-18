@@ -180,6 +180,11 @@ export async function getRecommendations(profile: UserProfile, options?: ApiOpti
   );
 }
 
+/** Semua slug laptop untuk generateStaticParams & validasi rute (sinkron: daftar statis). */
+export function getLaptopSlugs(): string[] {
+  return laptops.map((l) => l.slug);
+}
+
 /** Mengembalikan `null` bila tidak ditemukan (PRD §26: state 404 di Detail). */
 export async function getLaptop(slug: string, options?: ApiOptions): Promise<Laptop | null> {
   return respond(laptops.find((l) => l.slug === slug) ?? null, options);

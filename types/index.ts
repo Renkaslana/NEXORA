@@ -173,6 +173,23 @@ export interface RequirementWarning {
   compromiseNote: string;
 }
 
+/** Angka spek laptop yang bisa dibandingkan dengan ambang minimum (PRD §19 daftar periksa). */
+export type SpecMetric =
+  | "cpuBench"
+  | "ramGb"
+  | "ramMaxGb"
+  | "storageGb"
+  | "gpuDedicated"
+  | "srgbPercent"
+  | "screenInch"
+  | "batteryWh";
+
+/** Ambang terstruktur (disetujui Fahren): laptop memenuhi bila nilai metrik ≥ `min`. */
+export interface SpecCheck {
+  metric: SpecMetric;
+  min: number;
+}
+
 export interface RequirementProfile {
   id: string;
   persona: PersonaId;
@@ -181,6 +198,8 @@ export interface RequirementProfile {
   summary: string;
   specs: SpecRequirement[];
   warnings: RequirementWarning[];
+  /** Ambang per komponen untuk daftar periksa ✓/✕. Tanpa ambang = tidak diperiksa. */
+  checks?: Partial<Record<SpecComponent, SpecCheck>>;
   isMock: true;
 }
 
