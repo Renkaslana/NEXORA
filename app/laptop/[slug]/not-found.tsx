@@ -14,9 +14,7 @@ export default function LaptopNotFound() {
           <Button asChild>
             <Link href="/rekomendasi/hasil">Kembali ke hasil</Link>
           </Button>
-          <Button asChild variant="secondary">
-            <Link href="/jelajah">Jelajahi laptop</Link>
-          </Button>
+          {/* "Jelajahi laptop" (/jelajah) ditambahkan saat halamannya dibuat (PRD §26). */}
         </StateMessage>
       </main>
     </div>

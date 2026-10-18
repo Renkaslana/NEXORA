@@ -9,10 +9,9 @@ import { Button } from "@/components/ui/button"
 // PRD §13, §23, §24 Navbar: logo kiri, "Cara Kerja" + "Jelajahi Laptop", CTA kanan.
 // Mobile: logo + hamburger + CTA ikon. Sticky, latar putih.
 
-const links = [
-  { href: "#cara-kerja", label: "Cara Kerja" },
-  { href: "/jelajah", label: "Jelajahi Laptop" },
-]
+// "Jelajahi Laptop" (/jelajah, PRD §8 Should have) disembunyikan sampai halamannya dibuat
+// agar demo tidak menemui 404. Tambahkan kembali: { href: "/jelajah", label: "Jelajahi Laptop" }.
+const links = [{ href: "#cara-kerja", label: "Cara Kerja" }]
 
 export function Wordmark({ className }: { className?: string }) {
   return (

@@ -346,9 +346,7 @@ function DetailLoader({ slug, mock, onRetry, announce }: { slug: string; mock: M
         <Button asChild>
           <Link href={RESULTS_HREF}>Kembali ke hasil</Link>
         </Button>
-        <Button asChild variant="secondary">
-          <Link href="/jelajah">Jelajahi laptop</Link>
-        </Button>
+        {/* "Jelajahi laptop" (/jelajah) ditambahkan saat halamannya dibuat (PRD §26). */}
       </StateMessage>
     )
   }

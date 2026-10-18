@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NEXORA — Laptop Decision Assistant
 
-## Getting Started
+Sistem pendukung keputusan (SPK) pemilihan laptop untuk mahasiswa Indonesia. Pengguna menjawab
+5 pertanyaan (budget, jurusan, aktivitas, software, prioritas), melihat **Profil Kebutuhan**
+(spek minimum + alasannya), lalu rekomendasi laptop dengan skor kecocokan, alasan, trade-off,
+dan komparasi.
 
-First, run the development server:
+Proyek RPL Kelompok 7A. Repo ini berisi **frontend saja** dengan **data contoh (mock)**.
+Backend, API, database, dan perhitungan SAW dikerjakan terpisah; frontend tinggal disambungkan
+lewat `lib/api.ts`.
+
+> Spesifikasi lengkap: [`docs/PRD.md`](docs/PRD.md). Aturan kerja untuk kontributor dan AI
+> assistant: [`CLAUDE.md`](CLAUDE.md).
+
+## Menjalankan
+
+Butuh Node.js 20 atau lebih baru.
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka <http://localhost:3000>. Perintah lain:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Perintah | Fungsi |
+| --- | --- |
+| `npm run dev` | Server pengembangan |
+| `npm run build` | Build produksi (juga memeriksa TypeScript) |
+| `npm run start` | Menjalankan hasil build |
+| `npm run lint` | ESLint |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Halaman
 
-## Learn More
+| Rute | Isi | PRD |
+| --- | --- | --- |
+| `/` | Landing: preview Profil Kebutuhan per budget, cara kerja, persona, CTA | §12–13 |
+| `/rekomendasi/budget` … `/prioritas` | Wizard 5 langkah, jawaban tersimpan di `sessionStorage` | §15 |
+| `/rekomendasi/profil` | Profil Kebutuhan: 6 spek minimum, peringatan budget, kompromi | §16 |
+| `/rekomendasi/analisis` | Layar proses 4 tahap, lalu otomatis ke Hasil | §14, §25 |
+| `/rekomendasi/hasil` | Best Match, alternatif berkategori, filter, switch persona, Compare Tray | §17 |
+| `/laptop/[slug]` | Detail: daftar periksa spek, alasan, score breakdown, spesifikasi | §19, §27 |
+| `/bandingkan?ids=a,b,c` | Komparasi 2–3 laptop dengan kolom "Kebutuhanmu" | §18 |
+| `/dev`, `/dev/components` | Halaman QA: semua komponen, cek konsistensi skor mock, arsip varian landing | — |
 
-To learn more about Next.js, take a look at the following resources:
+### Tips demo
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Tambahkan `?mock=error` atau `?mock=empty` di Profil, Analisis, Hasil, Detail, atau Komparasi
+  untuk melihat state error dan "tidak ada hasil" (PRD §26).
+- Di halaman Hasil, gunakan **"Lihat contoh persona"** untuk menukar hasil ke persona lain
+  (Raka, Salsa, Dinda, Bima) tanpa mengubah jawaban.
+- Dari landing, chip budget dan tombol "Mulai seperti …" mengisi Wizard lewat `?budget=` dan
+  `?jurusan=`.
+- `/dev/components` menampilkan verifikasi bahwa setiap skor mock = round(Σ bobot × skor / 100).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Teknologi
 
-## Deploy on Vercel
+Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS v4 · shadcn/ui (Radix) ·
+lucide-react · Zustand · Motion (Framer Motion). Font: Plus Jakarta Sans + JetBrains Mono.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Struktur
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+app/                 Rute (App Router)
+components/
+  ui/                shadcn/ui yang disesuaikan ke token PRD (button, dialog, tabs, ...)
+  landing/ wizard/ profile/ results/ laptop/ compare/ layout/
+data/                Mock: 12 laptop, opsi wizard, profil kebutuhan, 4 skenario hasil, glosarium
+lib/                 api.ts (satu-satunya akses ke data), format, spec-check, compare-rows, ...
+store/               Zustand: profil (sessionStorage), komparasi, simpanan (localStorage), hasil
+types/               Tipe domain sesuai PRD §29
+docs/PRD.md          Spesifikasi produk dan desain
+```
+
+## Menyambungkan ke backend
+
+Komponen tidak pernah membaca `data/` secara langsung. Ganti isi fungsi async di
+[`lib/api.ts`](lib/api.ts) (`getRequirements`, `getRecommendations`, `getLaptop`, `getLaptops`)
+dengan `fetch` ke REST API, dengan bentuk data yang sama seperti `types/index.ts`.
+
+## Catatan
+
+- Semua harga, spek, dan skor adalah **data contoh**, bukan data aktual. Foto laptop masih placeholder.
+- Halaman Should have (`/jelajah`, `/saya`) dan Nice to have (`/admin`, dark mode) belum dibuat.

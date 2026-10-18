@@ -69,7 +69,16 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Layar Analisis `/rekomendasi/analisis` (PRD §14, §25).
 - [x] Hasil `/rekomendasi/hasil` + Compare Tray (PRD §17).
 - [x] Detail `/laptop/[slug]` + Score Breakdown (PRD §19, §27).
-- [ ] Berikutnya: Komparasi `/bandingkan?ids=` (tunggu persetujuan rencana Fahren).
+- [x] Komparasi `/bandingkan?ids=` (PRD §18). **MVP §31 Must have selesai.**
+- [x] QA akhir: alur demo Landing → Wizard → Profil → Analisis → Hasil → Detail → Komparasi
+  lolos; anti-slop & akses data dicek; tautan `/jelajah` disembunyikan sampai halamannya ada.
+- [ ] Push ke GitHub (menunggu URL repo dari Fahren). Branch utama: `main`.
+- [ ] Should have: `/jelajah`, `/saya` (data simpanan & keputusan sudah ada di `store/saved.ts`).
+
+Komparasi (PRD §18): `lib/compare-rows.ts` menyusun baris (status ✓/✕ dari spec-check + budget,
+"Unggul" = nilai terbaik per baris lewat maks/min biasa, bukan SAW). Desktop tabel dengan header
+sticky; mobile mode kartu per kriteria. "Pilih laptop ini" disimpan sebagai `decision` di
+`store/saved.ts` (localStorage, versi 2).
 
 Detail (PRD §19, §27, §14), keputusan Fahren:
 - `generateStaticParams` dari `getLaptopSlugs()`; slug tak dikenal → `not-found.tsx` (copy §26).
