@@ -1,3 +1,4 @@
+import { glossary } from "@/data/glossary";
 import { laptops } from "@/data/laptops";
 import { requirementProfiles } from "@/data/mock-requirements";
 import { scenarios } from "@/data/mock-results";
@@ -100,6 +101,11 @@ export function getWizardOptions() {
     budgetRange,
     criterionLabels,
   };
+}
+
+/** Penjelasan awam istilah teknis per komponen (PRD §28). Sinkron: konfigurasi statis. */
+export function getGlossary() {
+  return glossary;
 }
 
 /**

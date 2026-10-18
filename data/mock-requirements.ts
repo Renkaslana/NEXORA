@@ -1,4 +1,4 @@
-import type { RequirementProfile, SpecRequirement } from "@/types";
+import type { RequirementProfile, RequirementWarning, SpecRequirement } from "@/types";
 
 // Profil Kebutuhan mock (PRD §16). Statis per persona; persona teknik punya varian
 // per tier budget (dipakai preview landing C). Bukan hasil perhitungan.
@@ -47,6 +47,75 @@ function withSpec(base: SpecRequirement[], changes: Partial<Record<SpecRequireme
   return base.map((spec) => ({ ...spec, ...changes[spec.component] }));
 }
 
+const desainBase: SpecRequirement[] = [
+      {
+        component: "cpu",
+        minimum: "Core i5 / Ryzen 5 seri H",
+        level: "wajib",
+        reason: "Export Premiere dan preview Photoshop memakai banyak core",
+      },
+      {
+        component: "ram",
+        minimum: "16 GB",
+        level: "wajib",
+        reason: "Photoshop dengan banyak layer dan Premiere 1080p butuh ruang",
+      },
+      {
+        component: "storage",
+        minimum: "SSD 512 GB, 1 TB disarankan",
+        level: "disarankan",
+        reason: "File video dan aset desain cepat membesar",
+      },
+      {
+        component: "gpu",
+        minimum: "RTX 4050 atau setara",
+        level: "wajib",
+        reason: "Blender dan render Premiere memakai GPU; integrated akan sangat lambat",
+      },
+      {
+        component: "layar",
+        minimum: "100% sRGB atau OLED",
+        level: "wajib",
+        reason: "Warna di layar harus sama dengan hasil cetak dan tampilan klien",
+      },
+      {
+        component: "baterai",
+        minimum: "60 Wh ke atas",
+        level: "opsional",
+        reason: "Render biasanya dilakukan sambil dicolok",
+      },
+    ];
+
+// Mock tambahan (disetujui Fahren): Desain dengan budget < Rp10 jt. Di katalog mock, GPU dedicated
+// termurah ada di kisaran Rp15 jt, jadi saran naik budget mengikuti itu.
+const desainBudgetWarning: RequirementWarning = {
+  id: "budget-gpu",
+  message: "Budget di bawah Rp10 juta agak ketat untuk GPU dedicated.",
+  detail: "Laptop dengan RTX 4050 jarang ada di kisaran ini. Layar akurat warna masih bisa didapat.",
+  actions: [
+    { label: "Naikkan budget ke Rp15 juta", kind: "raise-budget", targetBudget: 15_000_000 },
+    { label: "Tetap lanjut dengan kompromi", kind: "compromise" },
+  ],
+  compromiseNote: "GPU integrated; Figma dan Photoshop tetap lancar, render Blender dan Premiere jauh lebih lama.",
+};
+
+const desainLowBudget = (["lt-6", "6-8", "8-10"] as const).map(
+  (tier): RequirementProfile => ({
+    id: `req-desain-${tier}`,
+    persona: "desain",
+    budgetTier: tier,
+    summary: "Layar akurat masih terjangkau; GPU dedicated perlu kompromi di budget ini.",
+    specs: withSpec(desainBase, {
+      gpu: {
+        minimum: "RTX 4050 atau setara (jarang di budget ini)",
+        reason: "Tanpa GPU dedicated, Blender dan render Premiere akan sangat lambat",
+      },
+    }),
+    warnings: [desainBudgetWarning],
+    isMock: true,
+  })
+);
+
 export const requirementProfiles: RequirementProfile[] = [
   // ---------------------------------------------------------------- Teknik per tier budget
   {
@@ -71,12 +140,13 @@ export const requirementProfiles: RequirementProfile[] = [
     warnings: [
       {
         id: "budget-ketat",
-        message: "Budget Rp5 juta agak ketat untuk Docker + Android Studio.",
+        message: "Budget di bawah Rp6 juta agak ketat untuk Docker + Android Studio.",
         detail: "Laptop di kisaran ini umumnya RAM 8 GB. Masih bisa dipakai, asalkan RAM-nya bisa ditambah.",
         actions: [
-          { label: "Naikkan budget ke Rp7 juta", kind: "raise-budget" },
+          { label: "Naikkan budget ke Rp7 juta", kind: "raise-budget", targetBudget: 7_000_000 },
           { label: "Tetap lanjut dengan kompromi", kind: "compromise" },
         ],
+        compromiseNote: "RAM 8 GB yang bisa di-upgrade ke 16 GB nanti; compile Android akan lebih lambat.",
       },
     ],
     isMock: true,
@@ -161,48 +231,12 @@ export const requirementProfiles: RequirementProfile[] = [
   },
 
   // ---------------------------------------------------------------- Persona lain
+  ...desainLowBudget,
   {
     id: "req-desain",
     persona: "desain",
     summary: "Layar akurat warna dan GPU dedicated adalah dua hal yang tidak bisa ditawar.",
-    specs: [
-      {
-        component: "cpu",
-        minimum: "Core i5 / Ryzen 5 seri H",
-        level: "wajib",
-        reason: "Export Premiere dan preview Photoshop memakai banyak core",
-      },
-      {
-        component: "ram",
-        minimum: "16 GB",
-        level: "wajib",
-        reason: "Photoshop dengan banyak layer dan Premiere 1080p butuh ruang",
-      },
-      {
-        component: "storage",
-        minimum: "SSD 512 GB, 1 TB disarankan",
-        level: "disarankan",
-        reason: "File video dan aset desain cepat membesar",
-      },
-      {
-        component: "gpu",
-        minimum: "RTX 4050 atau setara",
-        level: "wajib",
-        reason: "Blender dan render Premiere memakai GPU; integrated akan sangat lambat",
-      },
-      {
-        component: "layar",
-        minimum: "100% sRGB atau OLED",
-        level: "wajib",
-        reason: "Warna di layar harus sama dengan hasil cetak dan tampilan klien",
-      },
-      {
-        component: "baterai",
-        minimum: "60 Wh ke atas",
-        level: "opsional",
-        reason: "Render biasanya dilakukan sambil dicolok",
-      },
-    ],
+    specs: desainBase,
     warnings: [],
     isMock: true,
   },

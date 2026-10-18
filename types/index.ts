@@ -161,7 +161,14 @@ export interface RequirementWarning {
   id: string;
   message: string;
   detail: string;
-  actions: { label: string; kind: "raise-budget" | "compromise" | "edit" }[];
+  actions: {
+    label: string;
+    kind: "raise-budget" | "compromise" | "edit";
+    /** Untuk "raise-budget": nilai budget baru. */
+    targetBudget?: number;
+  }[];
+  /** Catatan yang tampil setelah pengguna memilih kompromi (PRD §16). */
+  compromiseNote: string;
 }
 
 export interface RequirementProfile {

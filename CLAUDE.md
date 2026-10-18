@@ -65,7 +65,20 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Landing final di `/`: varian A (Hybrid) + preview langsung dari C, dipilih Fahren.
   Varian `/dev/landing-*` disimpan sebagai arsip; indeks dev di `/dev`.
 - [x] Wizard `/rekomendasi/budget|jurusan|aktivitas|software|prioritas` + store.
-- [ ] Berikutnya: Profil Kebutuhan `/rekomendasi/profil` (tunggu persetujuan rencana Fahren).
+- [x] Profil Kebutuhan `/rekomendasi/profil` (PRD §16).
+- [ ] Berikutnya: layar Analisis `/rekomendasi/analisis` (tunggu persetujuan rencana Fahren).
+
+Profil Kebutuhan (PRD §16, §26):
+- `ProfileView` di luar route group Wizard; header bersama `FlowHeader`. `?mock=error` didukung.
+- Konten di-remount dengan `key` budget+jurusan+percobaan, jadi "Naikkan budget" dan "Coba lagi"
+  memuat ulang lewat `getRequirements()`. CTA hanya tampil setelah profil berhasil dimuat.
+- Kompromi disimpan di store (`compromises[]`, persist versi 3); banner berubah jadi catatan
+  yang bisa dibatalkan. Fokus keyboard dipindah ke tombol pengganti / ringkasan baru.
+- Mock tambahan disetujui Fahren: Desain dengan budget < Rp10 jt mendapat peringatan GPU
+  (batas mengikuti tier preset; saran naik ke Rp15 jt sesuai katalog mock).
+- Penjelasan istilah (`data/glossary.ts`, `getGlossary()`) memakai `<details>` agar bisa dibuka
+  dengan keyboard dan sentuhan; PRD menyebutnya tooltip.
+- Alasan spek masih teks statis per persona (belum disesuaikan dengan software pilihan).
 
 Wizard (PRD §15):
 - Route group `app/rekomendasi/(wizard)/` dengan `WizardShell` di layout (tetap terpasang antar

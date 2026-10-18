@@ -6,7 +6,7 @@ import { useRouter, useSearchParams, useSelectedLayoutSegment } from "next/navig
 import { cn } from "cn"
 import { ArrowLeft, ArrowRight, CircleAlert } from "lucide-react"
 import { motion, useReducedMotion } from "motion/react"
-import { Wordmark } from "@/components/layout/navbar"
+import { FlowHeader } from "@/components/layout/flow-header"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ProfileSummary, ProfileSummaryMobile } from "@/components/wizard/profile-summary"
@@ -153,17 +153,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
         <UrlPrefill />
       </React.Suspense>
 
-      <header className="border-b border-border bg-bg">
-        <div className="page-container flex h-16 items-center justify-between gap-4">
-          <Wordmark />
-          <Link
-            href="/"
-            className="inline-flex min-h-11 items-center rounded-control px-3 type-small text-text-muted hover:bg-surface hover:text-text"
-          >
-            Keluar
-          </Link>
-        </div>
-      </header>
+      <FlowHeader />
 
       <div className="page-container flex flex-1 flex-col gap-6 pt-6 pb-28 md:pt-10 lg:pb-16">
         <Stepper

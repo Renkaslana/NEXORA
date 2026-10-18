@@ -46,6 +46,8 @@ interface ProfileState {
   ranked: CriterionId[];
   /** Bobot mode "weights"; null sampai mode ini pertama kali dibuka. */
   weightDraft: WeightMap | null;
+  /** ID peringatan Profil Kebutuhan yang diterima sebagai kompromi (PRD §16). */
+  compromises: string[];
 
   setBudget: (max: number) => void;
   setFlexible: (flexible: boolean) => void;
@@ -60,6 +62,7 @@ interface ProfileState {
   resetWeights: () => void;
   toggleHardFilter: (id: HardFilterId) => void;
   markAnswered: (step: WizardStepId) => void;
+  setCompromise: (warningId: string, accepted: boolean) => void;
   /** Isi dari URL (`?budget=`, `?jurusan=`) hanya untuk langkah yang belum dijawab. */
   applyPrefill: (prefill: { budget?: number; major?: string }) => void;
   reset: () => void;
@@ -82,7 +85,13 @@ function buildPriorities(
   return ranked.map((criterion, i) => ({ criterion, rank: i + 1, weight: null }));
 }
 
-const initial = { profile: emptyProfile, answered: [] as WizardStepId[], ranked: [] as CriterionId[], weightDraft: null };
+const initial = {
+  profile: emptyProfile,
+  answered: [] as WizardStepId[],
+  ranked: [] as CriterionId[],
+  weightDraft: null,
+  compromises: [] as string[],
+};
 
 export const useProfileStore = create<ProfileState>()(
   persist(
@@ -155,6 +164,15 @@ export const useProfileStore = create<ProfileState>()(
       markAnswered: (step) =>
         set(({ answered }) => ({ answered: answered.includes(step) ? answered : [...answered, step] })),
 
+      setCompromise: (warningId, accepted) =>
+        set(({ compromises }) => ({
+          compromises: accepted
+            ? compromises.includes(warningId)
+              ? compromises
+              : [...compromises, warningId]
+            : compromises.filter((id) => id !== warningId),
+        })),
+
       applyPrefill: ({ budget, major }) =>
         set((state) => {
           let { profile, answered } = state;
@@ -173,10 +191,18 @@ export const useProfileStore = create<ProfileState>()(
     }),
     {
       name: "nexora-profile",
-      version: 2,
+      version: 3,
+      // Versi lama hanya kurang field baru; isi yang ada dipertahankan.
+      migrate: (persisted) => ({ ...initial, ...(persisted as object) }) as ProfileState,
       storage: createJSONStorage(() => sessionStorage),
       skipHydration: true,
-      partialize: ({ profile, answered, ranked, weightDraft }) => ({ profile, answered, ranked, weightDraft }),
+      partialize: ({ profile, answered, ranked, weightDraft, compromises }) => ({
+        profile,
+        answered,
+        ranked,
+        weightDraft,
+        compromises,
+      }),
     }
   )
 );

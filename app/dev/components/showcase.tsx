@@ -6,6 +6,9 @@ import { ArrowLeft, ArrowRight, CircleCheck, CircleX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ProfileChips } from "@/components/profile/profile-chips";
+import { SpecRequirementCard } from "@/components/profile/spec-requirement-card";
+import { WarningPanel } from "@/components/profile/warning-panel";
 import { LaptopCard } from "@/components/results/laptop-card";
 import { ScoreRing } from "@/components/results/score-ring";
 import { BudgetSlider } from "@/components/wizard/budget-slider";
@@ -14,6 +17,8 @@ import { SelectCard } from "@/components/wizard/select-card";
 import { Stepper } from "@/components/wizard/stepper";
 import {
   getBudgetInsight,
+  getGlossary,
+  getRequirements,
   getMockIntegrityReport,
   getRecommendations,
   getSampleProfile,
@@ -34,6 +39,8 @@ const wizardSteps = [
   { id: "prioritas", label: "Prioritas" },
 ];
 const loadRaka = () => getRecommendations(getSampleProfile("teknik"));
+const tightProfile = { ...getSampleProfile("teknik"), budget: { min: 0, max: 5_000_000, flexible: false } };
+const loadTight = () => getRequirements(tightProfile);
 
 function Section({ id, title, prd, children }: { id: string; title: string; prd: string; children: React.ReactNode }) {
   return (
@@ -327,6 +334,39 @@ function ScoreRings() {
 
 // ---------------------------------------------------------------- Laptop cards
 
+function ProfileParts() {
+  const state = useApi(loadTight);
+  const [accepted, setAccepted] = React.useState(false);
+  const glossary = getGlossary();
+  if (state.status !== "success") {
+    return <Skeleton className="h-64 rounded-card bg-surface" aria-label="Memuat contoh profil" />;
+  }
+  const req = state.data;
+  const byLevel = (["wajib", "disarankan", "opsional"] as const).map((l) => req.specs.find((s) => s.level === l)!);
+  return (
+    <div className="flex flex-col gap-10">
+      <div className="flex flex-col gap-3">
+        <Label>Profile chips (klik untuk mengubah langkah)</Label>
+        <ProfileChips profile={tightProfile} />
+      </div>
+      <div className="flex flex-col gap-3">
+        <Label>Spec Requirement Card · Wajib, Disarankan, Opsional</Label>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {byLevel.map((spec) => (
+            <SpecRequirementCard key={spec.component} spec={spec} glossary={glossary[spec.component]} />
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-col gap-3">
+        <Label>Warning panel · default dan setelah kompromi</Label>
+        <WarningPanel warning={req.warnings[0]} accepted={false} onRaiseBudget={() => {}} onCompromise={() => setAccepted(true)} />
+        <WarningPanel warning={req.warnings[0]} accepted onRaiseBudget={() => {}} onCompromise={() => {}} />
+        {accepted && <p className="type-small text-text-muted">Tombol kompromi ditekan (demo).</p>}
+      </div>
+    </div>
+  );
+}
+
 function LaptopCards() {
   const state = useApi(loadRaka);
   const [compared, setCompared] = React.useState<string[]>(["lp-003"]);
@@ -421,6 +461,9 @@ export function Showcase() {
       </Section>
       <Section id="score-ring" title="Score Ring" prd="PRD §23, §25, §27 · Excellent, Good, Fair · S/M/L">
         <ScoreRings />
+      </Section>
+      <Section id="profile" title="Profil Kebutuhan" prd="PRD §16, §23, §26 · Spec Requirement Card, chip profil, banner budget">
+        <ProfileParts />
       </Section>
       <Section id="laptop-card" title="Laptop Card" prd="PRD §17, §23, §25 · Best Match, Default, Compact">
         <LaptopCards />
