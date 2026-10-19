@@ -147,6 +147,7 @@ const rawProfiles: RequirementProfile[] = [
           { label: "Tetap lanjut dengan kompromi", kind: "compromise" },
         ],
         compromiseNote: "RAM 8 GB yang bisa di-upgrade ke 16 GB nanti; compile Android akan lebih lambat.",
+        meter: { metric: "ramGb", need: 16, affordable: 8 },
       },
     ],
     isMock: true,
@@ -389,7 +390,26 @@ const specChecks: Record<string, Checks> = {
   },
 };
 
+// Karakter laptop yang dicari per profil (disetujui Fahren, R3): 1 rendah, 2 sedang, 3 tinggi.
+// Statis per profil, bukan hitungan dari jawaban.
+type Character = NonNullable<RequirementProfile["character"]>;
+const desainCharacter: Character = { performa: 3, mobilitas: 1 };
+const characters: Record<string, Character> = {
+  "req-teknik-lt-6": { performa: 2, mobilitas: 2 },
+  "req-teknik-6-8": { performa: 2, mobilitas: 2 },
+  "req-teknik-8-10": { performa: 3, mobilitas: 2 },
+  "req-teknik-10-15": { performa: 3, mobilitas: 2 },
+  "req-teknik-15-plus": { performa: 3, mobilitas: 1 },
+  "req-desain": desainCharacter,
+  "req-desain-lt-6": desainCharacter,
+  "req-desain-6-8": desainCharacter,
+  "req-desain-8-10": desainCharacter,
+  "req-umum": { performa: 1, mobilitas: 3 },
+  "req-profesional": { performa: 2, mobilitas: 3 },
+};
+
 export const requirementProfiles: RequirementProfile[] = rawProfiles.map((p) => ({
   ...p,
   checks: specChecks[p.id],
+  character: characters[p.id],
 }));

@@ -3,6 +3,8 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Slider } from "@/components/ui/slider"
+import { animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react"
+import { FeedbackLine } from "@/components/wizard/feedback-line"
 import { formatRupiah, formatRupiahShort, rupiahToWords } from "@/lib/format"
 import type { BudgetPreset } from "@/types"
 
@@ -52,6 +54,15 @@ function BudgetSlider({
   const activePreset = presets?.find((p) => value >= p.min && value < p.max) ?? presets?.at(-1)
   const isMax = value >= range.max
 
+  // REDESIGN §17: angka besar mengejar nilai slider (tween 250 ms, tanpa jeda), dibulatkan ke `step`.
+  const reduce = useReducedMotion()
+  const shown = useMotionValue(value)
+  const shownText = useTransform(shown, (v) => formatRupiah(Math.round(v / range.step) * range.step))
+  React.useEffect(() => {
+    const controls = animate(shown, value, { duration: reduce ? 0 : 0.25, ease: [0.23, 1, 0.32, 1] })
+    return () => controls.stop()
+  }, [value, reduce, shown])
+
   return (
     <div className={cn("flex min-w-0 flex-col gap-5", className)}>
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -63,11 +74,11 @@ function BudgetSlider({
             htmlFor={`${id}-input`}
             aria-hidden="true"
             className={cn(
-              "num type-h2 font-semibold text-text transition-colors duration-150",
+              "num text-4xl leading-none tracking-tight text-text transition-colors duration-150 md:text-5xl",
               dragging && "text-primary"
             )}
           >
-            {formatRupiah(value)}
+            <motion.span>{shownText}</motion.span>
             {isMax && "+"}
           </output>
         </div>
@@ -133,10 +144,10 @@ function BudgetSlider({
                   aria-pressed={selected}
                   onClick={() => onValueChange(p.value)}
                   className={cn(
-                    "h-11 shrink-0 rounded-full border px-4 type-small transition-colors duration-150",
+                    "num h-11 shrink-0 rounded-full border px-4 type-small transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] active:scale-[0.97]",
                     selected
-                      ? "border-primary bg-primary-soft text-primary"
-                      : "border-border bg-bg text-text hover:border-border-strong hover:bg-surface"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-bg text-text hover:border-border-strong hover:bg-paper-100"
                   )}
                 >
                   {p.label}
@@ -160,13 +171,13 @@ function BudgetSlider({
       )}
 
       {feedback && (
-        <div className="flex flex-col gap-1 rounded-card bg-surface p-4" aria-live="polite">
+        <FeedbackLine contentKey={feedback.typicalSpec}>
           <p className="type-small font-normal text-text-muted">Di kisaran ini biasanya kamu dapat:</p>
           <p className="type-body font-semibold text-text">{feedback.typicalSpec}</p>
           <p className="type-small text-text-muted">
             ± <span className="num text-text">{feedback.laptopCount}</span> laptop di katalog
           </p>
-        </div>
+        </FeedbackLine>
       )}
     </div>
   )

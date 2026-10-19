@@ -15,13 +15,13 @@ const options = getWizardOptions()
 const labelOf = <T extends { id: string; label: string }>(list: T[], id: string) =>
   list.find((x) => x.id === id)?.label ?? id
 
-interface Row {
+export interface Row {
   step: WizardStepId
   label: string
   value: string | null
 }
 
-function useRows(current: WizardStepId): Row[] {
+export function useRows(current: WizardStepId): Row[] {
   const profile = useProfileStore((s) => s.profile)
   const answered = useProfileStore((s) => s.answered)
   const shown = (step: WizardStepId) => answered.includes(step) || step === current
@@ -78,7 +78,7 @@ function useRows(current: WizardStepId): Row[] {
   ]
 }
 
-function RowList({ rows, current }: { rows: Row[]; current: WizardStepId }) {
+export function RowList({ rows, current }: { rows: Row[]; current: WizardStepId }) {
   return (
     <dl className="flex flex-col divide-y divide-border">
       {rows.map((r) => (

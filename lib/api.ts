@@ -187,6 +187,19 @@ export async function getRecommendations(profile: UserProfile, options?: ApiOpti
 }
 
 /** Semua slug laptop untuk generateStaticParams & validasi rute (sinkron: daftar statis). */
+/**
+ * Ringkasan katalog untuk layar Analisis (REDESIGN §14, gerak 8). Sinkron seperti
+ * `getBudgetInsight()`: daftar statis untuk visual "katalog tersaring", bukan hasil penilaian.
+ */
+export function getCatalogPreview() {
+  return laptops.map((l) => ({
+    id: l.id,
+    name: `${l.brand} ${l.model}`,
+    priceIdr: l.priceIdr,
+    image: l.image,
+  }));
+}
+
 export function getLaptopSlugs(): string[] {
   return laptops.map((l) => l.slug);
 }

@@ -4,19 +4,24 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams, useSelectedLayoutSegment } from "next/navigation"
 import { cn } from "cn"
-import { ArrowLeft, ArrowRight, CircleAlert } from "lucide-react"
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
 import { motion, useReducedMotion } from "motion/react"
 import { FlowHeader } from "@/components/layout/flow-header"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { ProfileSummary, ProfileSummaryMobile } from "@/components/wizard/profile-summary"
+import { ProfileForming, ProfileFormingMobile, useFormingRequirement } from "@/components/wizard/profile-forming"
+import { StepFeedback } from "@/components/wizard/step-feedback"
 import { Stepper } from "@/components/wizard/stepper"
 import { isWizardStep, stepHref, validateStep, wizardSteps } from "@/components/wizard/steps"
 import { getWizardOptions } from "@/lib/api"
+import { DURATION, EASE_OUT } from "@/lib/motion"
 import { rehydrateProfile, useProfileHydrated, useProfileStore } from "@/store/profile"
 
-// Kerangka Wizard (PRD §15, §24): stepper di atas, pertanyaan 8 kolom + panel ringkasan 4 kolom,
-// tombol Kembali/Lanjut di bawah. Mobile: progress bar, ringkasan bisa dibuka, tombol menempel.
+// Kerangka Wizard (PRD §15, §24; REDESIGN §17): stepper di atas, pertanyaan 8 kolom + panel
+// "Profil kamu terbentuk" 4 kolom, tombol Kembali/Lanjut di bawah. Mobile: strip meter mini yang bisa
+// dibuka, tombol menempel. Transisi langkah mengikuti arah maju/mundur (gerak 6).
 // Dipasang di layout route group sehingga tetap terpasang saat berpindah langkah.
 
 const PROFILE_HREF = "/rekomendasi/profil"
@@ -71,6 +76,13 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
 
   const stepId = isWizardStep(segment) ? segment : "budget"
   const index = wizardSteps.findIndex((s) => s.id === stepId)
+  const forming = useFormingRequirement()
+
+  // Arah transisi: maju masuk dari kanan, mundur dari kiri (gerak 6).
+  // Pola "nilai sebelumnya" dari dokumentasi React: state diperbarui saat render bila langkah berganti.
+  const [move, setMove] = React.useState({ index, direction: 1 })
+  if (move.index !== index) setMove({ index, direction: index > move.index ? 1 : -1 })
+  const direction = move.index !== index ? (index > move.index ? 1 : -1) : move.direction
   const step = wizardSteps[index]
   const prev = wizardSteps[index - 1]
   const next = wizardSteps[index + 1]
@@ -111,13 +123,13 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
       {prev ? (
         <Button asChild variant="secondary">
           <Link href={stepHref(prev.id)}>
-            <ArrowLeft aria-hidden="true" /> <span className="max-[400px]:sr-only">Kembali</span>
+            <ArrowLeftIcon weight="bold" aria-hidden="true" /> <span className="max-[400px]:sr-only">Kembali</span>
           </Link>
         </Button>
       ) : (
         <Button asChild variant="secondary">
           <Link href="/">
-            <ArrowLeft aria-hidden="true" /> <span className="max-[400px]:sr-only">Beranda</span>
+            <ArrowLeftIcon weight="bold" aria-hidden="true" /> <span className="max-[400px]:sr-only">Beranda</span>
           </Link>
         </Button>
       )}
@@ -141,7 +153,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
               <span className="hidden sm:inline">Lihat Profil Kebutuhan</span>
             </>
           )}
-          <ArrowRight aria-hidden="true" />
+          <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
         </Button>
       </div>
     </div>
@@ -165,19 +177,25 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
         />
 
         <div className="lg:hidden">
-          <ProfileSummaryMobile current={stepId} />
+          <ProfileFormingMobile current={stepId} forming={forming} />
         </div>
 
         <div className="grid flex-1 gap-8 lg:grid-cols-12 lg:gap-6">
           <main className="flex min-w-0 flex-col gap-8 lg:col-span-8">
             <motion.div
               key={stepId}
-              initial={reduceMotion ? false : { opacity: 0, x: 16 }}
+              initial={reduceMotion ? false : { opacity: 0, x: 24 * direction }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
               className="flex flex-col gap-8"
             >
               <header className="flex flex-col gap-3">
+                <p className="num text-text-muted" aria-hidden="true">
+                  <span className="text-4xl leading-none tracking-tight text-primary">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>{" "}
+                  <span className="type-body">/ {String(wizardSteps.length).padStart(2, "0")}</span>
+                </p>
                 <h1 ref={headingRef} tabIndex={-1} id="step-question" className="type-h1 text-text outline-none">
                   {step.question}
                 </h1>
@@ -191,7 +209,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
                       showError ? "text-danger" : "font-normal text-text-muted"
                     )}
                   >
-                    <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
+                    <WarningCircleIcon weight="bold" className="size-4 shrink-0" aria-hidden="true" />
                     {error}
                   </p>
                 )}
@@ -200,7 +218,10 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
               {/* Isi langkah selalu dirender (validasi instant navigation Next 16), tapi
                   disembunyikan sampai isian sessionStorage terbaca agar tidak berkedip. */}
               {!hydrated && <StepSkeleton />}
-              <div hidden={!hydrated}>{children}</div>
+              <div hidden={!hydrated} className="flex flex-col gap-6">
+                {children}
+                <StepFeedback step={stepId} />
+              </div>
             </motion.div>
 
             <div className="hidden lg:block">{nav}</div>
@@ -208,7 +229,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
 
           <aside className="hidden lg:col-span-4 lg:block">
             <div className="sticky top-6">
-              <ProfileSummary current={stepId} />
+              <ProfileForming current={stepId} forming={forming} />
             </div>
           </aside>
         </div>

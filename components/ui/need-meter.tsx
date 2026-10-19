@@ -95,7 +95,8 @@ function NeedMeter({
   markers?: CompareMarker[]
   /** Urutan di grup, untuk jeda masuk. */
   index?: number
-  size?: "default" | "compact"
+  /** mini = strip Wizard mobile: label & nilai satu baris kecil, track lebih tipis. */
+  size?: "default" | "compact" | "mini"
   /** Bagian yang kurang berkedip sekali setelah terisi (landing "Spek saja tidak menjawab"). */
   flashShort?: boolean
   className?: string
@@ -148,20 +149,39 @@ function NeedMeter({
         : { role: "group" as const, "aria-label": `${name}, ${isMax ? "maksimal" : "butuh"} ${scale.format(need)}` }
 
   return (
-    <div className={cn("flex min-w-0 flex-col", size === "compact" ? "gap-1.5" : "gap-2", className)} {...a11y}>
-      <div className="flex items-center justify-between gap-3" aria-hidden={mode !== "compare" || undefined}>
+    <div
+      className={cn(
+        "flex min-w-0 flex-col",
+        size === "default" ? "gap-2" : size === "compact" ? "gap-1.5" : "gap-1",
+        className
+      )}
+      {...a11y}
+    >
+      <div
+        className={cn("flex items-center justify-between", size === "mini" ? "gap-1.5" : "gap-3")}
+        aria-hidden={mode !== "compare" || undefined}
+      >
         <span className="flex min-w-0 items-center gap-2.5">
           {meta && size === "default" && <IconTile icon={meta.icon} category={meta.category} size="sm" />}
-          <span className="truncate type-small text-text">{name}</span>
+          <span className={cn("truncate text-text", size === "mini" ? "type-micro" : "type-small")}>{name}</span>
         </span>
-        <span className="shrink-0 type-small font-normal text-text-muted">
-          {needWord} <span className="num text-text">{scale.format(need)}</span>
-        </span>
+        {size === "mini" ? (
+          <span className="num shrink-0 type-micro text-text">{scale.format(need).replace(/^skor /, "")}</span>
+        ) : (
+          <span className="shrink-0 type-small font-normal text-text-muted">
+            {needWord} <span className="num text-text">{scale.format(need)}</span>
+          </span>
+        )}
       </div>
 
       {/* Track. Semua elemen visual di sini dekoratif; nilainya ada di teks dan atribut ARIA. */}
-      <div ref={trackRef} className="relative h-5" aria-hidden="true">
-        <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-border">
+      <div ref={trackRef} className={cn("relative", size === "mini" ? "h-3" : "h-5")} aria-hidden="true">
+        <div
+          className={cn(
+            "absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-hidden rounded-full bg-border",
+            size === "mini" ? "h-1.5" : "h-2"
+          )}
+        >
           {mode === "requirement" &&
             (isMax ? (
               <motion.span
@@ -184,7 +204,10 @@ function NeedMeter({
           )}
         </div>
         <motion.span
-          className="absolute top-0 h-5 w-[3px] -translate-x-1/2 rounded-full bg-text"
+          className={cn(
+            "absolute top-0 -translate-x-1/2 rounded-full bg-text",
+            size === "mini" ? "h-3 w-0.5" : "h-5 w-[3px]"
+          )}
           initial={false}
           animate={{ left: `${needPos * 100}%` }}
           transition={slide}

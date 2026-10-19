@@ -90,6 +90,8 @@ export interface Activity {
   id: ActivityId;
   label: string;
   icon: string;
+  /** Satu kalimat umpan balik di Wizard saat dipilih (REDESIGN §17). Teks mock statis. */
+  feedback: string;
 }
 
 export interface Software {
@@ -104,6 +106,8 @@ export interface Priority {
   id: string;
   label: string;
   criterion: CriterionId;
+  /** Satu kalimat umpan balik di Wizard saat dipilih (REDESIGN §17). Teks mock statis. */
+  feedback: string;
 }
 
 export interface HardFilter {
@@ -179,6 +183,8 @@ export interface RequirementWarning {
   }[];
   /** Catatan yang tampil setelah pengguna memilih kompromi (PRD §16). */
   compromiseNote: string;
+  /** Meter "butuh vs terjangkau budget-mu" (REDESIGN §18). Angka mock, bukan hitungan. */
+  meter?: { metric: SpecMetric; need: number; affordable: number };
 }
 
 /** Angka spek laptop yang bisa dibandingkan dengan ambang minimum (PRD §19 daftar periksa). */
@@ -208,6 +214,8 @@ export interface RequirementProfile {
   warnings: RequirementWarning[];
   /** Ambang per komponen untuk daftar periksa ✓/✕. Tanpa ambang = tidak diperiksa. */
   checks?: Partial<Record<SpecComponent, SpecCheck>>;
+  /** Karakter laptop yang dicari, 1 = rendah … 3 = tinggi (kartu gelap Profil, REDESIGN §18). Mock statis. */
+  character?: { performa: 1 | 2 | 3; mobilitas: 1 | 2 | 3 };
   isMock: true;
 }
 

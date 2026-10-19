@@ -91,3 +91,21 @@ export function renderAlt(image: LaptopImage, angle: LaptopAngle = "34"): string
   const view = angle === "34" ? "" : `, tampak ${ANGLE_LABEL[angle].toLowerCase()}`;
   return `Ilustrasi laptop ${SHAPE_LABEL[image.shape]} warna ${COLOR_LABEL[image.color]}${view}, bukan foto produk asli`;
 }
+
+/**
+ * Render yang mewakili kelas laptop untuk persona + tier budget (panel Wizard, REDESIGN §17).
+ * Hanya ilustrasi suasana; tidak menyiratkan laptop mana yang akan direkomendasikan.
+ */
+export function representativeRender(persona: string | null, tier: string): LaptopImage {
+  if (persona === "desain") return { shape: "creator", color: "navy" };
+  if (persona === "umum") return { shape: "ultrabook", color: "silver" };
+  if (persona === "profesional") return { shape: "ultrabook", color: "mist" };
+  const byTier: Record<string, LaptopImage> = {
+    "lt-6": { shape: "mainstream", color: "graphite" },
+    "6-8": { shape: "mainstream", color: "silver" },
+    "8-10": { shape: "mainstream", color: "navy" },
+    "10-15": { shape: "ultrabook", color: "mist" },
+    "15-plus": { shape: "creator", color: "graphite" },
+  };
+  return byTier[tier] ?? byTier["8-10"];
+}

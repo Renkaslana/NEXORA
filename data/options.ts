@@ -10,6 +10,7 @@ import type {
 } from "@/types";
 
 // Pilihan wizard (PRD §15, §29). Jangan diimpor dari komponen: akses lewat `lib/api.ts`.
+// `feedback` = draf teks umpan balik Wizard (REDESIGN §17, disetujui Fahren; bebas disunting).
 
 // PRD §5 (kartu Persona Trello)
 export const personas: Persona[] = [
@@ -61,15 +62,24 @@ export const majors: Major[] = [
 ];
 
 export const activities: Activity[] = [
-  { id: "programming", label: "Programming", icon: "code" },
-  { id: "uiux", label: "UI/UX Design", icon: "pen" },
-  { id: "desain-grafis", label: "Desain Grafis", icon: "palette" },
-  { id: "video", label: "Edit Video", icon: "film" },
-  { id: "3d", label: "3D/Blender", icon: "box" },
-  { id: "data", label: "Analisis Data", icon: "chart" },
-  { id: "office", label: "Office & Kuliah Online", icon: "file" },
-  { id: "gaming", label: "Gaming", icon: "gamepad" },
-  { id: "ai-ml", label: "AI/Machine Learning", icon: "cpu" },
+  { id: "programming", label: "Programming", icon: "code",
+    feedback: "IDE, browser, dan emulator sering jalan bersamaan, jadi RAM 16 GB dan CPU multi-core paling terasa." },
+  { id: "uiux", label: "UI/UX Design", icon: "pen",
+    feedback: "Figma dan browser banyak tab tidak berat untuk CPU, tapi butuh RAM 16 GB dan layar yang nyaman dilihat lama." },
+  { id: "desain-grafis", label: "Desain Grafis", icon: "palette",
+    feedback: "Warna yang akurat butuh layar 100% sRGB; Photoshop juga lebih lancar dengan RAM 16 GB." },
+  { id: "video", label: "Edit Video", icon: "film",
+    feedback: "Edit video membebani CPU dan GPU; SSD yang cepat membantu saat memutar ulang timeline." },
+  { id: "3d", label: "3D/Blender", icon: "box",
+    feedback: "Render 3D jauh lebih cepat dengan GPU dedicated; tanpa itu, waktu render bisa berlipat." },
+  { id: "data", label: "Analisis Data", icon: "chart",
+    feedback: "Notebook Python dan dataset besar bergantung pada RAM; 16 GB jadi titik aman." },
+  { id: "office", label: "Office & Kuliah Online", icon: "file",
+    feedback: "Office dan kuliah online itu ringan: yang lebih terasa justru baterai, bobot, dan webcam." },
+  { id: "gaming", label: "Gaming", icon: "gamepad",
+    feedback: "Game modern butuh GPU dedicated dan layar refresh tinggi; laptopnya biasanya lebih berat." },
+  { id: "ai-ml", label: "AI/Machine Learning", icon: "cpu",
+    feedback: "Melatih model butuh GPU dedicated dan RAM besar; untuk belajar dasar, notebook cloud juga membantu." },
 ];
 
 export const software: Software[] = [
@@ -100,15 +110,24 @@ export const criterionLabels: Record<CriterionId, string> = {
 };
 
 export const priorities: Priority[] = [
-  { id: "performa", label: "Performa", criterion: "performa" },
-  { id: "baterai", label: "Baterai", criterion: "baterai" },
-  { id: "ringan", label: "Ringan dibawa", criterion: "portabilitas" },
-  { id: "layar", label: "Layar", criterion: "layar" },
-  { id: "build", label: "Build quality", criterion: "build" },
-  { id: "storage", label: "Storage", criterion: "storage" },
-  { id: "ram", label: "RAM", criterion: "ram" },
-  { id: "gpu", label: "GPU", criterion: "gpu" },
-  { id: "hemat", label: "Harga hemat", criterion: "budget" },
+  { id: "performa", label: "Performa", criterion: "performa",
+    feedback: "CPU yang lebih kencang diberi bobot lebih besar di penilaian." },
+  { id: "baterai", label: "Baterai", criterion: "baterai",
+    feedback: "Baterai yang lebih besar diutamakan, cocok untuk kelas seharian." },
+  { id: "ringan", label: "Ringan dibawa", criterion: "portabilitas",
+    feedback: "Laptop yang lebih ringan diutamakan, walau kadang layarnya lebih kecil." },
+  { id: "layar", label: "Layar", criterion: "layar",
+    feedback: "Layar yang lebih akurat dan tajam diutamakan." },
+  { id: "build", label: "Build quality", criterion: "build",
+    feedback: "Bodi yang kokoh dan engsel yang kuat diutamakan." },
+  { id: "storage", label: "Storage", criterion: "storage",
+    feedback: "SSD yang lebih lega diutamakan untuk file besar." },
+  { id: "ram", label: "RAM", criterion: "ram",
+    feedback: "RAM yang lebih besar atau bisa ditambah diutamakan." },
+  { id: "gpu", label: "GPU", criterion: "gpu",
+    feedback: "GPU dedicated diutamakan; laptopnya biasanya lebih berat dan lebih mahal." },
+  { id: "hemat", label: "Harga hemat", criterion: "budget",
+    feedback: "Harga yang lebih rendah diutamakan, dengan spek wajib tetap terpenuhi." },
 ];
 
 export const hardFilters: HardFilter[] = [
