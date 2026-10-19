@@ -263,6 +263,23 @@ export interface Scenario {
   isMock: true;
 }
 
+// ---------------------------------------------------------------- Landing (REDESIGN §16)
+
+/** Satu baris meter di landing: komponen spek dengan ambang profil, atau batas bobot persona. */
+export type LandingMeterRef = { kind: "spec"; component: SpecComponent } | { kind: "weight"; maxKg: number };
+
+/** Kasus "Spek saja tidak menjawab": laptop yang menarik tapi tidak cocok dengan kebutuhan. */
+export interface LandingCase {
+  id: string;
+  persona: PersonaId;
+  personaName: string;
+  majorLabel: string;
+  laptopId: string;
+  title: string;
+  story: string;
+  rows: LandingMeterRef[];
+}
+
 // ---------------------------------------------------------------- Penyimpanan lokal (PRD §20)
 
 export interface SavedLaptop {

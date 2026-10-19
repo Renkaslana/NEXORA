@@ -1,6 +1,6 @@
 import { formatStorage } from "@/lib/format"
 import { metricValue } from "@/lib/spec-check"
-import type { Laptop, RequirementProfile, SpecComponent, SpecMetric } from "@/types"
+import type { Laptop, LandingMeterRef, RequirementProfile, SpecComponent, SpecMetric } from "@/types"
 
 // Garis Kebutuhan (REDESIGN §9): memetakan angka spek dan ambang mock ke panjang bar.
 // BUKAN SAW: tidak ada normalisasi antar kriteria, pembobotan, atau pemeringkatan; posisi hanya
@@ -13,7 +13,14 @@ export interface MeterScale {
   max: number
   /** Skala log untuk komponen yang naik berlipat (RAM, storage). */
   log?: boolean
+  /**
+   * "min" (default): kebutuhan = batas bawah, makin besar makin baik.
+   * "max": kebutuhan = batas atas, makin kecil makin baik (mis. bobot).
+   */
+  direction?: "min" | "max"
   format: (value: number) => string
+  /** Teks status saat tidak memenuhi, dari selisih yang sudah diformat. */
+  shortText?: (gap: string) => string
 }
 
 const gb = (v: number) => `${v} GB`
@@ -29,6 +36,17 @@ export const METRIC_SCALES: Record<SpecMetric, MeterScale> = {
   batteryWh: { min: 30, max: 100, format: (v) => `${v} Wh` },
 }
 
+const kg = (v: number) => `${String(Math.round(v * 100) / 100).replace(".", ",")} kg`
+
+/** Bobot: batas atas dari kebutuhan persona (mis. "di bawah 1,4 kg"). */
+export const WEIGHT_SCALE: MeterScale = {
+  min: 1,
+  max: 3,
+  direction: "max",
+  format: kg,
+  shortText: (gap) => `Lebih berat ${gap}`,
+}
+
 /** Posisi 0–1 sebuah nilai di track. */
 export function meterPosition(scale: MeterScale, value: number): number {
   const clamp = (n: number) => Math.min(1, Math.max(0, n))
@@ -39,9 +57,20 @@ export function meterPosition(scale: MeterScale, value: number): number {
   return clamp((value - scale.min) / (scale.max - scale.min))
 }
 
-/** ≥ kebutuhan = memenuhi; dalam 10% di bawahnya = mendekati; selain itu kurang. */
-export function meterStatus(need: number | undefined, value: number | undefined): MeterStatus {
+/**
+ * Arah "min": ≥ kebutuhan = memenuhi, dalam 10% di bawahnya = mendekati.
+ * Arah "max": ≤ batas = memenuhi, dalam 10% di atasnya = mendekati. Selain itu kurang.
+ */
+export function meterStatus(
+  need: number | undefined,
+  value: number | undefined,
+  direction: MeterScale["direction"] = "min"
+): MeterStatus {
   if (need === undefined || value === undefined) return "unchecked"
+  if (direction === "max") {
+    if (value <= need) return "met"
+    return value <= need * 1.1 ? "near" : "short"
+  }
   if (value >= need) return "met"
   return value >= need * 0.9 ? "near" : "short"
 }
@@ -64,6 +93,45 @@ export function needMeterRows(requirement: RequirementProfile, laptop?: Laptop):
         component: spec.component,
         metric: check.metric,
         scale: METRIC_SCALES[check.metric],
+        need: check.min,
+        value: laptop ? metricValue(laptop, check.metric) : undefined,
+      },
+    ]
+  })
+}
+
+// ---------------------------------------------------------------- Baris yang bisa diserialisasi
+
+/** Skala dirujuk lewat id agar baris meter bisa dikirim dari Server Component ke klien. */
+export type MeterScaleId = SpecMetric | "weightKg"
+
+export function resolveScale(scale: MeterScale | MeterScaleId): MeterScale {
+  if (typeof scale !== "string") return scale
+  return scale === "weightKg" ? WEIGHT_SCALE : METRIC_SCALES[scale]
+}
+
+export interface MeterRowData {
+  key: string
+  /** "bobot" untuk batas bobot persona (bukan komponen spek). */
+  component: SpecComponent | "bobot"
+  scale: MeterScaleId
+  need: number
+  value?: number
+}
+
+/** Baris meter landing: komponen spek memakai ambang profil, bobot memakai batas persona. */
+export function landingMeterRows(refs: LandingMeterRef[], requirement: RequirementProfile, laptop?: Laptop): MeterRowData[] {
+  return refs.flatMap((ref): MeterRowData[] => {
+    if (ref.kind === "weight") {
+      return [{ key: "bobot", component: "bobot", scale: "weightKg", need: ref.maxKg, value: laptop?.weightKg }]
+    }
+    const check = requirement.checks?.[ref.component]
+    if (!check) return []
+    return [
+      {
+        key: ref.component,
+        component: ref.component,
+        scale: check.metric,
         need: check.min,
         value: laptop ? metricValue(laptop, check.metric) : undefined,
       },

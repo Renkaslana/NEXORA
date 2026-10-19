@@ -7,9 +7,16 @@ import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle"
 import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning"
 import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle"
 import { IconTile } from "@/components/ui/icon-tile"
-import { SPEC_ICONS } from "@/lib/icons"
-import { DURATION, EASE_IN_OUT, staggerDelay } from "@/lib/motion"
-import { meterPosition, meterStatus, type MeterScale, type MeterStatus } from "@/lib/need-meter"
+import { CRITERION_ICONS, SPEC_ICONS } from "@/lib/icons"
+import { DURATION, EASE_IN_OUT, EASE_OUT, staggerDelay } from "@/lib/motion"
+import {
+  meterPosition,
+  meterStatus,
+  resolveScale,
+  type MeterScale,
+  type MeterScaleId,
+  type MeterStatus,
+} from "@/lib/need-meter"
 import type { SpecComponent } from "@/types"
 
 // Garis Kebutuhan (REDESIGN §9, signature): track = rentang wajar komponen, garis vertikal tegas =
@@ -36,9 +43,12 @@ function statusText(status: MeterStatus, scale: MeterScale, need: number, value:
   if (status === "met") return "Memenuhi"
   if (status === "unchecked") return "Tidak dicek"
   if (scale.max === 1) return "Tidak memenuhi"
-  const gap = Math.round((need - value) * 10) / 10
-  return `${status === "near" ? "Mendekati, kurang" : "Kurang"} ${scale.format(gap).replace(/^(skor|maks\.) /, "")}`
+  const gap = scale.format(Math.round(Math.abs(need - value) * 10) / 10).replace(/^(skor|maks\.) /, "")
+  const text = scale.shortText ? scale.shortText(gap) : `Kurang ${gap}`
+  return status === "near" ? `Mendekati, ${lowerFirst(text)}` : text
 }
+
+const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1)
 
 function StatusLabel({ status, text }: { status: MeterStatus; text: string }) {
   const Icon = status === "met" ? CheckCircleIcon : status === "near" ? WarningIcon : XCircleIcon
@@ -58,21 +68,26 @@ function StatusLabel({ status, text }: { status: MeterStatus; text: string }) {
   )
 }
 
+const BOBOT = { ...CRITERION_ICONS.portabilitas, label: "Bobot" }
+
 function NeedMeter({
   component,
   label,
-  scale,
+  scale: scaleProp,
   need,
   value,
   markers,
   index = 0,
   size = "default",
+  flashShort = false,
   className,
 }: {
-  component?: SpecComponent
+  /** Komponen spek, atau "bobot" untuk batas bobot persona. */
+  component?: SpecComponent | "bobot"
   /** Default: label komponen dari `lib/icons.ts`. */
   label?: string
-  scale: MeterScale
+  /** Objek skala, atau id-nya bila dikirim dari Server Component. */
+  scale: MeterScale | MeterScaleId
   need: number
   /** Mode laptop: nilai satu laptop. */
   value?: number
@@ -81,6 +96,8 @@ function NeedMeter({
   /** Urutan di grup, untuk jeda masuk. */
   index?: number
   size?: "default" | "compact"
+  /** Bagian yang kurang berkedip sekali setelah terisi (landing "Spek saja tidak menjawab"). */
+  flashShort?: boolean
   className?: string
 }) {
   const reduce = useReducedMotion()
@@ -88,21 +105,33 @@ function NeedMeter({
   // IntersectionObserver tidak andal mendeteksinya.
   const trackRef = React.useRef<HTMLDivElement>(null)
   const inView = useInView(trackRef, { once: true, amount: 0.6 })
-  const meta = component ? SPEC_ICONS[component] : undefined
+  const scale = resolveScale(scaleProp)
+  const meta = component === "bobot" ? BOBOT : component ? SPEC_ICONS[component] : undefined
   const name = label ?? meta?.label ?? ""
   const needPos = meterPosition(scale, need)
+  const isMax = scale.direction === "max"
   const mode = markers ? "compare" : value !== undefined ? "laptop" : "requirement"
-  const status = meterStatus(need, value)
+  const status = meterStatus(need, value, scale.direction)
   const delay = staggerDelay(index)
+  const needWord = isMax ? "Maks." : "Butuh"
+  // Garis & zona meluncur saat kebutuhan berubah (hero: ganti preset budget, gerak 5).
+  const slide = { duration: reduce ? 0 : DURATION.medium, ease: EASE_OUT }
 
-  const grow = (to: number) =>
+  const grow = (to: number, extra: Record<string, string> = {}) =>
     reduce
-      ? { initial: { scaleX: to }, animate: { scaleX: to } }
+      ? { initial: { scaleX: to, ...extra }, animate: { scaleX: to, ...extra } }
       : {
-          initial: { scaleX: 0 },
-          animate: { scaleX: inView ? to : 0 },
-          transition: { duration: DURATION.slow, ease: EASE_IN_OUT, delay },
+          initial: { scaleX: 0, ...extra },
+          animate: { scaleX: inView ? to : 0, ...extra },
+          transition: { scaleX: { duration: DURATION.slow, ease: EASE_IN_OUT, delay }, default: slide },
         }
+  const flash =
+    flashShort && status === "short" && inView && !reduce
+      ? {
+          opacity: [1, 1, 0.3, 1],
+          transition: { duration: 0.9, times: [0, 0.55, 0.75, 1], delay: delay + DURATION.slow },
+        }
+      : undefined
 
   const a11y =
     mode === "laptop"
@@ -112,11 +141,11 @@ function NeedMeter({
           "aria-valuemin": scale.min,
           "aria-valuemax": scale.max,
           "aria-valuenow": value,
-          "aria-valuetext": `${scale.format(value!)}, butuh ${scale.format(need)}, ${statusText(status, scale, need, value!).toLowerCase()}`,
+          "aria-valuetext": `${scale.format(value!)}, ${isMax ? "maksimal" : "butuh"} ${scale.format(need)}, ${lowerFirst(statusText(status, scale, need, value!))}`,
         }
       : mode === "requirement"
-        ? { role: "img" as const, "aria-label": `${name}: butuh minimal ${scale.format(need)}` }
-        : { role: "group" as const, "aria-label": `${name}, butuh ${scale.format(need)}` }
+        ? { role: "img" as const, "aria-label": `${name}: ${isMax ? "maksimal" : "butuh minimal"} ${scale.format(need)}` }
+        : { role: "group" as const, "aria-label": `${name}, ${isMax ? "maksimal" : "butuh"} ${scale.format(need)}` }
 
   return (
     <div className={cn("flex min-w-0 flex-col", size === "compact" ? "gap-1.5" : "gap-2", className)} {...a11y}>
@@ -126,30 +155,39 @@ function NeedMeter({
           <span className="truncate type-small text-text">{name}</span>
         </span>
         <span className="shrink-0 type-small font-normal text-text-muted">
-          Butuh <span className="num text-text">{scale.format(need)}</span>
+          {needWord} <span className="num text-text">{scale.format(need)}</span>
         </span>
       </div>
 
       {/* Track. Semua elemen visual di sini dekoratif; nilainya ada di teks dan atribut ARIA. */}
       <div ref={trackRef} className="relative h-5" aria-hidden="true">
         <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full bg-border">
-          {mode === "requirement" && (
-            <motion.span
-              className="absolute inset-y-0 right-0 origin-right bg-blue-200"
-              style={{ left: `${needPos * 100}%` }}
-              {...grow(1)}
-            />
-          )}
+          {mode === "requirement" &&
+            (isMax ? (
+              <motion.span
+                className="absolute inset-y-0 left-0 origin-left bg-blue-200"
+                {...grow(1, { width: `${needPos * 100}%` })}
+              />
+            ) : (
+              <motion.span
+                className="absolute inset-y-0 right-0 origin-right bg-blue-200"
+                {...grow(1, { left: `${needPos * 100}%` })}
+              />
+            ))}
           {mode === "laptop" && (
-            <motion.span
-              className={cn("absolute inset-0 origin-left", FILL[status])}
-              {...grow(meterPosition(scale, value!))}
-            />
+            <motion.span className="absolute inset-0" animate={flash}>
+              <motion.span
+                className={cn("absolute inset-0 origin-left", FILL[status])}
+                {...grow(meterPosition(scale, value!))}
+              />
+            </motion.span>
           )}
         </div>
-        <span
+        <motion.span
           className="absolute top-0 h-5 w-[3px] -translate-x-1/2 rounded-full bg-text"
-          style={{ left: `${needPos * 100}%` }}
+          initial={false}
+          animate={{ left: `${needPos * 100}%` }}
+          transition={slide}
         />
         {markers?.map((m, i) => (
           <motion.span
@@ -177,7 +215,7 @@ function NeedMeter({
       {mode === "compare" && (
         <ul className="flex flex-col gap-1">
           {markers!.map((m) => {
-            const s = meterStatus(need, m.value)
+            const s = meterStatus(need, m.value, scale.direction)
             return (
               <li key={m.key} className="flex items-center justify-between gap-3">
                 <span className="min-w-0 truncate type-small font-normal text-text">

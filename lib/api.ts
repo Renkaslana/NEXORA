@@ -1,4 +1,5 @@
 import { glossary } from "@/data/glossary";
+import { landingCases, personaHighlights } from "@/data/landing";
 import { laptops } from "@/data/laptops";
 import { requirementProfiles } from "@/data/mock-requirements";
 import { scenarios } from "@/data/mock-results";
@@ -115,6 +116,11 @@ export function getNoResultSuggestions(profile: UserProfile) {
   const index = budgetPresets.findIndex((p) => p.id === getBudgetPreset(profile.budget.max).id);
   const next = budgetPresets[index + 1];
   return { constraints, suggestedBudget: next && next.value > profile.budget.max ? next.value : null };
+}
+
+/** Konten landing redesign: kasus "Spek saja tidak menjawab" + kebutuhan khas persona. Statis. */
+export function getLandingContent() {
+  return { cases: landingCases, personaHighlights };
 }
 
 /** Penjelasan awam istilah teknis per komponen (PRD §28). Sinkron: konfigurasi statis. */
