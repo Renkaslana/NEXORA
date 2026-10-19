@@ -1,21 +1,23 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
-import { Loader2 } from "lucide-react"
+import { CircleNotchIcon } from "@phosphor-icons/react/dist/ssr/CircleNotch"
 import { Slot } from "radix-ui"
 
 // PRD §23 Button: Primary, Secondary, Ghost, Link · S/M/L · loading.
 // Radius 8px (§22). Tinggi M/L ≥ 44px; S 36px dengan area sentuh diperluas ke 44px (§24).
+// REDESIGN §14: tekan scale(0.97); ikon panah penutup (`data-arrow`, atau ArrowRight Lucide lama)
+// bergeser 3px saat hover; secondary yang `aria-pressed` tampil terpilih.
 const buttonVariants = cva(
-  "relative inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-colors duration-150 ease-out select-none disabled:pointer-events-none disabled:opacity-50 aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0",
+  "relative inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] ease-out select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_[data-arrow]]:transition-transform [&_.lucide-arrow-right]:transition-transform hover:[&_[data-arrow]]:translate-x-[3px] hover:[&_.lucide-arrow-right]:translate-x-[3px]",
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
         secondary:
-          "border border-border bg-bg text-text hover:border-border-strong hover:bg-surface active:bg-surface-hover",
+          "border border-border bg-bg text-text hover:border-border-strong hover:bg-paper-100 active:bg-surface-hover aria-pressed:border-primary aria-pressed:bg-blue-50",
         ghost: "text-text hover:bg-surface active:bg-surface-hover",
-        link: "h-auto px-0 text-primary underline-offset-4 hover:underline",
+        link: "h-auto px-0 text-primary underline-offset-4 hover:underline active:scale-100",
       },
       size: {
         sm: "h-9 px-3 type-small after:absolute after:-inset-1 [&_svg]:size-4",
@@ -64,7 +66,7 @@ function Button({
         children
       ) : (
         <>
-          {loading && <Loader2 className="animate-spin" aria-hidden="true" />}
+          {loading && <CircleNotchIcon weight="bold" className="animate-spin" aria-hidden="true" />}
           {children}
         </>
       )}

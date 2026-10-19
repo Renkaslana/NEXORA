@@ -2,16 +2,19 @@
 
 import * as React from "react"
 import { cn } from "cn"
-import { Check, Star, type LucideIcon } from "lucide-react"
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check"
+import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star"
+import type { Icon } from "@/lib/icons"
 
 // PRD §23 Select Card ★: Single/Multi · Default/Hover/Selected/Disabled · dengan/tanpa ikon
 // · badge "Utama". Elemen `button` asli dengan `aria-pressed` agar Tab berpindah kartu dan
-// Spasi/Enter memilih (PRD §15, §28). Terpilih: border + `primary-soft` + centang (§25).
+// Spasi/Enter memilih (PRD §15, §28). Tampilan REDESIGN §14: ikon di tile yang ikut berubah saat
+// hover/terpilih, tekan scale(0.98), centang "pop" dengan kurva pegas (CSS, tanpa JS per frame).
 
 interface SelectCardProps extends Omit<React.ComponentProps<"button">, "title" | "onSelect"> {
   mode?: "single" | "multi"
   selected?: boolean
-  icon?: LucideIcon
+  icon?: Icon
   title: string
   description?: string
   /** Baris kecil di bawah judul, mis. "Persona: Teknik & Informatika". */
@@ -23,10 +26,13 @@ interface SelectCardProps extends Omit<React.ComponentProps<"button">, "title" |
   size?: "md" | "sm"
 }
 
+/** Overshoot kecil ≈ spring-soft (REDESIGN §13). */
+const POP = "ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+
 function SelectCard({
   mode = "single",
   selected = false,
-  icon: Icon,
+  icon: IconComponent,
   title,
   description,
   meta,
@@ -44,10 +50,11 @@ function SelectCard({
       disabled={disabled}
       data-selected={selected || undefined}
       className={cn(
-        "group relative flex w-full min-h-11 flex-col items-start gap-2 rounded-card border bg-bg text-left transition-[border-color,background-color,box-shadow] duration-150 ease-out",
-        "hover:border-border-strong hover:shadow-sm",
-        "data-selected:border-primary data-selected:bg-primary-soft data-selected:hover:border-primary",
-        "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none",
+        "group relative flex w-full min-h-11 flex-col items-start gap-3 rounded-card border border-border bg-bg text-left",
+        "transition-[border-color,background-color,box-shadow,transform] duration-[var(--motion-fast)] ease-out",
+        "hover:border-border-strong hover:shadow-sm active:scale-[0.98]",
+        "data-selected:border-primary data-selected:bg-blue-50 data-selected:hover:border-primary",
+        "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:shadow-none disabled:active:scale-100",
         size === "md" ? "p-4 pr-12" : "px-3 py-2.5 pr-10",
         className
       )}
@@ -56,44 +63,48 @@ function SelectCard({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute flex items-center justify-center border transition-colors duration-150",
+          "absolute flex items-center justify-center border transition-colors duration-[var(--motion-fast)]",
           size === "md" ? "top-4 right-4 size-5" : "top-3 right-3 size-4",
-          mode === "single" ? "rounded-full" : "rounded-[4px]",
+          mode === "single" ? "rounded-full" : "rounded-[5px]",
           selected ? "border-primary bg-primary text-primary-foreground" : "border-border-strong bg-bg"
         )}
       >
-        <Check
+        <CheckIcon
+          weight="bold"
           className={cn(
-            "size-3 transition-[opacity,transform] duration-150",
+            "size-3 transition-[opacity,transform] duration-[var(--motion-medium)]",
+            POP,
             selected ? "scale-100 opacity-100" : "scale-50 opacity-0"
           )}
-          strokeWidth={3}
         />
       </span>
 
-      {Icon && (
-        <Icon
+      {IconComponent && (
+        <span
           aria-hidden="true"
-          strokeWidth={1.5}
           className={cn(
-            "shrink-0 transition-colors duration-150",
-            size === "md" ? "size-6" : "size-5",
-            selected ? "text-primary" : "text-text-muted"
+            "inline-flex shrink-0 items-center justify-center transition-colors duration-[var(--motion-fast)]",
+            size === "md" ? "size-10 rounded-[10px]" : "size-8 rounded-[8px]",
+            selected
+              ? "bg-blue-700 text-white"
+              : "bg-paper-100 text-text-muted group-hover:bg-blue-100 group-hover:text-blue-800 group-disabled:group-hover:bg-paper-100"
           )}
-        />
+        >
+          <IconComponent weight="duotone" className={size === "md" ? "size-6" : "size-5"} />
+        </span>
       )}
 
       <span className="flex flex-col gap-0.5">
         <span className={cn("font-semibold text-text", size === "md" ? "type-body" : "type-small")}>{title}</span>
         {description && <span className="type-small font-normal text-text-muted">{description}</span>}
-        {meta && <span className="type-micro text-text-muted">{meta}</span>}
+        {meta && <span className="type-micro font-medium tracking-normal text-text-muted">{meta}</span>}
       </span>
 
       {(primary || trailing) && (
         <span className="mt-auto flex flex-wrap items-center gap-1.5">
           {primary && (
             <span className="inline-flex h-6 items-center gap-1 rounded-full bg-primary px-2 type-micro text-primary-foreground">
-              <Star className="size-3 fill-current" aria-hidden="true" />
+              <StarIcon weight="fill" className="size-3" aria-hidden="true" />
               Utama
             </span>
           )}

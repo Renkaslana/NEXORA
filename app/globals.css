@@ -3,28 +3,58 @@
 @import "shadcn/tailwind.css";
 
 /*
- * Design token NEXORA — arah visual "Clear Spec" (PRD §22).
+ * Design token NEXORA — PRD §22, diperluas untuk redesign "Live Spec" (docs/REDESIGN.md §10–13).
  * Light mode saja; dark mode masuk Nice to have (PRD §31).
  */
 
 :root {
+  /* Ramp biru (REDESIGN §10). blue-700 = primary PRD. */
+  --blue-50: #eff5ff;
+  --blue-100: #dce8ff;
+  --blue-200: #bfd4ff;
+  --blue-400: #5e8bff;
+  --blue-600: #2152e8;
+  --blue-700: #1d4ed8;
+  --blue-800: #1a3fb0;
+  --blue-950: #0e1f55;
+
+  /* Tinta untuk section gelap (maks. satu per layar) dan kertas */
+  --ink-950: #0a0f1c;
+  --ink-900: #111827;
+  --ink-700: #374151;
+  --paper-50: #f9fafb;
+  --paper-100: #f4f5f7;
+
+  /* Bidang di belakang render laptop: sama persis dengan latar render (REDESIGN §24) */
+  --studio: #eef0f4;
+
   /* Warna PRD §22 */
   --bg: #ffffff;
   --surface: #f7f7f8;
   --border: #e4e4e7;
   --text: #18181b;
   --text-muted: #52525b;
-  --primary: #1d4ed8;
-  --primary-soft: #eff6ff;
+  --primary: var(--blue-700);
+  --primary-soft: var(--blue-50);
   --success: #15803d;
   --warning: #b45309;
   --danger: #b91c1c;
+  --info: #0369a1;
+  --success-soft: #f0fdf4;
+  --warning-soft: #fffbeb;
+  --danger-soft: #fef2f2;
+  --info-soft: #f0f9ff;
 
-  /* State turunan (bukan warna aksen baru): hover/active */
-  --primary-hover: #1e40af;
-  --primary-active: #1e3a8a;
+  /* State turunan (bukan warna aksen baru): hover/active (REDESIGN §14) */
+  --primary-hover: var(--blue-600);
+  --primary-active: var(--blue-800);
   --surface-hover: #efeff1;
   --border-strong: #d4d4d8;
+
+  /* Motion (REDESIGN §13); nilai yang sama ada di lib/motion.ts untuk Motion */
+  --motion-fast: 140ms;
+  --motion-medium: 240ms;
+  --motion-slow: 560ms;
 
   /* Variabel shadcn diarahkan ke token yang sama */
   --background: var(--bg);
@@ -64,6 +94,26 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-success-soft: var(--success-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-info-soft: var(--info-soft);
+
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-200: var(--blue-200);
+  --color-blue-400: var(--blue-400);
+  --color-blue-600: var(--blue-600);
+  --color-blue-700: var(--blue-700);
+  --color-blue-800: var(--blue-800);
+  --color-blue-950: var(--blue-950);
+  --color-ink-950: var(--ink-950);
+  --color-ink-900: var(--ink-900);
+  --color-ink-700: var(--ink-700);
+  --color-paper-50: var(--paper-50);
+  --color-paper-100: var(--paper-100);
+  --color-studio: var(--studio);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -101,63 +151,76 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
 
-  /* Motion PRD §22/§25 */
-  --default-transition-duration: 150ms;
-  --default-transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  /* Motion PRD §22/§25, kurva dari REDESIGN §13 */
+  --default-transition-duration: 140ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* Skala tipografi PRD §22 (mobile-first, desktop mulai md = 768px) */
+/* Skala tipografi PRD §22, diperbesar sesuai REDESIGN §11 (mobile-first, desktop mulai md = 768px) */
 @utility type-display {
   font-size: 2.25rem;
-  line-height: 2.75rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  @media (width >= 48rem) {
-    font-size: 3.5rem;
-    line-height: 4rem;
-  }
-}
-/* Tambahan eksplorasi landing B (bukan token PRD §22): display editorial sangat besar */
-@utility type-display-xl {
-  font-size: 2.5rem;
-  line-height: 2.875rem;
-  font-weight: 700;
+  line-height: 2.5rem;
+  font-weight: 800;
   letter-spacing: -0.03em;
   @media (width >= 48rem) {
-    font-size: 4.5rem;
-    line-height: 4.875rem;
+    font-size: 3.5rem;
+    line-height: 3.75rem;
+  }
+}
+/* Headline hero (REDESIGN §11): 44 → 64 → 80px */
+@utility type-display-xl {
+  font-size: 2.75rem;
+  line-height: 2.875rem;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  @media (width >= 48rem) {
+    font-size: 4rem;
+    line-height: 4.125rem;
   }
   @media (width >= 64rem) {
-    font-size: 6rem;
-    line-height: 6.25rem;
-    letter-spacing: -0.035em;
+    font-size: 5rem;
+    line-height: 5rem;
   }
 }
 @utility type-h1 {
   font-size: 1.875rem;
-  line-height: 2.375rem;
+  line-height: 2.25rem;
   font-weight: 700;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.02em;
   @media (width >= 48rem) {
     font-size: 2.5rem;
-    line-height: 3rem;
+    line-height: 2.875rem;
   }
 }
 @utility type-h2 {
-  font-size: 1.75rem;
-  line-height: 2.25rem;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-size: 1.5rem;
+  line-height: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  @media (width >= 48rem) {
+    font-size: 1.75rem;
+    line-height: 2.125rem;
+  }
 }
 @utility type-h3 {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+  font-size: 1.125rem;
+  line-height: 1.625rem;
   font-weight: 600;
+  @media (width >= 48rem) {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
 }
 @utility type-body-l {
-  font-size: 1.125rem;
-  line-height: 1.75rem;
+  font-size: 1.0625rem;
+  line-height: 1.625rem;
   font-weight: 400;
+  @media (width >= 48rem) {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
 }
 @utility type-body {
   font-size: 1rem;
@@ -172,7 +235,21 @@
 @utility type-micro {
   font-size: 0.75rem;
   line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+/* Skor kecocokan di payoff (REDESIGN §11): hanya Best Match */
+@utility type-numeric-xl {
+  font-family: var(--font-mono);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 4rem;
+  line-height: 4rem;
+  letter-spacing: -0.04em;
+  @media (width >= 48rem) {
+    font-size: 6rem;
+    line-height: 6rem;
+  }
 }
 
 /* Grid PRD §22: konten max 1200px, margin mobile 16px, gutter 24px */
