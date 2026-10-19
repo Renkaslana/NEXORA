@@ -14,7 +14,7 @@ export interface SpecCheckResult {
   actual: string;
 }
 
-function metricValue(laptop: Laptop, metric: SpecMetric): number {
+export function metricValue(laptop: Laptop, metric: SpecMetric): number {
   switch (metric) {
     case "cpuBench":
       return laptop.cpu.benchScore;

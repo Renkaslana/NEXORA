@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, CircleCheck, CircleX } from "lucide-react";
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { IconTiles, LaptopRenders, MoodPhotos, NeedMeters } from "./redesign-parts";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -160,10 +162,16 @@ function Buttons() {
           <Button variant="secondary">
             <ArrowLeft aria-hidden="true" /> Kembali
           </Button>
+          <Button size="lg">
+            Cari Laptop yang Pas <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+          </Button>
+          <Button variant="secondary" aria-pressed="true">
+            Secondary terpilih
+          </Button>
         </div>
       </div>
       <p className="type-small font-normal text-text-muted">
-        Hover: arahkan kursor. Focus: tekan Tab, ring 2px biru + offset 2px.
+        Hover: arahkan kursor (panah penutup bergeser 3px). Tekan: scale 0,97. Focus: tekan Tab, ring 2px biru + offset 2px.
       </p>
     </div>
   );
@@ -497,10 +505,22 @@ export function Showcase() {
         </Link>
         <h1 className="type-h1 text-text">Komponen inti</h1>
         <p className="max-w-2xl type-body-l text-text-muted">
-          Semua variant komponen Tahap 1 (PRD §23) dengan token Clear Spec (§22). Halaman QA, bukan halaman final.
+          Semua variant komponen inti (PRD §23), ditambah fondasi redesign R1 (docs/REDESIGN.md). Halaman QA, bukan halaman final.
         </p>
       </header>
 
+      <Section id="icon-tile" title="Icon Tile (Phosphor duotone)" prd="REDESIGN §10, §12 · 5 kategori · 40/32">
+        <IconTiles />
+      </Section>
+      <Section id="need-meter" title="Garis Kebutuhan (NeedMeter)" prd="REDESIGN §9, §13 gerak 4 · requirement, laptop, compare · met, near, short">
+        <NeedMeters />
+      </Section>
+      <Section id="laptop-render" title="Render laptop" prd="REDESIGN §24 · render AI, latar studio, label Ilustrasi">
+        <LaptopRenders />
+      </Section>
+      <Section id="mood-photo" title="Foto suasana" prd="REDESIGN §13 gerak 12, §24 · duotone seragam, kredit">
+        <MoodPhotos />
+      </Section>
       <Section id="mock" title="Konsistensi mock data" prd="PRD §27, §29, §33">
         <MockIntegrity />
       </Section>

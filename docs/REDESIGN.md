@@ -613,15 +613,17 @@ pengguna asli, atau testimoni. Logo merek pada laptop di foto dipotong atau tida
 
 | Foto | Sumber | Dipakai di |
 | --- | --- | --- |
-| "Man Work" — meja putih dari atas, laptop, buku catatan | [StockSnap DZ7DC58DSV](https://stocksnap.io/photo/man-work-DZ7DC58DSV) · CC0 | Kartu persona Umum/Produktif |
-| "Office Work" — tangan di laptop dengan gambar teknik | [StockSnap 42H3JH8QI5](https://stocksnap.io/photo/office-work-42H3JH8QI5) · CC0 | Kartu persona Teknik/Desain |
-| "Workspace Office" — buku catatan dan keyboard di meja kayu | [StockSnap BR2IU3WKMP](https://stocksnap.io/photo/workspace-office-BR2IU3WKMP) · CC0 | Kartu persona Informatika/Kuliah |
-| "Macbook Laptop" — meja kayu gelap, kopi | [StockSnap DWLWL9USBG](https://stocksnap.io/photo/macbook-laptop-DWLWL9USBG) · CC0 | Band gelap landing (section 6) |
-| "Top Workspace" — laptop di atas beton abu, dari atas | [StockSnap ILQA1VXXOJ](https://stocksnap.io/photo/top-workspace-ILQA1VXXOJ) · CC0 | State kosong / 404, header `/saya` |
+| "Office Work" — tangan di laptop dengan gambar teknik | [StockSnap 42H3JH8QI5](https://stocksnap.io/photo/office-work-42H3JH8QI5), energepic.com · CC0 | Kartu persona Teknik/Informatika (`persona-teknik`) |
+| "Man Work" — meja putih dari atas, laptop, buku catatan | [StockSnap DZ7DC58DSV](https://stocksnap.io/photo/man-work-DZ7DC58DSV), Burst · CC0 | Kartu persona Umum (`persona-umum`) |
+| Meja desain (cat air, sketsa motif, tablet gambar) | Render AI Gemini, dibuat Fahren | Kartu persona Desain (`persona-desain`) |
+| Meja profesional (grafik, laporan, kartu nama) | Render AI Gemini, dibuat Fahren | Kartu persona Profesional (`persona-profesional`) |
+| "Macbook Laptop" — meja kayu gelap, kopi, kacamata | [StockSnap DWLWL9USBG](https://stocksnap.io/photo/macbook-laptop-DWLWL9USBG), Lia Leslie · CC0 | Band gelap landing (`band-desk`, potongan 4:3 digeser ke kanan) |
 
-Ditolak: "Office Work" 13UNSPJHCZ (terlalu kosong) dan "Macbook Laptop" UNB7V2H5L4 (bokeh biru
-terasa seperti glow). Kredit tetap ditulis walau CC0 tidak mewajibkan: halaman `/dev` dan baris footer
-"Foto suasana: StockSnap (CC0)".
+Keputusan Fahren (19 Okt 2026): campuran Gemini + CC0. Kandidat lain (ILQA1VXXOJ, BR2IU3WKMP) tidak
+dipakai; 13UNSPJHCZ (terlalu kosong) dan UNB7V2H5L4 (bokeh biru terasa glow) ditolak. Foto CC0 hanya
+tersedia 960px, cukup untuk kartu (±400px) dan band yang digelapkan. Metadata alt + kredit ada di
+`lib/mood-photos.ts`; kredit tampil di `/dev/components` dan nanti di footer: "Foto suasana: StockSnap
+(CC0)".
 
 **Treatment seragam** (di-bake saat ekspor agar tidak membebani browser):
 
@@ -629,7 +631,7 @@ terasa seperti glow). Kredit tetap ditulis walau CC0 tidak mewajibkan: halaman `
   `#0E1F55`, sorotan `#F4F5F7`). Hasilnya foto biru-abu yang menyatu dengan ramp warna §10.
 - Gelap (band `ink-950`): duotone yang sama + kecerahan −35%; teks tidak pernah diletakkan di atas
   bagian foto yang ramai.
-- Potongan 4:3 (kartu) dan 3:4 (band); radius 24; WebP 1600w kualitas 75, < 200 KB.
+- Potongan 4:3; radius 24; WebP maks. 1600w kualitas 75 (hasil 7–119 KB).
 - File: `public/images/mood/{nama}.webp`.
 
 ## 25. Accessibility

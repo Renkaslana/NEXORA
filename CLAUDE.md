@@ -30,7 +30,8 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 ## Aturan tetap
 
 - Frontend saja. **Jangan** buat backend, API route, database, atau perhitungan SAW.
-- Stack: Next.js App Router, TypeScript, Tailwind, shadcn/ui, lucide-react, Zustand,
+- Stack: Next.js App Router, TypeScript, Tailwind, shadcn/ui, Phosphor (`@phosphor-icons/react`; lucide-react
+  sedang dilepas bertahap), Zustand,
   Framer Motion (paket `motion`, seperlunya). Jangan menambah library lain tanpa bertanya.
 - Semua data dari mock di `data/`, diakses **hanya** lewat `lib/api.ts`. Komponen dan
   halaman tidak boleh mengimpor `@/data/*` secara langsung.
@@ -74,8 +75,28 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [x] Komparasi `/bandingkan?ids=` (PRD §18). **MVP §31 Must have selesai.**
 - [x] QA akhir: alur demo Landing → Wizard → Profil → Analisis → Hasil → Detail → Komparasi
   lolos; anti-slop & akses data dicek; tautan `/jelajah` disembunyikan sampai halamannya ada.
-- [ ] Push ke GitHub (menunggu URL repo dari Fahren). Branch utama: `main`.
+- [x] Push ke GitHub: https://github.com/Renkaslana/NEXORA (branch `main`).
 - [ ] Should have: `/jelajah`, `/saya` (data simpanan & keputusan sudah ada di `store/saved.ts`).
+- [ ] Redesign "Live Spec" (`docs/REDESIGN.md`, keputusan §30 disetujui Fahren):
+  - [x] R1 Fondasi: token, Phosphor + `IconTile`, `NeedMeter`, `LaptopRender` (dipakai di Hasil, hero,
+    Detail), `MoodPhoto`, Button/SelectCard baru, semua di `/dev/components`.
+  - [ ] R2 Landing · [ ] R3 Wizard/Profil/Analisis · [ ] R4 Hasil/Detail/Komparasi · [ ] R5 Should have
+
+Redesign R1 (REDESIGN §9–14, §24), keputusan Fahren:
+- Render laptop dibuat Fahren dengan Gemini (mentah di `img/`, di-ignore). Diproses di luar repo
+  (Python + Pillow): latar diratakan ke `studio` #EEF0F4, 4:3, WebP → `public/images/laptops/
+  {bentuk}-{warna}-{sudut}.webp`. Status per sudut: `docs/MIDJOURNEY_PROMPTS.md` §0.
+- Mock laptop punya `image: { shape, color }`; `imageUrl` = render `34`. Manifest, cadangan sudut
+  (warna tidak pernah ditukar), dan alt "Ilustrasi … bukan foto produk asli" di `lib/laptop-image.ts`.
+- Render selalu di bidang `bg-studio`, berlabel "Ilustrasi". `next/image` memakai `loading="eager"` +
+  `fetchPriority` (prop `priority` deprecated di Next 16).
+- Foto suasana: campuran CC0 StockSnap + Gemini, duotone biru-950 seragam, `public/images/mood/`,
+  metadata + kredit di `lib/mood-photos.ts`.
+- Ikon Phosphor diimpor per ikon dari `@phosphor-icons/react/dist/ssr/<Nama>` (aman di Server Component,
+  tanpa barrel). Peta konsep → ikon/kategori di `lib/icons.ts`.
+- `NeedMeter` mengamati track dengan `useInView` (bukan `whileInView` pada fill ber-scaleX(0), yang
+  tidak terdeteksi IntersectionObserver). Status near = dalam 10% di bawah kebutuhan.
+- Token motion di CSS var (`--motion-*`, `ease-out`) dan `lib/motion.ts` untuk Motion.
 
 Komparasi (PRD §18): `lib/compare-rows.ts` menyusun baris (status ✓/✕ dari spec-check + budget,
 "Unggul" = nilai terbaik per baris lewat maks/min biasa, bukan SAW). Desktop tabel dengan header
@@ -146,7 +167,7 @@ Landing final: chip preset mengubah kartu Profil Kebutuhan (persona Informatika)
 jumlah laptop di katalog. CTA membawa `?budget=` (dan `&jurusan=` dari baris persona) ke Wizard.
 
 Catatan keputusan:
-- `type-display-xl` (96px desktop) adalah token tambahan khusus varian B, bukan bagian PRD §22.
+- `type-display-xl` sekarang 44/64/80px sesuai REDESIGN §11 (dulu 96px untuk varian B; arsip B ikut berubah).
 - `lib/api.ts`: `getWizardOptions()` dan `getBudgetInsight()` sinkron (konfigurasi statis & umpan
   balik slider real-time); fungsi data lain async dengan jeda 600–2500 ms.
 - Landing A/B mengambil data lewat `lib/api.ts` di server dengan `"use cache"` (prerender statis);
