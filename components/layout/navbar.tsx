@@ -3,7 +3,9 @@
 import * as React from "react"
 import Link from "next/link"
 import { cn } from "cn"
-import { ArrowRight, Menu, X } from "lucide-react"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
+import { ListIcon } from "@phosphor-icons/react/dist/ssr/List"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 import { Button } from "@/components/ui/button"
 
 // PRD §13, §23, §24 Navbar: logo kiri, "Cara Kerja" + "Jelajahi Laptop", CTA kanan.
@@ -11,7 +13,10 @@ import { Button } from "@/components/ui/button"
 
 // "Jelajahi Laptop" (/jelajah, PRD §8 Should have) disembunyikan sampai halamannya dibuat
 // agar demo tidak menemui 404. Tambahkan kembali: { href: "/jelajah", label: "Jelajahi Laptop" }.
-const links = [{ href: "#cara-kerja", label: "Cara Kerja" }]
+const links = [
+  { href: "/#cara-kerja", label: "Cara Kerja" },
+  { href: "/#persona", label: "Persona" },
+]
 
 export function Wordmark({ className }: { className?: string }) {
   return (
@@ -39,7 +44,7 @@ export function Navbar({ ctaHref = "/rekomendasi/budget", showCta = true }: { ct
               <li key={l.href}>
                 <Link
                   href={l.href}
-                  className="inline-flex min-h-11 items-center rounded-control px-3 type-small text-text hover:bg-surface"
+                  className="inline-flex min-h-11 items-center rounded-control px-3 type-small text-text transition-colors hover:bg-paper-100"
                 >
                   {l.label}
                 </Link>
@@ -56,7 +61,7 @@ export function Navbar({ ctaHref = "/rekomendasi/budget", showCta = true }: { ct
               </Button>
               <Button asChild size="icon" className="md:hidden">
                 <Link href={ctaHref} aria-label="Mulai Rekomendasi">
-                  <ArrowRight aria-hidden="true" />
+                  <ArrowRightIcon weight="bold" aria-hidden="true" />
                 </Link>
               </Button>
             </>
@@ -70,7 +75,7 @@ export function Navbar({ ctaHref = "/rekomendasi/budget", showCta = true }: { ct
             aria-label={open ? "Tutup menu" : "Buka menu"}
             onClick={() => setOpen((o) => !o)}
           >
-            {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+            {open ? <XIcon weight="bold" aria-hidden="true" /> : <ListIcon weight="bold" aria-hidden="true" />}
           </Button>
         </div>
       </div>

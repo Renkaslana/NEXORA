@@ -1,6 +1,6 @@
 "use client"
 
-import { Check } from "lucide-react"
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle"
 import { RequirementCard } from "@/components/profile/requirement-card"
 import { LaptopCard } from "@/components/results/laptop-card"
 import { getOptionIcon } from "@/components/wizard/option-icon"
@@ -64,7 +64,7 @@ export function ResultSnippet({ sample }: { sample: LandingSample }) {
       <ul className="flex flex-col gap-2 px-1">
         {result.reasons.slice(1, 3).map((r) => (
           <li key={r.text} className="flex gap-2 type-small font-normal text-text">
-            <Check className="mt-0.5 size-4 shrink-0 text-success" strokeWidth={2.5} aria-hidden="true" />
+            <CheckCircleIcon weight="fill" className="mt-0.5 size-4 shrink-0 text-success" aria-hidden="true" />
             <span>
               {r.text}
               <span className="block type-micro text-text-muted">{r.source}</span>

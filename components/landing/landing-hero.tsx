@@ -2,27 +2,29 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { AnimatePresence, motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "motion/react"
 import { cn } from "cn"
-import { ArrowRight } from "lucide-react"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
 import { WarningBanner } from "@/components/profile/requirement-card"
 import { ScoreRing } from "@/components/results/score-ring"
 import { Button } from "@/components/ui/button"
 import { LaptopRender } from "@/components/ui/laptop-render"
-import { Skeleton } from "@/components/ui/skeleton"
-import { getBudgetInsight, getRequirements, getSampleProfile, getWizardOptions } from "@/lib/api"
-import { useApi } from "@/lib/use-api"
+import { NeedMeter } from "@/components/ui/need-meter"
+import { getBudgetInsight, getWizardOptions } from "@/lib/api"
 import type { LaptopImage } from "@/lib/laptop-image"
-import type { BudgetPresetId, RequirementProfile } from "@/types"
+import { DURATION, EASE_OUT, SPRING_SOFT } from "@/lib/motion"
+import { needMeterRows, type NeedMeterRow } from "@/lib/need-meter"
+import type { BudgetPresetId, RequirementProfile, SpecComponent } from "@/types"
 
-// Hero Landing final: komposisi A (PRD §12 Concept D, §13) + preview langsung dari varian C.
-// Chip preset mengubah kartu Profil Kebutuhan; CTA membawa budget terpilih ke Wizard (§13).
+// Hero Landing redesign "Live Spec" (REDESIGN §15; PRD §12–13). Preset budget = kontrol utama:
+// render, callout Garis Kebutuhan, dan kartu Profil Kebutuhan bereaksi langsung (gerak 5).
+// Section "Garis kebutuhanmu" digabung ke sini (keputusan Fahren R2).
 
 const options = getWizardOptions()
-const informatika = getSampleProfile("teknik")
 /** Tier yang punya skenario hasil (Raka, Rp8 jt). Badge skor hanya tampil di sini. */
 const SCORED_TIER: BudgetPresetId = "8-10"
 
-/** Render yang mewakili kelas laptop di tiap tier (REDESIGN §15). Rp8–10 jt = Best Match Raka. */
+/** Render yang mewakili kelas laptop di tiap tier. Rp8–10 jt = Best Match Raka. */
 const PRESET_RENDER: Record<BudgetPresetId, LaptopImage> = {
   "lt-6": { shape: "mainstream", color: "graphite" },
   "6-8": { shape: "mainstream", color: "silver" },
@@ -31,54 +33,95 @@ const PRESET_RENDER: Record<BudgetPresetId, LaptopImage> = {
   "15-plus": { shape: "creator", color: "navy" },
 }
 
-// Profil per preset diambil sekali lewat lib/api.ts lalu disimpan di state.
-async function loadOtherPresets() {
-  const entries = await Promise.all(
-    options.budgetPresets
-      .filter((p) => p.id !== SCORED_TIER)
-      .map(async (p) => {
-        const profile = { ...informatika, budget: { ...informatika.budget, max: p.value } }
-        return [p.id, await getRequirements(profile)] as const
-      })
-  )
-  return Object.fromEntries(entries) as Partial<Record<BudgetPresetId, RequirementProfile>>
-}
+/** Posisi callout di sekitar laptop (desktop). Garis penunjuk mengarah ke laptop. */
+const CALLOUTS: { component: SpecComponent; className: string; side: "left" | "right" }[] = [
+  { component: "cpu", className: "left-[-4%] top-[7%]", side: "right" },
+  { component: "ram", className: "right-[-3%] top-[34%]", side: "left" },
+  { component: "storage", className: "right-[6%] bottom-[-6%]", side: "left" },
+]
 
 interface LandingHeroProps {
-  /** Profil default (tier Rp8–10 jt), dirender di server agar tanpa skeleton. */
-  defaultRequirement: RequirementProfile
+  presetRequirements: Record<BudgetPresetId, RequirementProfile>
   bestMatch: { matchScore: number; laptopName: string }
   majorLabel: string
   softwareLabels: string[]
 }
 
-function CardSkeleton() {
+/** Tilt + kedalaman pointer (gerak 2 & 15): hanya pointer halus dan tanpa reduced motion. */
+function usePointerDepth() {
+  const reduce = useReducedMotion()
+  const [enabled, setEnabled] = React.useState(false)
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+  const x = useSpring(px, SPRING_SOFT)
+  const y = useSpring(py, SPRING_SOFT)
+
+  React.useEffect(() => {
+    const query = window.matchMedia("(hover: hover) and (pointer: fine)")
+    const update = () => setEnabled(query.matches && !reduce)
+    update()
+    query.addEventListener("change", update)
+    return () => query.removeEventListener("change", update)
+  }, [reduce])
+
+  const onPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (!enabled) return
+    const r = e.currentTarget.getBoundingClientRect()
+    px.set((e.clientX - r.left) / r.width - 0.5)
+    py.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  const onPointerLeave = () => {
+    px.set(0)
+    py.set(0)
+  }
+
+  return {
+    enabled,
+    handlers: { onPointerMove, onPointerLeave },
+    rotateX: useTransform(y, (v) => v * -6),
+    rotateY: useTransform(x, (v) => v * 6),
+    renderX: useTransform(x, (v) => v * 12),
+    renderY: useTransform(y, (v) => v * 12),
+    calloutX: useTransform(x, (v) => v * -6),
+    calloutY: useTransform(y, (v) => v * -6),
+  }
+}
+
+function Callout({ row, side, index }: { row: NeedMeterRow; side: "left" | "right"; index: number }) {
   return (
-    <div className="flex flex-col gap-3" aria-hidden="true">
-      <div className="flex gap-1.5">
-        <Skeleton className="h-7 w-24 rounded-full bg-surface" />
-        <Skeleton className="h-7 w-20 rounded-full bg-surface" />
-        <Skeleton className="h-7 w-20 rounded-full bg-surface" />
-      </div>
-      <Skeleton className="h-4 w-4/5 bg-surface" />
-      <Skeleton className="h-14 w-full rounded-control bg-surface" />
+    <div
+      className="relative w-52 animate-in rounded-card border border-border bg-bg p-3.5 shadow-lg fade-in zoom-in-95 fill-mode-both duration-[var(--motion-medium)]"
+      style={{ animationDelay: `${400 + index * 80}ms` }}
+    >
+      {/* Garis penunjuk ke laptop: dekoratif. */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute top-1/2 flex w-7 items-center",
+          side === "right" ? "left-full flex-row" : "right-full flex-row-reverse"
+        )}
+      >
+        <span className="h-px flex-1 bg-border-strong" />
+        <span className="size-2 rounded-full border-2 border-text bg-bg" />
+      </span>
+      <NeedMeter component={row.component} scale={row.scale} need={row.need} index={index} size="compact" />
     </div>
   )
 }
 
-export function LandingHero({ defaultRequirement, bestMatch, majorLabel, softwareLabels }: LandingHeroProps) {
-  const others = useApi(loadOtherPresets)
+export function LandingHero({ presetRequirements, bestMatch, majorLabel, softwareLabels }: LandingHeroProps) {
   const [presetId, setPresetId] = React.useState<BudgetPresetId | null>(null)
+  const depth = usePointerDepth()
+  const reduce = useReducedMotion()
 
   const shownId = presetId ?? SCORED_TIER
   const preset = options.budgetPresets.find((p) => p.id === shownId)!
-  const requirement =
-    shownId === SCORED_TIER ? defaultRequirement : others.status === "success" ? others.data[shownId] : undefined
-  const failed = shownId !== SCORED_TIER && others.status === "error"
-
-  const ram = requirement?.specs.find((s) => s.component === "ram")
-  const storage = requirement?.specs.find((s) => s.component === "storage")
+  const requirement = presetRequirements[shownId]
+  const rows = needMeterRows(requirement)
+  const row = (c: SpecComponent) => rows.find((r) => r.component === c)
+  const ram = requirement.specs.find((s) => s.component === "ram")
   const insight = getBudgetInsight(preset.value, true)
+  const render = PRESET_RENDER[shownId]
 
   const ctaHref = presetId ? `/rekomendasi/budget?budget=${preset.value}` : "/rekomendasi/budget"
   // "< Rp6 jt" → "di bawah Rp6 jt", "Rp15 jt+" → "Rp15 jt ke atas"
@@ -87,31 +130,86 @@ export function LandingHero({ defaultRequirement, bestMatch, majorLabel, softwar
     ? `Cari laptop ${presetWords.startsWith("di bawah") ? "" : "untuk "}${presetWords}`
     : "Cari Laptop yang Pas"
 
-  return (
-    <section className="page-container grid items-center gap-12 pt-10 pb-20 md:pt-16 md:pb-28 lg:grid-cols-12 lg:gap-6 lg:pt-20">
-      {/* ------------------------------------------------------------ Kiri */}
-      <div className="flex min-w-0 flex-col gap-6 lg:col-span-6 lg:pr-6">
-        <p className="type-small text-primary">Sistem pendukung keputusan laptop</p>
-        <h1 className="type-display text-text">Jangan pilih laptop dari speknya. Pilih dari kebutuhanmu.</h1>
-        <p className="max-w-[34rem] type-body-l text-text-muted">
-          Jawab 5 pertanyaan singkat tentang budget, kuliah, dan aplikasi yang kamu pakai. Kami tunjukkan spek yang
-          kamu butuh dan laptop yang cocok, lengkap dengan alasannya.
+  const profileCard = (
+    <aside
+      aria-label="Contoh Profil Kebutuhan"
+      className="flex w-full flex-col gap-4 rounded-card border border-border bg-bg p-5 shadow-lg lg:max-w-[22rem]"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <p className="type-small text-text">Profil Kebutuhan</p>
+          <p className="type-micro font-medium tracking-normal text-text-muted">
+            Contoh: {majorLabel}, {preset.label}
+          </p>
+        </div>
+        {shownId === SCORED_TIER ? (
+          <div className="flex items-center gap-2" title={bestMatch.laptopName}>
+            <ScoreRing value={bestMatch.matchScore} size="sm" animate={false} />
+            <span className="type-small text-success">cocok</span>
+          </div>
+        ) : (
+          <p className="text-right type-micro font-medium tracking-normal text-text-muted">
+            <span className="num block type-h3 text-text">{insight.laptopCount}</span>
+            laptop di katalog
+          </p>
+        )}
+      </div>
+
+      {/* Di bawah lg callout tidak melayang: meter masuk ke kartu (REDESIGN §24). */}
+      <div className="flex flex-col gap-4 lg:hidden">
+        {(["cpu", "ram", "storage"] as const).map((c, i) => {
+          const r = row(c)
+          return r ? (
+            <NeedMeter
+              key={c}
+              component={c}
+              scale={r.scale}
+              need={r.need}
+              index={i}
+              size="compact"
+              className={c === "cpu" ? "hidden md:flex" : undefined}
+            />
+          ) : null
+        })}
+      </div>
+
+      <div aria-live="polite" className="flex flex-col gap-3">
+        <p key={shownId} className="animate-in type-small font-normal text-text-muted fade-in duration-200">
+          {requirement.summary}
         </p>
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-          <Button asChild size="lg">
-            <Link href={ctaHref}>
-              {ctaLabel}
-              {presetId && <ArrowRight aria-hidden="true" />}
-            </Link>
-          </Button>
-          <Button asChild variant="link" size="md">
-            <Link href="#cara-kerja">Lihat cara kerjanya</Link>
-          </Button>
+        {requirement.warnings[0] ? (
+          <WarningBanner warning={requirement.warnings[0]} compact />
+        ) : (
+          ram && (
+            <p className="rounded-control bg-blue-50 px-3 py-2.5 type-small font-normal text-text">
+              <span className="font-semibold text-primary">Kenapa?</span> RAM {ram.minimum} untuk{" "}
+              {softwareLabels.join(" + ")}
+            </p>
+          )
+        )}
+      </div>
+    </aside>
+  )
+
+  return (
+    <section className="page-container grid items-center gap-10 pt-8 pb-16 md:pt-14 md:pb-24 lg:grid-cols-12 lg:gap-8 lg:pt-16 lg:pb-48">
+      {/* ------------------------------------------------------------ Kiri */}
+      <div className="flex min-w-0 flex-col gap-7 lg:col-span-6">
+        <div className="flex animate-in flex-col gap-5 fade-in slide-in-from-bottom-4 fill-mode-both duration-[var(--motion-slow)]">
+          <p className="type-small text-primary">Sistem pendukung keputusan laptop</p>
+          <h1 className="type-display-xl text-text">
+            Jangan pilih laptop dari speknya. <span className="text-primary">Pilih dari kebutuhanmu.</span>
+          </h1>
+          <p className="max-w-[34rem] type-body-l text-text-muted">
+            Jawab 5 pertanyaan singkat tentang budget, kuliah, dan aplikasi yang kamu pakai. Kami tunjukkan spek
+            yang kamu butuh dan laptop yang cocok, lengkap dengan alasannya.
+          </p>
         </div>
 
-        <div className="flex min-w-0 flex-col gap-2 pt-2">
-          <p id="preset-label" className="type-small font-normal text-text-muted">
-            Atau coba budget-mu, lihat kartu Profil Kebutuhan berubah:
+        <div className="flex min-w-0 flex-col gap-2.5">
+          <p id="preset-label" className="type-small text-text">
+            Budget-mu?{" "}
+            <span className="font-normal text-text-muted">Lihat garis kebutuhannya bergeser.</span>
           </p>
           <div className="-mx-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
             <div role="group" aria-labelledby="preset-label" className="flex w-max gap-2 sm:w-auto sm:flex-wrap">
@@ -124,10 +222,10 @@ export function LandingHero({ defaultRequirement, bestMatch, majorLabel, softwar
                     aria-pressed={selected}
                     onClick={() => setPresetId(selected ? null : p.id)}
                     className={cn(
-                      "inline-flex h-11 shrink-0 items-center rounded-full border px-4 type-small transition-colors duration-150",
+                      "num inline-flex h-11 shrink-0 items-center rounded-full border px-4 type-small transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] active:scale-[0.97]",
                       selected
-                        ? "border-primary bg-primary-soft text-primary"
-                        : "border-border bg-bg text-text hover:border-border-strong hover:bg-surface"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-bg text-text hover:border-border-strong hover:bg-paper-100"
                     )}
                   >
                     {p.label}
@@ -137,76 +235,68 @@ export function LandingHero({ defaultRequirement, bestMatch, majorLabel, softwar
             </div>
           </div>
         </div>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <Button asChild size="lg">
+            <Link href={ctaHref}>
+              {ctaLabel}
+              <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+            </Link>
+          </Button>
+          <Button asChild variant="link" size="md">
+            <Link href="#cara-kerja">Lihat cara kerjanya</Link>
+          </Button>
+        </div>
       </div>
 
       {/* ------------------------------------------------------------ Kanan */}
-      <div className="relative min-w-0 lg:col-span-6">
-        <LaptopRender
-          image={PRESET_RENDER[shownId]}
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          eager
-          labelPosition="top"
-          className="rounded-card"
-        />
-        <div className="relative z-10 -mt-20 px-4 sm:-mt-24 sm:px-8 lg:absolute lg:-bottom-12 lg:-left-12 lg:mt-0 lg:px-0">
-          <aside
-            data-ui
-            aria-label="Contoh Profil Kebutuhan"
-            className="flex w-full max-w-[23rem] flex-col gap-4 rounded-card border border-border bg-bg p-5 shadow-lg"
+      <div className="relative min-w-0 lg:col-span-6" {...depth.handlers}>
+        <div className="[perspective:1200px]">
+          <motion.div
+            className="relative animate-in fade-in slide-in-from-bottom-6 fill-mode-both duration-[var(--motion-slow)]"
+            style={depth.enabled ? { rotateX: depth.rotateX, rotateY: depth.rotateY } : undefined}
           >
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <p className="type-small text-text">Profil Kebutuhan</p>
-                <p className="type-micro text-text-muted">Contoh: {majorLabel}</p>
-              </div>
-              {shownId === SCORED_TIER ? (
-                <div className="flex items-center gap-2" title={bestMatch.laptopName}>
-                  <ScoreRing value={bestMatch.matchScore} size="sm" animate={false} />
-                  <span className="type-small text-success">cocok</span>
-                </div>
-              ) : (
-                <p className="text-right type-micro text-text-muted">
-                  <span className="num block type-h3 text-text">{insight.laptopCount}</span>
-                  laptop di katalog
-                </p>
-              )}
+            <div className="relative aspect-[4/3] overflow-hidden rounded-[24px] bg-studio">
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={`${render.shape}-${render.color}`}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduce ? 0 : DURATION.medium, ease: EASE_OUT }}
+                  style={depth.enabled ? { x: depth.renderX, y: depth.renderY } : undefined}
+                >
+                  <LaptopRender
+                    image={render}
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    eager
+                    labelPosition="top"
+                    className="h-full bg-transparent"
+                  />
+                </motion.div>
+              </AnimatePresence>
             </div>
 
-            <div aria-live="polite" aria-busy={!requirement && !failed} className="flex flex-col gap-3">
-              {failed && (
-                <p className="type-small text-danger">Gagal memuat profil untuk budget ini. Coba preset lain.</p>
-              )}
-              {!requirement && !failed && (
-                <>
-                  <span className="sr-only">Memuat Profil Kebutuhan…</span>
-                  <CardSkeleton />
-                </>
-              )}
-              {requirement && ram && storage && (
-                <div key={shownId} className="flex animate-in flex-col gap-3 duration-200 fade-in">
-                  <ul className="flex flex-wrap gap-1.5" aria-label="Ringkasan profil">
-                    {[`Budget ${preset.label}`, `RAM ${ram.minimum}`, storage.minimum].map((c) => (
-                      <li
-                        key={c}
-                        className="inline-flex min-h-7 items-center rounded-full bg-surface px-2.5 py-1 type-micro text-text"
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="type-small font-normal text-text-muted">{requirement.summary}</p>
-                  {requirement.warnings[0] ? (
-                    <WarningBanner warning={requirement.warnings[0]} compact />
-                  ) : (
-                    <p className="rounded-control bg-primary-soft px-3 py-2.5 type-small font-normal text-text">
-                      <span className="font-semibold text-primary">Kenapa?</span> RAM {ram.minimum} untuk{" "}
-                      {softwareLabels.join(" + ")}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          </aside>
+            {/* Callout melayang hanya di lg+, bergeser berlawanan arah dengan render. */}
+            <motion.div
+              className="pointer-events-none absolute inset-0 hidden lg:block"
+              style={depth.enabled ? { x: depth.calloutX, y: depth.calloutY } : undefined}
+            >
+              {CALLOUTS.map(({ component, className, side }, i) => {
+                const r = row(component)
+                return r ? (
+                  <div key={component} className={cn("pointer-events-auto absolute", className)}>
+                    <Callout row={r} side={side} index={i} />
+                  </div>
+                ) : null
+              })}
+            </motion.div>
+          </motion.div>
+        </div>
+
+        <div className="relative z-10 -mt-16 px-4 sm:-mt-20 sm:px-8 lg:absolute lg:-bottom-36 lg:-left-8 lg:mt-0 lg:px-0">
+          {profileCard}
         </div>
       </div>
     </section>

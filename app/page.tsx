@@ -2,10 +2,11 @@ import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { LandingHero } from "@/components/landing/landing-hero";
 import { getLandingSample } from "@/components/landing/sample-data";
-import { ClosingCta, HowItWorks, PersonaEntry, TrustStrip } from "@/components/landing/sections";
+import { ClosingCta, HowItWorks, PersonaEntry, SpecIsNotEnough, TrustBand } from "@/components/landing/sections";
 
-// Landing final (PRD §8, §12–14). Arah: varian A (Hybrid) + preview langsung dari varian C,
-// dipilih Fahren setelah eksplorasi di /dev/landing-a|b|c.
+// Landing redesign "Live Spec" (REDESIGN §15–16; PRD §8, §12–14). Urutan: hero (dengan Garis
+// Kebutuhan yang bereaksi ke budget) → spek saja tidak menjawab → cerita ter-pin → persona →
+// band gelap → CTA penutup.
 
 export default async function Home() {
   const sample = await getLandingSample();
@@ -15,7 +16,7 @@ export default async function Home() {
       <Navbar />
       <main className="flex-1">
         <LandingHero
-          defaultRequirement={sample.requirement}
+          presetRequirements={sample.presetRequirements}
           bestMatch={{
             matchScore: sample.best.result.matchScore,
             laptopName: `${sample.best.laptop.brand} ${sample.best.laptop.model}`,
@@ -23,9 +24,10 @@ export default async function Home() {
           majorLabel={sample.majorLabel}
           softwareLabels={sample.softwareLabels}
         />
+        <SpecIsNotEnough sample={sample} />
         <HowItWorks sample={sample} />
-        <PersonaEntry />
-        <TrustStrip />
+        <PersonaEntry sample={sample} />
+        <TrustBand />
         <ClosingCta />
       </main>
       <Footer />

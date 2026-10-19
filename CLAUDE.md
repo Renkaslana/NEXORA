@@ -80,7 +80,25 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - [ ] Redesign "Live Spec" (`docs/REDESIGN.md`, keputusan §30 disetujui Fahren):
   - [x] R1 Fondasi: token, Phosphor + `IconTile`, `NeedMeter`, `LaptopRender` (dipakai di Hasil, hero,
     Detail), `MoodPhoto`, Button/SelectCard baru, semua di `/dev/components`.
-  - [ ] R2 Landing · [ ] R3 Wizard/Profil/Analisis · [ ] R4 Hasil/Detail/Komparasi · [ ] R5 Should have
+  - [x] R2 Landing: hero hybrid + callout meter, "Spek saja tidak menjawab", cerita ter-pin, persona
+    berfoto, band gelap, CTA dengan render.
+  - [ ] R3 Wizard/Profil/Analisis · [ ] R4 Hasil/Detail/Komparasi · [ ] R5 Should have
+
+Redesign R2 Landing (REDESIGN §15–16), keputusan Fahren:
+- Section "Garis kebutuhanmu" digabung ke hero: preset budget menggerakkan render (crossfade), garis
+  kebutuhan di 3 callout (CPU/RAM/SSD), dan kartu Profil. Callout melayang hanya di lg+; di bawahnya
+  meter masuk ke kartu (CPU tampil mulai md).
+- Profil kelima preset, kasus, dan persona diambil di server (`getLandingSample()`, `"use cache"`), jadi
+  hero tanpa skeleton dan `/` tetap statis. Kasus & kebutuhan khas persona di `data/landing.ts`
+  (`getLandingContent()`); meter dikirim sebagai `MeterRowData` (skala lewat id, bisa diserialisasi).
+- Kasus Dinda memakai meter bobot arah "maks" (`WEIGHT_SCALE`, batas 1,4 kg dari kebutuhan persona).
+- Cerita ter-pin: wrapper 300vh + sticky di md+, dipilih lewat CSS (`md:` / `motion-reduce:`) agar
+  tanpa beda server/klien; mobile & reduced motion = tiga blok statis. UI asli diskalakan ke
+  `FRONT_SCREEN_RECT`.
+- `Reveal` mengamati elemen luar; varian "clip" memakai masker overflow + translateY. Elemen yang
+  tersembunyi lewat clip-path/scale nol tidak terdeteksi IntersectionObserver.
+- Reveal hero memakai keyframe CSS (tw-animate-css) agar render tampil sebelum hidrasi (LCP).
+- `type-display-xl` 64px di lg, 80px baru di xl agar "kebutuhanmu." muat di setengah kolom.
 
 Redesign R1 (REDESIGN §9–14, §24), keputusan Fahren:
 - Render laptop dibuat Fahren dengan Gemini (mentah di `img/`, di-ignore). Diproses di luar repo

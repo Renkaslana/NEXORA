@@ -169,7 +169,7 @@
     line-height: 3.75rem;
   }
 }
-/* Headline hero (REDESIGN §11): 44 → 64 → 80px */
+/* Headline hero (REDESIGN §11): 44 → 64 → 80px. 80px baru di xl agar "kebutuhanmu." muat setengah kolom. */
 @utility type-display-xl {
   font-size: 2.75rem;
   line-height: 2.875rem;
@@ -179,7 +179,7 @@
     font-size: 4rem;
     line-height: 4.125rem;
   }
-  @media (width >= 64rem) {
+  @media (width >= 80rem) {
     font-size: 5rem;
     line-height: 5rem;
   }
@@ -290,6 +290,10 @@
   :focus-visible {
     outline: 2px solid var(--primary);
     outline-offset: 2px;
+  }
+  /* REDESIGN §25: di section gelap ring memakai blue-400 agar tetap kontras */
+  [data-tone="dark"] :focus-visible {
+    outline-color: var(--blue-400);
   }
 }
 
