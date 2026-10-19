@@ -7,10 +7,11 @@ import { ArrowRight } from "lucide-react"
 import { WarningBanner } from "@/components/profile/requirement-card"
 import { ScoreRing } from "@/components/results/score-ring"
 import { Button } from "@/components/ui/button"
-import { PhotoPlaceholder } from "@/components/ui/photo-placeholder"
+import { LaptopRender } from "@/components/ui/laptop-render"
 import { Skeleton } from "@/components/ui/skeleton"
 import { getBudgetInsight, getRequirements, getSampleProfile, getWizardOptions } from "@/lib/api"
 import { useApi } from "@/lib/use-api"
+import type { LaptopImage } from "@/lib/laptop-image"
 import type { BudgetPresetId, RequirementProfile } from "@/types"
 
 // Hero Landing final: komposisi A (PRD §12 Concept D, §13) + preview langsung dari varian C.
@@ -20,6 +21,15 @@ const options = getWizardOptions()
 const informatika = getSampleProfile("teknik")
 /** Tier yang punya skenario hasil (Raka, Rp8 jt). Badge skor hanya tampil di sini. */
 const SCORED_TIER: BudgetPresetId = "8-10"
+
+/** Render yang mewakili kelas laptop di tiap tier (REDESIGN §15). Rp8–10 jt = Best Match Raka. */
+const PRESET_RENDER: Record<BudgetPresetId, LaptopImage> = {
+  "lt-6": { shape: "mainstream", color: "graphite" },
+  "6-8": { shape: "mainstream", color: "silver" },
+  "8-10": { shape: "mainstream", color: "navy" },
+  "10-15": { shape: "ultrabook", color: "mist" },
+  "15-plus": { shape: "creator", color: "navy" },
+}
 
 // Profil per preset diambil sekali lewat lib/api.ts lalu disimpan di state.
 async function loadOtherPresets() {
@@ -131,7 +141,13 @@ export function LandingHero({ defaultRequirement, bestMatch, majorLabel, softwar
 
       {/* ------------------------------------------------------------ Kanan */}
       <div className="relative min-w-0 lg:col-span-6">
-        <PhotoPlaceholder tone="mid" className="rounded-card" label="Foto laptop" />
+        <LaptopRender
+          image={PRESET_RENDER[shownId]}
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          eager
+          labelPosition="top"
+          className="rounded-card"
+        />
         <div className="relative z-10 -mt-20 px-4 sm:-mt-24 sm:px-8 lg:absolute lg:-bottom-12 lg:-left-12 lg:mt-0 lg:px-0">
           <aside
             data-ui

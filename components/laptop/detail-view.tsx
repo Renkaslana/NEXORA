@@ -147,7 +147,7 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
       {/* ------------------------------------------------------------ 1. Hero */}
       <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
         <div className="lg:col-span-7">
-          <LaptopGallery name={name} />
+          <LaptopGallery name={name} image={laptop.image} />
         </div>
         <div className="flex flex-col gap-6 lg:col-span-5">
           <div className="flex flex-col gap-2">

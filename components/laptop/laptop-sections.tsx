@@ -3,10 +3,11 @@
 import * as React from "react"
 import { cn } from "cn"
 import { BatteryFull, Cpu, Monitor, Plus, Minus, Weight, Wrench, type LucideIcon } from "lucide-react"
-import { PhotoPlaceholder } from "@/components/ui/photo-placeholder"
+import { LaptopRender } from "@/components/ui/laptop-render"
 import { getWizardOptions } from "@/lib/api"
 import { formatRupiah, formatStorage, formatWeight } from "@/lib/format"
-import type { ActivityId, Laptop } from "@/types"
+import { ANGLE_LABEL, availableAngles, type LaptopImage } from "@/lib/laptop-image"
+import type { ActivityId, Laptop, LaptopAngle } from "@/types"
 
 // Bagian-bagian halaman Detail (PRD §19): galeri, spesifikasi kunci, kelebihan & kekurangan,
 // cocok untuk, spesifikasi lengkap.
@@ -17,32 +18,38 @@ const inch = (n: number) => `${String(n).replace(".", ",")}″`
 
 // ---------------------------------------------------------------- Galeri
 
-const views = ["Tampak tiga perempat", "Tampak depan", "Tampak samping", "Port"]
-
-export function LaptopGallery({ name }: { name: string }) {
-  const [active, setActive] = React.useState(0)
+// Hanya sudut yang punya file render yang tampil (REDESIGN §22, §24). Galeri geser (gerak 14) di R4.
+export function LaptopGallery({ name, image }: { name: string; image: LaptopImage }) {
+  const angles = availableAngles(image)
+  const [active, setActive] = React.useState<LaptopAngle>("34")
   return (
     <div className="flex flex-col gap-3">
-      <PhotoPlaceholder tone="mid" className="rounded-card" label={`${name}: ${views[active].toLowerCase()}`} />
-      <div role="group" aria-label="Pilih foto" className="grid grid-cols-4 gap-2">
-        {views.map((v, i) => (
-          <button
-            key={v}
-            type="button"
-            aria-pressed={active === i}
-            aria-label={`Tampilkan ${v.toLowerCase()}`}
-            onClick={() => setActive(i)}
-            className={cn(
-              "overflow-hidden rounded-control border-2 transition-colors duration-150",
-              active === i ? "border-primary" : "border-transparent hover:border-border-strong"
-            )}
-          >
-            <span aria-hidden="true">
-              <PhotoPlaceholder label={v} className="pointer-events-none" iconClassName="size-5" />
-            </span>
-          </button>
-        ))}
-      </div>
+      <LaptopRender
+        image={image}
+        angle={active}
+        sizes="(min-width: 1024px) 50vw, 100vw"
+        eager
+        className="rounded-card"
+      />
+      {angles.length > 1 && (
+        <div role="group" aria-label={`Sudut ilustrasi ${name}`} className="grid grid-cols-4 gap-2">
+          {angles.map((angle) => (
+            <button
+              key={angle}
+              type="button"
+              aria-pressed={active === angle}
+              aria-label={`Tampilkan sudut ${ANGLE_LABEL[angle].toLowerCase()}`}
+              onClick={() => setActive(angle)}
+              className={cn(
+                "overflow-hidden rounded-control border-2 transition-colors duration-150",
+                active === angle ? "border-primary" : "border-transparent hover:border-border-strong"
+              )}
+            >
+              <LaptopRender image={image} angle={angle} sizes="120px" label={false} decorative />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

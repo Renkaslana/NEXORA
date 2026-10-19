@@ -39,6 +39,11 @@ export type BudgetPresetId = "lt-6" | "6-8" | "8-10" | "10-15" | "15-plus";
 
 // ---------------------------------------------------------------- Laptop
 
+/** Bentuk & warna render ilustrasi (REDESIGN §24). Bukan foto produk asli. */
+export type LaptopShape = "ultrabook" | "mainstream" | "creator";
+export type LaptopColor = "silver" | "mist" | "graphite" | "navy";
+export type LaptopAngle = "34" | "front" | "side" | "ports";
+
 export interface Laptop {
   id: string;
   slug: string;
@@ -63,7 +68,10 @@ export interface Laptop {
   targetPersonas: PersonaId[];
   pros: string[];
   cons: string[];
+  /** Gambar utama (render sudut 3/4). */
   imageUrl: string;
+  /** Render ilustrasi yang mewakili laptop ini; URL per sudut disusun `lib/laptop-image.ts`. */
+  image: { shape: LaptopShape; color: LaptopColor };
   marketplaceUrl: string;
   isMock: true;
 }

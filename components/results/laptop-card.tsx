@@ -5,7 +5,7 @@ import { cn } from "cn"
 import { Bookmark, Check, GitCompareArrows, TriangleAlert } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
-import { PhotoPlaceholder } from "@/components/ui/photo-placeholder"
+import { LaptopRender } from "@/components/ui/laptop-render"
 import { ScoreRing } from "@/components/results/score-ring"
 import { formatRupiah, formatStorage, formatWeight } from "@/lib/format"
 import type { Laptop, RecommendationResult, ResultCategory } from "@/types"
@@ -116,6 +116,12 @@ function LaptopCard({
     className
   )
 
+  // REDESIGN §14/§20: render sedikit membesar dan naik saat kartu di-hover (bidang tetap diam)
+  const renderHover = cn(
+    "transition-transform duration-[var(--motion-medium)] ease-out group-hover/card:-translate-y-1 group-hover/card:scale-[1.03]",
+    forceHover && "-translate-y-1 scale-[1.03]"
+  )
+
   const stateBadges = (
     <>
       {compared && (
@@ -137,7 +143,7 @@ function LaptopCard({
   if (variant === "compact") {
     return (
       <article className={cn(frame, "flex min-w-0 items-center gap-3 p-3")}>
-        <PhotoPlaceholder label="Foto" className="w-24 shrink-0 rounded-control" iconClassName="size-6" />
+        <LaptopRender image={laptop.image} sizes="96px" label={false} decorative className="w-24 shrink-0 rounded-control" />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {shownCategory && (
             <span className="type-micro text-primary">{categoryLabels[shownCategory]}</span>
@@ -160,7 +166,13 @@ function LaptopCard({
     const trade = result.tradeOffs[0]
     return (
       <article className={cn(frame, "grid overflow-hidden md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]")}>
-        <PhotoPlaceholder tone="light" className="h-full md:aspect-auto md:min-h-full" />
+        <LaptopRender
+          image={laptop.image}
+          sizes="(min-width: 768px) 40vw, 100vw"
+          eager
+          className="h-full md:aspect-auto md:min-h-80"
+          imageClassName={renderHover}
+        />
         <div className="flex flex-col gap-6 p-5 md:p-8">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 flex-col gap-2">
@@ -238,7 +250,12 @@ function LaptopCard({
   // ------------------------------------------------------------ Default (alternatif berkategori)
   return (
     <article className={cn(frame, "flex flex-col overflow-hidden")}>
-      <PhotoPlaceholder className="border-b border-border" />
+      <LaptopRender
+        image={laptop.image}
+        sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw"
+        className="border-b border-border"
+        imageClassName={renderHover}
+      />
       <div className="flex flex-1 flex-col gap-4 p-5">
         {(shownCategory || compared || saved) && (
           <div className="flex flex-col gap-1.5">
