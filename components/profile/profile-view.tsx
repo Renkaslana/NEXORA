@@ -3,11 +3,16 @@
 import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, ArrowRight, CircleAlert, ClipboardList, RotateCcw } from "lucide-react"
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
+import { ClipboardTextIcon } from "@phosphor-icons/react/dist/ssr/ClipboardText"
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
 import { FlowHeader } from "@/components/layout/flow-header"
 import { ProfileChips } from "@/components/profile/profile-chips"
 import { LevelBadge } from "@/components/profile/requirement-card"
-import { SpecRequirementCard } from "@/components/profile/spec-requirement-card"
+import { ProfileCharacterCard } from "@/components/profile/profile-character-card"
+import { SpecMeterRows } from "@/components/profile/spec-meter-rows"
 import { WarningPanel } from "@/components/profile/warning-panel"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -18,7 +23,7 @@ import { useApi } from "@/lib/use-api"
 import { emptyProfile, rehydrateProfile, useProfileHydrated, useProfileStore } from "@/store/profile"
 
 // Profil Kebutuhan /rekomendasi/profil (PRD §16, §14, §26): spek minimum + alasan
-// sebelum pengguna melihat satu pun laptop.
+// sebelum pengguna melihat satu pun laptop. REDESIGN §18: kartu profil gelap + baris Garis Kebutuhan.
 
 const ANALYSIS_HREF = "/rekomendasi/analisis"
 const glossary = getGlossary()
@@ -29,10 +34,10 @@ const personas = getWizardOptions().personas
 function GridSkeleton() {
   return (
     <div className="flex flex-col gap-6" aria-hidden="true">
-      <Skeleton className="h-24 rounded-card bg-surface" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Skeleton className="h-48 rounded-card bg-ink-900" />
+      <div className="flex flex-col gap-3">
         {Array.from({ length: 6 }, (_, i) => (
-          <Skeleton key={i} className="h-56 rounded-card bg-surface" />
+          <Skeleton key={i} className="h-20 rounded-card bg-surface" />
         ))}
       </div>
     </div>
@@ -87,13 +92,13 @@ function ProfileContent({
   if (state.status === "error") {
     return (
       <StateMessage
-        icon={CircleAlert}
+        icon={WarningCircleIcon}
         tone="danger"
         title="Gagal memuat Profil Kebutuhan"
         body="Terjadi kesalahan saat menyusun spek yang kamu butuhkan. Jawabanmu tetap tersimpan."
       >
         <Button onClick={onRetry}>
-          <RotateCcw aria-hidden="true" /> Coba lagi
+          <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Coba lagi
         </Button>
         <Button asChild variant="secondary">
           <Link href={stepHref("budget")}>Ubah jawaban</Link>
@@ -105,9 +110,7 @@ function ProfileContent({
   const requirement = state.data
   return (
     <div className="flex flex-col gap-10">
-      <p ref={summaryRef} tabIndex={-1} className="max-w-[44rem] type-body-l text-text outline-none" aria-live="polite">
-        {requirement.summary}
-      </p>
+      <ProfileCharacterCard requirement={requirement} persona={persona} summaryRef={summaryRef} />
 
       {requirement.warnings.map((w) => (
         <WarningPanel
@@ -142,11 +145,7 @@ function ProfileContent({
             </div>
           </dl>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {requirement.specs.map((spec) => (
-            <SpecRequirementCard key={spec.component} spec={spec} glossary={glossary[spec.component]} />
-          ))}
-        </div>
+        <SpecMeterRows requirement={requirement} glossary={glossary} />
         {persona && (
           <p className="type-micro text-text-muted">
             Disusun untuk persona {persona.label} berdasarkan jurusanmu. Data contoh (demo), belum dihitung server.
@@ -183,12 +182,12 @@ export function ProfileView() {
     <div className="flex items-center gap-2">
       <Button asChild variant="secondary">
         <Link href={stepHref("budget")}>
-          <ArrowLeft aria-hidden="true" /> <span className="max-[400px]:sr-only">Ubah Jawaban</span>
+          <ArrowLeftIcon weight="bold" aria-hidden="true" /> <span className="max-[400px]:sr-only">Ubah Jawaban</span>
         </Link>
       </Button>
       <Button asChild size="lg" className="ml-auto">
         <Link href={ANALYSIS_HREF}>
-          Lihat Laptop yang Cocok <ArrowRight aria-hidden="true" />
+          Lihat Laptop yang Cocok <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
         </Link>
       </Button>
     </div>
@@ -211,13 +210,13 @@ export function ProfileView() {
 
         {missing && (
           <StateMessage
-            icon={ClipboardList}
+            icon={ClipboardTextIcon}
             title="Jawab dulu beberapa pertanyaan"
             body={`Profil Kebutuhan disusun dari jawabanmu. Langkah "${missing.label}" belum diisi.`}
           >
             <Button asChild>
               <Link href={stepHref(missing.id)}>
-                Isi langkah {missing.label} <ArrowRight aria-hidden="true" />
+                Isi langkah {missing.label} <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
               </Link>
             </Button>
           </StateMessage>

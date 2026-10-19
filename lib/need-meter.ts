@@ -138,3 +138,23 @@ export function landingMeterRows(refs: LandingMeterRef[], requirement: Requireme
     ]
   })
 }
+
+/** Komponen spek untuk sebuah metrik (ikon & label meter). */
+export function componentForMetric(metric: SpecMetric): SpecComponent {
+  switch (metric) {
+    case "cpuBench":
+      return "cpu"
+    case "ramGb":
+    case "ramMaxGb":
+      return "ram"
+    case "storageGb":
+      return "storage"
+    case "gpuDedicated":
+      return "gpu"
+    case "srgbPercent":
+    case "screenInch":
+      return "layar"
+    case "batteryWh":
+      return "baterai"
+  }
+}

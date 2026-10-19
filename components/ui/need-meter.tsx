@@ -80,6 +80,7 @@ function NeedMeter({
   index = 0,
   size = "default",
   flashShort = false,
+  bare = false,
   className,
 }: {
   /** Komponen spek, atau "bobot" untuk batas bobot persona. */
@@ -99,6 +100,8 @@ function NeedMeter({
   size?: "default" | "compact" | "mini"
   /** Bagian yang kurang berkedip sekali setelah terisi (landing "Spek saja tidak menjawab"). */
   flashShort?: boolean
+  /** Hanya track (label & angka sudah ditulis di sekitarnya, mis. baris spek Profil). */
+  bare?: boolean
   className?: string
 }) {
   const reduce = useReducedMotion()
@@ -158,7 +161,7 @@ function NeedMeter({
       {...a11y}
     >
       <div
-        className={cn("flex items-center justify-between", size === "mini" ? "gap-1.5" : "gap-3")}
+        className={cn("flex items-center justify-between", size === "mini" ? "gap-1.5" : "gap-3", bare && "sr-only")}
         aria-hidden={mode !== "compare" || undefined}
       >
         <span className="flex min-w-0 items-center gap-2.5">
