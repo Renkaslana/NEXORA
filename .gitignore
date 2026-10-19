@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /.taste-skill/
+
+# render AI mentah (hasil olahan ada di public/images/laptops)
+/img/
