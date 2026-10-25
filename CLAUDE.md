@@ -84,6 +84,19 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
     berfoto, band gelap, CTA dengan render.
   - [ ] R3 Wizard/Profil/Analisis · [ ] R4 Hasil/Detail/Komparasi · [ ] R5 Should have
 
+Redesign "Kalimat terbelah" (Okt 2026, disetujui Fahren; menggantikan tampilan R2 landing + Analisis R3):
+- Palet: bidang kobalt `--cobalt-600` #0034EB (hero, Analisis, CTA) + kuning `--signal` #E9E34A hanya untuk
+  aksi utama (Button `signal`); di bidang kobalt aksi kedua `inverse`, focus ring kuning (`data-tone="cobalt"`).
+  Navbar/FlowHeader punya `tone="cobalt"`. Halaman lain belum ikut (R4).
+- Landing: hero = kalimat "Laptop buat kuliahmu, / pas di budget-mu." dibelah bingkai studio (h1 sr-only,
+  belahan visual aria-hidden). Interaksi utama "Laptop buat ___" (`getSoftwareNeeds()`, mock
+  `softwareLoadNeeds` di data/landing.ts: filter ≥ ambang, bukan SAW). CTA penutup = kalimat dengan isian.
+- Foto suasana `scene-*` dibuat dengan Gemini 3.1 Flash Image lewat Figma `generate_image` (kredit AI Figma
+  akun Kevin), berwarna asli, selalu berlabel "Ilustrasi AI" (`MoodPhoto label`).
+- Analisis: kartu profil tercetak → garis budget kuning menyapu katalog → hasil diurutkan skor (layout
+  animation) → Best Match mengisi bingkai (`HIGHLIGHT_MS` 1000). `?hold=1` berhenti di tahap 3, `?hold=best`
+  menampilkan Best Match tanpa redirect.
+
 Redesign R2 Landing (REDESIGN §15–16), keputusan Fahren:
 - Section "Garis kebutuhanmu" digabung ke hero: preset budget menggerakkan render (crossfade), garis
   kebutuhan di 3 callout (CPU/RAM/SSD), dan kartu Profil. Callout melayang hanya di lg+; di bawahnya
