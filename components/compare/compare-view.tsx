@@ -102,10 +102,23 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
     announce(`Kamu memilih ${nameOf(l)}. Keputusan tersimpan di perangkat ini.`)
   }
 
-  const chooseButton = (l: Laptop, className?: string, onCobalt = false) => (
+  // Di bidang kobalt: "signal" = kuning (banner rekomendasi), "quiet" = garis putih, kuning setelah dipilih (header tabel).
+  const chooseButton = (l: Laptop, className?: string, onCobalt?: "signal" | "quiet") => (
     <Button
       size="sm"
-      variant={onCobalt ? (chosen === l.id ? "inverse" : "signal") : chosen === l.id ? "primary" : "secondary"}
+      variant={
+        onCobalt === "signal"
+          ? chosen === l.id
+            ? "inverse"
+            : "signal"
+          : onCobalt === "quiet"
+            ? chosen === l.id
+              ? "signal"
+              : "inverse"
+            : chosen === l.id
+              ? "primary"
+              : "secondary"
+      }
       aria-pressed={chosen === l.id}
       onClick={() => (chosen === l.id ? clearDecision() : choose(l))}
       className={className}
@@ -127,7 +140,7 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
             </h2>
             <p className="type-body text-cobalt-100">{verdict.text}</p>
           </div>
-          {chooseButton(verdict.winner, "self-start md:self-center", true)}
+          {chooseButton(verdict.winner, "self-start md:self-center", "signal")}
         </section>
       )}
       {!profile && (
@@ -169,30 +182,44 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
       <div className="hidden md:block">
         <table className="w-full table-fixed border-separate border-spacing-0 type-small">
           <caption className="sr-only">Perbandingan {laptops.map(nameOf).join(", ")} dengan kebutuhanmu</caption>
-          <thead className="sticky top-0 z-10">
+          {/* R4: header sticky di bidang kobalt; pilihan laptop memakai tombol kuning. */}
+          <thead data-tone="cobalt" className="sticky top-0 z-10 text-white">
             <tr>
-              <th scope="col" className="w-[14%] border-b border-border bg-bg p-3 text-left align-bottom font-medium text-text-muted">
+              <th scope="col" className="w-[14%] rounded-tl-[16px] bg-cobalt-600 p-3 text-left align-bottom font-medium text-cobalt-100">
                 Spesifikasi
               </th>
-              <th scope="col" className="w-[18%] border-b border-border bg-surface p-3 text-left align-bottom">
-                <span className="type-small text-text">Kebutuhanmu</span>
+              <th scope="col" className="w-[18%] bg-cobalt-700 p-3 text-left align-bottom">
+                <span className="type-small text-white">Kebutuhanmu</span>
               </th>
-              {laptops.map((l) => (
-                <th key={l.id} scope="col" className="border-b border-border bg-bg p-3 text-left align-top font-normal">
+              {laptops.map((l, i) => (
+                <th
+                  key={l.id}
+                  scope="col"
+                  className={cn(
+                    "bg-cobalt-600 p-3 text-left align-top font-normal",
+                    i === laptops.length - 1 && "rounded-tr-[16px]"
+                  )}
+                >
                   <div className="flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-2">
-                      <span aria-hidden="true" className="grid aspect-[4/3] w-16 place-items-center rounded-control bg-surface text-text-muted">
+                      <span aria-hidden="true" className="grid aspect-[4/3] w-16 place-items-center rounded-control bg-cobalt-700 text-cobalt-100">
                         <LaptopIcon weight="bold" className="size-5" />
                       </span>
-                      <Button variant="ghost" size="icon" onClick={() => remove(l.id)} aria-label={`Hapus ${nameOf(l)} dari komparasi`}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => remove(l.id)}
+                        aria-label={`Hapus ${nameOf(l)} dari komparasi`}
+                        className="text-white hover:bg-cobalt-700 active:bg-cobalt-800"
+                      >
                         <XIcon weight="bold" aria-hidden="true" />
                       </Button>
                     </div>
-                    <Link href={`/laptop/${l.slug}`} className="type-small font-semibold text-text hover:underline">
+                    <Link href={`/laptop/${l.slug}`} className="type-small font-semibold text-white hover:underline">
                       {nameOf(l)}
                     </Link>
-                    <span className="num type-micro text-text-muted">{formatRupiah(l.priceIdr)}</span>
-                    {chooseButton(l, "self-start")}
+                    <span className="num type-micro text-cobalt-100">{formatRupiah(l.priceIdr)}</span>
+                    {chooseButton(l, "self-start", "quiet")}
                   </div>
                 </th>
               ))}

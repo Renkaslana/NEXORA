@@ -405,7 +405,7 @@ export function ResultsView() {
           >
             <Button asChild>
               <Link href={stepHref(missing.id)}>
-                Isi langkah {missing.label} <ArrowRightIcon weight="bold" aria-hidden="true" />
+                Isi langkah {missing.label} <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
               </Link>
             </Button>
           </StateMessage>
