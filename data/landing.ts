@@ -1,4 +1,4 @@
-import type { LandingCase, LandingMeterRef, PersonaId } from "@/types";
+import type { LandingCase, LandingMeterRef, PersonaId, SoftwareLoad } from "@/types";
 
 // Konten landing redesign (REDESIGN §16), disetujui Fahren. Data contoh, bukan testimoni:
 // angka laptop diambil dari data/laptops.ts dan ambang dari Profil Kebutuhan mock.
@@ -59,3 +59,23 @@ export const personaHighlights: Record<PersonaId, LandingMeterRef[]> = {
     { kind: "spec", component: "cpu" },
   ],
 };
+
+/**
+ * Interaksi landing "Laptop buat ___" (redesign "Kalimat terbelah", Okt 2026). Kebutuhan minimum
+ * kasar per beban software, memakai skala yang sama dengan ambang Profil Kebutuhan mock
+ * (cpuBench 0–100, RAM/SSD dalam GB). Angka contoh untuk demo, bukan perhitungan SAW.
+ */
+export const softwareLoadNeeds: Record<SoftwareLoad, { cpuBench: number; ramGb: number; storageGb: number }> = {
+  ringan: { cpuBench: 40, ramGb: 8, storageGb: 256 },
+  sedang: { cpuBench: 55, ramGb: 16, storageGb: 512 },
+  berat: { cpuBench: 70, ramGb: 16, storageGb: 512 },
+};
+
+/** Tambahan CPU bila dua software berat dipakai bersamaan (mis. Docker + Android Studio). */
+export const heavyComboCpuBonus = 10;
+
+/** Software yang butuh GPU terpisah. */
+export const gpuSoftware = ["blender", "premiere"];
+
+/** Pilihan awal kalimat "Laptop buat ___". */
+export const softwareSentenceDefault = ["docker", "figma"];

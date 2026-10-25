@@ -16,8 +16,8 @@ export function Footer() {
             NEXORA tidak menjual laptop, tidak memasang iklan, dan selalu menjelaskan trade-off.
           </p>
           <p className="type-micro font-medium tracking-normal text-text-muted">
-            Data contoh (demo): harga dan skor bukan data aktual. Gambar laptop adalah ilustrasi AI. Foto suasana:
-            StockSnap (CC0) dan ilustrasi AI.
+            Data contoh (demo): harga dan skor bukan data aktual. Gambar laptop dan foto suasana di landing adalah
+            ilustrasi AI (Gemini); sebagian foto suasana lain dari StockSnap (CC0).
           </p>
         </div>
       </div>

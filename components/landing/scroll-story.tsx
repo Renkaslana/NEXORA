@@ -47,13 +47,13 @@ function StepList({ active }: { active: number }) {
             aria-current={on ? "step" : undefined}
             className={cn(
               "flex gap-4 rounded-card p-4 transition-colors duration-[var(--motion-medium)]",
-              on ? "bg-bg shadow-sm" : "opacity-60"
+              on ? "bg-bg" : "opacity-60"
             )}
           >
             <span
               className={cn(
                 "num grid size-9 shrink-0 place-items-center rounded-[10px] type-small transition-colors duration-[var(--motion-medium)]",
-                on ? "bg-primary text-primary-foreground" : "bg-paper-100 text-text-muted"
+                on ? "bg-cobalt-600 text-white" : "bg-paper-100 text-text-muted"
               )}
             >
               {i + 1}
@@ -122,7 +122,7 @@ export function ScrollStory({ sample }: { sample: LandingSample }) {
     <>
       {/* ------------------------------------------------ Ter-pin: md+ tanpa reduced motion */}
       <div ref={wrapperRef} className="relative hidden h-[300vh] md:block motion-reduce:md:hidden">
-        <div className="sticky top-0 flex h-screen items-center">
+        <div className="sticky top-0 flex h-svh items-center">
           <div className="page-container grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
             <div className="lg:col-span-5">
               <StepList active={active} />
@@ -165,7 +165,7 @@ export function ScrollStory({ sample }: { sample: LandingSample }) {
         {STEPS.map(({ title, body, Snippet }, i) => (
           <li key={title} className="flex min-w-0 flex-col gap-4">
             <div className="flex gap-4">
-              <span className="num grid size-9 shrink-0 place-items-center rounded-[10px] bg-primary type-small text-primary-foreground">
+              <span className="num grid size-9 shrink-0 place-items-center rounded-[10px] bg-cobalt-600 type-small text-white">
                 {i + 1}
               </span>
               <div className="flex flex-col gap-1">
@@ -173,7 +173,7 @@ export function ScrollStory({ sample }: { sample: LandingSample }) {
                 <p className="type-body text-text-muted">{body}</p>
               </div>
             </div>
-            <div className="rounded-card border border-border bg-bg p-4">
+            <div className="rounded-[16px] bg-bg p-4">
               <Snippet sample={sample} />
             </div>
           </li>

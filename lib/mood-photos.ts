@@ -1,9 +1,11 @@
 import type { PersonaId } from "@/types"
 
 // Foto suasana (REDESIGN §24): hanya untuk suasana, tidak pernah disajikan sebagai produk NEXORA,
-// pengguna asli, atau testimoni. Semua sudah diberi duotone seragam (biru-950 → kertas) saat ekspor.
+// pengguna asli, atau testimoni. Foto lama (persona-*, band-desk) ber-duotone; foto "scene-*" berwarna asli,
+// dibuat dengan Gemini 3.1 Flash Image lewat Figma (redesign "Kalimat terbelah", Okt 2026).
 
-export type MoodPhotoId = `persona-${PersonaId}` | "band-desk"
+export type SceneId = "mall" | "kos" | "studio-dkv" | "krl" | "spec-card" | "kopi"
+export type MoodPhotoId = `persona-${PersonaId}` | "band-desk" | `scene-${SceneId}`
 
 export interface MoodPhotoMeta {
   src: string
@@ -14,6 +16,15 @@ export interface MoodPhotoMeta {
 }
 
 const STOCKSNAP = "StockSnap"
+const SCENE_CREDIT = { author: "CariSpek (Gemini via Figma)", source: "Ilustrasi AI", license: "Milik proyek" }
+
+const scene = (id: SceneId, title: string, alt: string): MoodPhotoMeta => ({
+  src: `/images/mood/scene-${id}.webp`,
+  width: 1200,
+  height: 896,
+  alt,
+  credit: { title, ...SCENE_CREDIT },
+})
 
 export const MOOD_PHOTOS: Record<MoodPhotoId, MoodPhotoMeta> = {
   "persona-teknik": {
@@ -51,4 +62,22 @@ export const MOOD_PHOTOS: Record<MoodPhotoId, MoodPhotoMeta> = {
     alt: "Meja kayu gelap dengan laptop, kopi, dan kacamata",
     credit: { title: "Macbook Laptop", author: "Lia Leslie", source: STOCKSNAP, url: "https://stocksnap.io/photo/macbook-laptop-DWLWL9USBG", license: "CC0" },
   },
+  "scene-mall": scene(
+    "mall",
+    "Lorong mal komputer",
+    "Ilustrasi: mahasiswa membandingkan laptop di etalase mal komputer, kartu spek tulisan tangan di setiap laptop"
+  ),
+  "scene-kos": scene("kos", "Kamar kos", "Ilustrasi: mahasiswa informatika menulis kode di laptop di kamar kos pada malam hari"),
+  "scene-studio-dkv": scene(
+    "studio-dkv",
+    "Studio DKV",
+    "Ilustrasi: mahasiswi DKV menyunting poster di laptop dengan tablet gambar di studio kampus"
+  ),
+  "scene-krl": scene("krl", "Kereta komuter", "Ilustrasi: mahasiswi hukum berdiri di KRL sambil memeluk laptop tipis"),
+  "scene-spec-card": scene(
+    "spec-card",
+    "Kartu spek etalase",
+    "Ilustrasi: tangan memegang kartu spek dan harga tulisan tangan di depan etalase laptop"
+  ),
+  "scene-kopi": scene("kopi", "Kedai kopi", "Ilustrasi: pekerja muda mengerjakan spreadsheet di laptop di kedai kopi"),
 }

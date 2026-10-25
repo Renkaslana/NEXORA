@@ -25,6 +25,19 @@
   --paper-50: #f9fafb;
   --paper-100: #f4f5f7;
 
+  /* Bidang kobalt + aksen sinyal (redesign "Kalimat terbelah", disetujui Fahren 25 Okt 2026).
+     Kobalt dipakai sebagai bidang penuh (hero, Analisis, CTA). Kuning hanya untuk aksi utama. */
+  --cobalt-100: #c5d0ff;
+  --cobalt-400: #6f8bff;
+  --cobalt-600: #0034eb;
+  --cobalt-700: #002fd6;
+  --cobalt-800: #0026ad;
+  --cobalt-950: #00176b;
+  --signal: #e9e34a;
+  --signal-hover: #f2ed73;
+  --signal-active: #d9d23a;
+  --signal-ink: #111111;
+
   /* Bidang di belakang render laptop: sama persis dengan latar render (REDESIGN §24) */
   --studio: #eef0f4;
 
@@ -114,6 +127,16 @@
   --color-paper-50: var(--paper-50);
   --color-paper-100: var(--paper-100);
   --color-studio: var(--studio);
+  --color-cobalt-100: var(--cobalt-100);
+  --color-cobalt-400: var(--cobalt-400);
+  --color-cobalt-600: var(--cobalt-600);
+  --color-cobalt-700: var(--cobalt-700);
+  --color-cobalt-800: var(--cobalt-800);
+  --color-cobalt-950: var(--cobalt-950);
+  --color-signal: var(--signal);
+  --color-signal-hover: var(--signal-hover);
+  --color-signal-active: var(--signal-active);
+  --color-signal-ink: var(--signal-ink);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -295,6 +318,10 @@
   [data-tone="dark"] :focus-visible {
     outline-color: var(--blue-400);
   }
+  /* Di bidang kobalt ring memakai kuning sinyal (kontras dengan kobalt dan dengan tombol putih) */
+  [data-tone="cobalt"] :focus-visible {
+    outline-color: var(--signal);
+  }
 }
 
 /* PRD §25: item baru di panel ringkasan masuk dengan highlight singkat */
@@ -308,6 +335,19 @@
 }
 @utility animate-flash {
   animation: nexora-flash 1.2s ease-out;
+}
+
+/* Gambar bergerak pelan (foto suasana, render CTA) */
+@keyframes nexora-drift {
+  from {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.08) translate3d(-1.5%, -1%, 0);
+  }
+}
+@utility animate-drift {
+  animation: nexora-drift 18s ease-in-out infinite alternate;
 }
 
 /* PRD §22/§28: semua animasi dimatikan saat prefers-reduced-motion */

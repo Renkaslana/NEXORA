@@ -8,6 +8,7 @@ import { Slot } from "radix-ui"
 // Radius 8px (§22). Tinggi M/L ≥ 44px; S 36px dengan area sentuh diperluas ke 44px (§24).
 // REDESIGN §14: tekan scale(0.97); ikon panah penutup (`data-arrow`, atau ArrowRight Lucide lama)
 // bergeser 3px saat hover; secondary yang `aria-pressed` tampil terpilih.
+// signal/inverse: untuk bidang kobalt (redesign "Kalimat terbelah").
 const buttonVariants = cva(
   "relative inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] ease-out select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_[data-arrow]]:transition-transform [&_.lucide-arrow-right]:transition-transform hover:[&_[data-arrow]]:translate-x-[3px] hover:[&_.lucide-arrow-right]:translate-x-[3px]",
   {
@@ -16,6 +17,11 @@ const buttonVariants = cva(
         primary: "bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-active",
         secondary:
           "border border-border bg-bg text-text hover:border-border-strong hover:bg-paper-100 active:bg-surface-hover aria-pressed:border-primary aria-pressed:bg-blue-50",
+        /* Aksi utama di bidang kobalt: satu-satunya pemakaian kuning sinyal. */
+        signal: "bg-signal text-signal-ink hover:bg-signal-hover active:bg-signal-active",
+        /* Aksi kedua di bidang kobalt. */
+        inverse:
+          "border border-white/50 text-white hover:border-white hover:bg-cobalt-700 active:bg-cobalt-800 aria-pressed:border-white aria-pressed:bg-white aria-pressed:text-cobalt-600",
         ghost: "text-text hover:bg-surface active:bg-surface-hover",
         link: "h-auto px-0 text-primary underline-offset-4 hover:underline active:scale-100",
       },

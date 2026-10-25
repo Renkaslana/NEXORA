@@ -1,5 +1,12 @@
 import { glossary } from "@/data/glossary";
-import { landingCases, personaHighlights } from "@/data/landing";
+import {
+  gpuSoftware,
+  heavyComboCpuBonus,
+  landingCases,
+  personaHighlights,
+  softwareLoadNeeds,
+  softwareSentenceDefault,
+} from "@/data/landing";
 import { laptops } from "@/data/laptops";
 import { requirementProfiles } from "@/data/mock-requirements";
 import { scenarios } from "@/data/mock-results";
@@ -121,6 +128,47 @@ export function getNoResultSuggestions(profile: UserProfile) {
 /** Konten landing redesign: kasus "Spek saja tidak menjawab" + kebutuhan khas persona. Statis. */
 export function getLandingContent() {
   return { cases: landingCases, personaHighlights };
+}
+
+/**
+ * Kebutuhan kasar untuk kalimat landing "Laptop buat ___". Sinkron (umpan balik langsung saat chip
+ * dipilih): ambil kebutuhan terbesar dari tiap software, lalu hitung laptop katalog yang memenuhi
+ * semua ambang. Penyaringan ≥ ambang biasa, bukan penilaian SAW.
+ */
+export function getSoftwareNeeds(softwareIds: string[]) {
+  const picked = software.filter((s) => softwareIds.includes(s.id));
+  const loads = picked.map((s) => softwareLoadNeeds[s.load]);
+  const heavy = picked.filter((s) => s.load === "berat").length;
+  const max = (k: "cpuBench" | "ramGb" | "storageGb") => Math.max(0, ...loads.map((l) => l[k]));
+  const needs = {
+    cpuBench: Math.min(95, max("cpuBench") + (heavy >= 2 ? heavyComboCpuBonus : 0)),
+    ramGb: max("ramGb"),
+    storageGb: max("storageGb"),
+    gpuDedicated: picked.some((s) => gpuSoftware.includes(s.id)) ? 1 : 0,
+  };
+  const matching = picked.length
+    ? laptops.filter(
+        (l) =>
+          l.cpu.benchScore >= needs.cpuBench &&
+          l.ram.gb >= needs.ramGb &&
+          l.storage.gb >= needs.storageGb &&
+          (!needs.gpuDedicated || l.gpu.type === "dedicated")
+      )
+    : [];
+  const cheapest = matching.reduce<number | null>((m, l) => (m === null || l.priceIdr < m ? l.priceIdr : m), null);
+  return {
+    picked: picked.map((s) => ({ id: s.id, label: s.label, load: s.load })),
+    gpuFor: picked.filter((s) => gpuSoftware.includes(s.id)).map((s) => s.label),
+    needs,
+    matchingCount: matching.length,
+    cheapestIdr: cheapest,
+    catalogSize: laptops.length,
+  };
+}
+
+/** Pilihan software untuk kalimat landing, dengan pilihan awal. Statis. */
+export function getSoftwareSentenceOptions() {
+  return { software: software.map((s) => ({ id: s.id, label: s.label, load: s.load })), initial: softwareSentenceDefault };
 }
 
 /** Penjelasan awam istilah teknis per komponen (PRD §28). Sinkron: konfigurasi statis. */
