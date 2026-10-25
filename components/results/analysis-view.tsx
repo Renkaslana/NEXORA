@@ -67,7 +67,7 @@ function stepsFor(profile: UserProfile): AnalyzingStep[] {
 
 // ---------------------------------------------------------------- Satu kali proses (remount untuk Coba lagi)
 
-function AnalysisRun({ mock, onRetry }: { mock: MockMode | null; onRetry: () => void }) {
+function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boolean; onRetry: () => void }) {
   const router = useRouter()
   const setResult = useResultsStore((s) => s.setResult)
   // Profil dibekukan saat proses dimulai.
@@ -85,17 +85,18 @@ function AnalysisRun({ mock, onRetry }: { mock: MockMode | null; onRetry: () => 
   }, [])
 
   // Tahap terakhir baru selesai setelah data datang.
-  const completed = state.status === "success" ? elapsed : Math.min(elapsed, steps.length - 1)
+  // `?hold=1` (halaman /dev/mockups): berhenti di tahap 3 tanpa pindah ke Hasil, untuk tangkapan layar.
+  const completed = Math.min(state.status === "success" ? elapsed : Math.min(elapsed, steps.length - 1), hold ? 3 : steps.length)
   const finished = state.status === "success" && completed === steps.length
 
   React.useEffect(() => {
-    if (!finished || state.status !== "success") return
+    if (hold || !finished || state.status !== "success") return
     setResult(profile, state.data)
     const t = window.setTimeout(() => {
       router.replace(mock === "empty" ? `${RESULT_HREF}?mock=empty` : RESULT_HREF)
     }, HIGHLIGHT_MS)
     return () => window.clearTimeout(t)
-  }, [finished, state, profile, setResult, router, mock])
+  }, [finished, state, profile, setResult, router, mock, hold])
 
   if (state.status === "error") {
     return (
@@ -209,7 +210,7 @@ export function AnalysisView() {
     <div className="flex min-h-full flex-1 flex-col">
       <FlowHeader />
       {hydrated && !missing ? (
-        <AnalysisRun key={attempt} mock={mock} onRetry={() => setAttempt((a) => a + 1)} />
+        <AnalysisRun key={attempt} mock={mock} hold={params.get("hold") === "1"} onRetry={() => setAttempt((a) => a + 1)} />
       ) : (
         <main className="page-container flex flex-1 flex-col items-center pt-12 pb-20 md:pt-20">
           {!hydrated && (

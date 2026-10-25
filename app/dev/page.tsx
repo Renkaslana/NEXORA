@@ -4,6 +4,7 @@ import Link from "next/link";
 const pages = [
   { href: "/", title: "Landing final", note: "A + preview C · PRD §12–13" },
   { href: "/dev/components", title: "Komponen inti", note: "Tahap 1 · PRD §23" },
+  { href: "/dev/mockups", title: "Mockup untuk Figma", note: "Daftar layar + data contoh untuk html.to.design" },
   { href: "/dev/landing-a", title: "Landing A — Hybrid", note: "Tahap 2 · PRD §12 Concept D, §13" },
   { href: "/dev/landing-b", title: "Landing B — Editorial", note: "Tahap 2 · PRD §12 Concept B" },
   { href: "/dev/landing-c", title: "Landing C — Konsultasi", note: "Tahap 2 · PRD §12 Concept C" },
