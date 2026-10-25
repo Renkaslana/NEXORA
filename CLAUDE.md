@@ -82,12 +82,17 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
     Detail), `MoodPhoto`, Button/SelectCard baru, semua di `/dev/components`.
   - [x] R2 Landing: hero hybrid + callout meter, "Spek saja tidak menjawab", cerita ter-pin, persona
     berfoto, band gelap, CTA dengan render.
-  - [ ] R3 Wizard/Profil/Analisis · [ ] R4 Hasil/Detail/Komparasi · [ ] R5 Should have
+  - [x] R3 Wizard/Profil/Analisis · [x] R4 Hasil/Detail/Komparasi (gaya kobalt, Okt 2026) · [ ] R5 Should have
 
 Redesign "Kalimat terbelah" (Okt 2026, disetujui Fahren; menggantikan tampilan R2 landing + Analisis R3):
 - Palet: bidang kobalt `--cobalt-600` #0034EB (hero, Analisis, CTA) + kuning `--signal` #E9E34A hanya untuk
   aksi utama (Button `signal`); di bidang kobalt aksi kedua `inverse`, focus ring kuning (`data-tone="cobalt"`).
-  Navbar/FlowHeader punya `tone="cobalt"`. Halaman lain belum ikut (R4).
+  Navbar/FlowHeader punya `tone="cobalt"`.
+- R4 (disetujui Fahren): `--primary` dan ramp `blue-*` digeser ke kobalt, jadi semua halaman memakai satu biru.
+  Wizard = band kobalt (FlowHeader, Stepper `tone="cobalt"`, pertanyaan); Profil = kartu karakter kobalt;
+  Hasil = Best Match di bidang kobalt (`ScoreRing tone="cobalt"`); Detail = hero band kobalt; Komparasi =
+  banner + header tabel kobalt. Kuning tetap hanya untuk aksi utama di bidang kobalt.
+- Semua ikon Lucide di luar `/dev` sudah diganti Phosphor (arsip `/dev/*` masih memakai Lucide).
 - Landing: hero = kalimat "Laptop buat kuliahmu, / pas di budget-mu." dibelah bingkai studio (h1 sr-only,
   belahan visual aria-hidden). Interaksi utama "Laptop buat ___" (`getSoftwareNeeds()`, mock
   `softwareLoadNeeds` di data/landing.ts: filter ≥ ambang, bukan SAW). CTA penutup = kalimat dengan isian.
