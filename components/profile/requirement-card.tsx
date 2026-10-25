@@ -1,35 +1,33 @@
 import { cn } from "cn"
-import {
-  BatteryFull,
-  CircleDashed,
-  Cpu,
-  Gpu,
-  HardDrive,
-  MemoryStick,
-  Monitor,
-  ShieldCheck,
-  ThumbsUp,
-  TriangleAlert,
-  type LucideIcon,
-} from "lucide-react"
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react"
+import { BatteryFullIcon } from "@phosphor-icons/react/dist/ssr/BatteryFull"
+import { CircleDashedIcon } from "@phosphor-icons/react/dist/ssr/CircleDashed"
+import { CpuIcon } from "@phosphor-icons/react/dist/ssr/Cpu"
+import { GraphicsCardIcon } from "@phosphor-icons/react/dist/ssr/GraphicsCard"
+import { HardDrivesIcon } from "@phosphor-icons/react/dist/ssr/HardDrives"
+import { MemoryIcon } from "@phosphor-icons/react/dist/ssr/Memory"
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor"
+import { ShieldCheckIcon } from "@phosphor-icons/react/dist/ssr/ShieldCheck"
+import { ThumbsUpIcon } from "@phosphor-icons/react/dist/ssr/ThumbsUp"
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning"
 import type { RequirementLevel, RequirementProfile, RequirementWarning, SpecComponent, SpecRequirement } from "@/types"
 
 // PRD §23 Spec Requirement Card ★ (Wajib/Disarankan/Opsional) dan ringkasan Profil Kebutuhan (§16).
 // Tingkat kepentingan selalu ikon + teks, tidak hanya warna (§16, §28).
 
-export const componentMeta: Record<SpecComponent, { label: string; icon: LucideIcon }> = {
-  cpu: { label: "CPU", icon: Cpu },
-  ram: { label: "RAM", icon: MemoryStick },
-  storage: { label: "Storage", icon: HardDrive },
-  gpu: { label: "GPU", icon: Gpu },
-  layar: { label: "Layar", icon: Monitor },
-  baterai: { label: "Baterai", icon: BatteryFull },
+export const componentMeta: Record<SpecComponent, { label: string; icon: PhosphorIcon }> = {
+  cpu: { label: "CPU", icon: CpuIcon },
+  ram: { label: "RAM", icon: MemoryIcon },
+  storage: { label: "Storage", icon: HardDrivesIcon },
+  gpu: { label: "GPU", icon: GraphicsCardIcon },
+  layar: { label: "Layar", icon: MonitorIcon },
+  baterai: { label: "Baterai", icon: BatteryFullIcon },
 }
 
-const levelMeta: Record<RequirementLevel, { label: string; icon: LucideIcon; className: string }> = {
-  wajib: { label: "Wajib", icon: ShieldCheck, className: "bg-primary-soft text-primary" },
-  disarankan: { label: "Disarankan", icon: ThumbsUp, className: "bg-surface text-text" },
-  opsional: { label: "Opsional", icon: CircleDashed, className: "bg-surface text-text-muted" },
+const levelMeta: Record<RequirementLevel, { label: string; icon: PhosphorIcon; className: string }> = {
+  wajib: { label: "Wajib", icon: ShieldCheckIcon, className: "bg-primary-soft text-primary" },
+  disarankan: { label: "Disarankan", icon: ThumbsUpIcon, className: "bg-surface text-text" },
+  opsional: { label: "Opsional", icon: CircleDashedIcon, className: "bg-surface text-text-muted" },
 }
 
 export function LevelBadge({ level }: { level: RequirementLevel }) {
@@ -47,7 +45,7 @@ export function SpecRow({ spec, showReason = true }: { spec: SpecRequirement; sh
   const { label, icon: Icon } = componentMeta[spec.component]
   return (
     <li className="flex gap-3 py-3 first:pt-0 last:pb-0">
-      <Icon className="mt-0.5 size-5 shrink-0 text-text-muted" strokeWidth={1.5} aria-hidden="true" />
+      <Icon className="mt-0.5 size-5 shrink-0 text-text-muted" aria-hidden="true" />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
           <p className="type-small text-text">
@@ -65,7 +63,7 @@ export function SpecRow({ spec, showReason = true }: { spec: SpecRequirement; sh
 export function WarningBanner({ warning, compact = false }: { warning: RequirementWarning; compact?: boolean }) {
   return (
     <div role="note" className="flex gap-3 rounded-control bg-warning/8 p-3 text-text">
-      <TriangleAlert className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
+      <WarningIcon weight="bold" className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden="true" />
       <div className="flex flex-col gap-1">
         <p className="type-small text-text">
           <span className="sr-only">Peringatan: </span>

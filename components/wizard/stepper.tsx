@@ -1,10 +1,10 @@
 "use client"
 
 import { cn } from "cn"
-import { Check } from "lucide-react"
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check"
 
 // PRD §23 Stepper ★: 5 langkah · Done/Current/Upcoming · titik di desktop, progress bar di
-// mobile (§15, §24). Langkah selesai bisa diklik untuk kembali.
+// mobile (§15, §24). Langkah selesai bisa diklik untuk kembali. `tone="cobalt"` untuk band kobalt Wizard (R4).
 
 interface StepperStep {
   id: string
@@ -20,20 +20,23 @@ interface StepperProps {
   onStepClick?: (index: number) => void
   /** auto = bar di < md, titik di ≥ md. */
   variant?: "auto" | "dots" | "bar"
+  tone?: "default" | "cobalt"
   className?: string
 }
 
 const pad = (n: number) => String(n).padStart(2, "0")
 
-function StepperBar({ steps, current }: Pick<StepperProps, "steps" | "current">) {
+function StepperBar({ steps, current, tone }: Pick<StepperProps, "steps" | "current" | "tone">) {
+  const cobalt = tone === "cobalt"
   const percent = ((current + 1) / steps.length) * 100
   return (
     <div className="flex flex-col gap-2">
-      <p className="flex items-baseline justify-between type-small text-text-muted">
+      <p className={cn("flex items-baseline justify-between type-small", cobalt ? "text-cobalt-100" : "text-text-muted")}>
         <span>
-          Langkah <span className="num text-text">{current + 1}</span> dari <span className="num">{steps.length}</span>
+          Langkah <span className={cn("tabular-nums", cobalt ? "text-white" : "text-text")}>{current + 1}</span> dari{" "}
+          <span className="tabular-nums">{steps.length}</span>
         </span>
-        <span className="font-semibold text-text">{steps[current]?.label}</span>
+        <span className={cn("font-semibold", cobalt ? "text-white" : "text-text")}>{steps[current]?.label}</span>
       </p>
       <div
         role="progressbar"
@@ -42,10 +45,10 @@ function StepperBar({ steps, current }: Pick<StepperProps, "steps" | "current">)
         aria-valuemax={steps.length}
         aria-valuenow={current + 1}
         aria-valuetext={`Langkah ${current + 1} dari ${steps.length}: ${steps[current]?.label}`}
-        className="h-1.5 w-full overflow-hidden rounded-full bg-border"
+        className={cn("h-1.5 w-full overflow-hidden rounded-full", cobalt ? "bg-cobalt-800" : "bg-border")}
       >
         <div
-          className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
+          className={cn("h-full rounded-full transition-[width] duration-300 ease-out", cobalt ? "bg-signal" : "bg-primary")}
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -53,8 +56,9 @@ function StepperBar({ steps, current }: Pick<StepperProps, "steps" | "current">)
   )
 }
 
-function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "variant" | "className">) {
+function StepperDots({ steps, current, done, onStepClick, tone }: Omit<StepperProps, "variant" | "className">) {
   const isDone = (i: number) => (done ? done.includes(i) : i < current)
+  const cobalt = tone === "cobalt"
   return (
     <ol className="flex items-start">
       {steps.map((step, index) => {
@@ -65,18 +69,28 @@ function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "
             <span
               aria-hidden="true"
               className={cn(
-                "flex size-8 shrink-0 items-center justify-center rounded-full border-2 num type-micro transition-colors duration-200",
-                state === "done" && "border-primary bg-primary text-primary-foreground",
-                state === "current" && "border-primary bg-bg text-primary",
-                state === "upcoming" && "border-border bg-bg text-text-muted"
+                "flex size-8 shrink-0 items-center justify-center rounded-full border-2 type-micro tabular-nums transition-colors duration-200",
+                cobalt
+                  ? [
+                      state === "done" && "border-white bg-white text-cobalt-600",
+                      state === "current" && "border-signal bg-signal text-signal-ink",
+                      state === "upcoming" && "border-cobalt-400 text-cobalt-100",
+                    ]
+                  : [
+                      state === "done" && "border-primary bg-primary text-primary-foreground",
+                      state === "current" && "border-primary bg-bg text-primary",
+                      state === "upcoming" && "border-border bg-bg text-text-muted",
+                    ]
               )}
             >
-              {state === "done" ? <Check className="size-4" strokeWidth={2.5} /> : pad(index + 1)}
+              {state === "done" ? <CheckIcon weight="bold" className="size-4" /> : pad(index + 1)}
             </span>
             <span
               className={cn(
                 "type-small whitespace-nowrap",
-                state === "upcoming" ? "font-medium text-text-muted" : "font-semibold text-text"
+                state === "upcoming"
+                  ? cn("font-medium", cobalt ? "text-cobalt-100" : "text-text-muted")
+                  : cn("font-semibold", cobalt ? "text-white" : "text-text")
               )}
             >
               <span className="sr-only">
@@ -96,7 +110,10 @@ function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "
               <button
                 type="button"
                 onClick={() => onStepClick(index)}
-                className="flex min-h-11 flex-col items-center gap-2 rounded-control px-1 hover:[&>span:first-child]:bg-primary-hover"
+                className={cn(
+                  "flex min-h-11 flex-col items-center gap-2 rounded-control px-1",
+                  cobalt ? "hover:[&>span:first-child]:bg-cobalt-100" : "hover:[&>span:first-child]:bg-primary-hover"
+                )}
               >
                 {content}
               </button>
@@ -104,9 +121,12 @@ function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "
               <div className="flex min-h-11 flex-col items-center gap-2 px-1">{content}</div>
             )}
             {index < steps.length - 1 && (
-              <span aria-hidden="true" className="mx-1 mt-4 h-0.5 flex-1 overflow-hidden rounded-full bg-border">
+              <span
+                aria-hidden="true"
+                className={cn("mx-1 mt-4 h-0.5 flex-1 overflow-hidden rounded-full", cobalt ? "bg-cobalt-400" : "bg-border")}
+              >
                 <span
-                  className="block h-full bg-primary transition-[width] duration-300 ease-out"
+                  className={cn("block h-full transition-[width] duration-300 ease-out", cobalt ? "bg-white" : "bg-primary")}
                   style={{ width: isDone(index) ? "100%" : "0%" }}
                 />
               </span>
@@ -118,17 +138,17 @@ function StepperDots({ steps, current, done, onStepClick }: Omit<StepperProps, "
   )
 }
 
-function Stepper({ steps, current, done, onStepClick, variant = "auto", className }: StepperProps) {
+function Stepper({ steps, current, done, onStepClick, variant = "auto", tone = "default", className }: StepperProps) {
   return (
     <nav aria-label="Langkah rekomendasi" className={className}>
       {variant !== "dots" && (
         <div className={cn(variant === "auto" && "md:hidden")}>
-          <StepperBar steps={steps} current={current} />
+          <StepperBar steps={steps} current={current} tone={tone} />
         </div>
       )}
       {variant !== "bar" && (
         <div className={cn(variant === "auto" && "hidden md:block")}>
-          <StepperDots steps={steps} current={current} done={done} onStepClick={onStepClick} />
+          <StepperDots steps={steps} current={current} done={done} onStepClick={onStepClick} tone={tone} />
         </div>
       )}
     </nav>

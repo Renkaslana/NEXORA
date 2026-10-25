@@ -1,5 +1,5 @@
 import { cn } from "cn"
-import { ChevronDown } from "lucide-react"
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown"
 import { componentMeta, LevelBadge } from "@/components/profile/requirement-card"
 import type { SpecRequirement } from "@/types"
 
@@ -27,7 +27,7 @@ export function SpecRequirementCard({ spec, glossary, className }: SpecRequireme
     >
       <div className="flex items-start justify-between gap-3">
         <span className="flex items-center gap-2 text-text-muted">
-          <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
+          <Icon className="size-5" aria-hidden="true" />
           <span className="type-small">{label}</span>
         </span>
         <LevelBadge level={spec.level} />
@@ -45,7 +45,7 @@ export function SpecRequirementCard({ spec, glossary, className }: SpecRequireme
         <details className="group mt-auto">
           <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1 rounded-control type-small text-primary hover:underline [&::-webkit-details-marker]:hidden">
             Apa itu {glossary.term}?
-            <ChevronDown className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+            <CaretDownIcon weight="bold" className="size-4 transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
           </summary>
           <p className="pt-1 type-small font-normal text-text-muted">{glossary.explanation}</p>
         </details>

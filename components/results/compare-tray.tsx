@@ -4,7 +4,10 @@ import * as React from "react"
 import Link from "next/link"
 import { cn } from "cn"
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { ChevronDown, GitCompareArrows, Laptop, X } from "lucide-react"
+import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight"
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown"
+import { LaptopIcon } from "@phosphor-icons/react/dist/ssr/Laptop"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 import { Button } from "@/components/ui/button"
 import { MAX_COMPARE, rehydrateCompare, useCompareHydrated, useCompareStore } from "@/store/compare"
 
@@ -62,7 +65,7 @@ export function CompareTray({ notice, raised = false }: CompareTrayProps) {
           onClick={() => setExpanded((e) => !e)}
           className="flex min-h-11 flex-1 items-center gap-2 rounded-control text-left"
         >
-          <GitCompareArrows className="size-5 shrink-0 text-primary" aria-hidden="true" />
+          <ArrowsLeftRightIcon weight="bold" className="size-5 shrink-0 text-primary" aria-hidden="true" />
           <span className="flex flex-col">
             <span className="type-small text-text">
               <span className="num">{items.length}</span> dari {MAX_COMPARE} laptop dipilih
@@ -71,7 +74,7 @@ export function CompareTray({ notice, raised = false }: CompareTrayProps) {
               {ready ? "Siap dibandingkan" : "Pilih minimal 1 laptop lagi"}
             </span>
           </span>
-          <ChevronDown
+          <CaretDownIcon weight="bold"
             className={cn("ml-auto size-5 text-text-muted transition-transform duration-200", expanded && "rotate-180")}
             aria-hidden="true"
           />
@@ -96,7 +99,7 @@ export function CompareTray({ notice, raised = false }: CompareTrayProps) {
             {items.map((item) => (
               <motion.li key={item.id} layout={!reduceMotion} {...pop} transition={{ duration: 0.2 }} className="flex items-center gap-3">
                 <span aria-hidden="true" className="grid aspect-[4/3] w-14 shrink-0 place-items-center rounded-control bg-surface text-text-muted">
-                  <Laptop className="size-4" strokeWidth={1.5} />
+                  <LaptopIcon weight="bold" className="size-4" />
                 </span>
                 <Link href={`/laptop/${item.slug}`} className="min-w-0 flex-1 truncate type-small text-text hover:underline">
                   {item.name}
@@ -107,7 +110,7 @@ export function CompareTray({ notice, raised = false }: CompareTrayProps) {
                   onClick={() => remove(item.id)}
                   aria-label={`Hapus ${item.name} dari komparasi`}
                 >
-                  <X aria-hidden="true" />
+                  <XIcon weight="bold" aria-hidden="true" />
                 </Button>
               </motion.li>
             ))}

@@ -8,15 +8,16 @@
  */
 
 :root {
-  /* Ramp biru (REDESIGN §10). blue-700 = primary PRD. */
-  --blue-50: #eff5ff;
-  --blue-100: #dce8ff;
-  --blue-200: #bfd4ff;
-  --blue-400: #5e8bff;
-  --blue-600: #2152e8;
-  --blue-700: #1d4ed8;
-  --blue-800: #1a3fb0;
-  --blue-950: #0e1f55;
+  /* Ramp biru (REDESIGN §10), digeser ke rona kobalt sejak R4 agar semua blue-* menyatu dengan
+     bidang kobalt (disetujui Fahren, Okt 2026). blue-700 = kobalt-600 = primary. */
+  --blue-50: #eef1ff;
+  --blue-100: #dde3ff;
+  --blue-200: #c5d0ff;
+  --blue-400: #6f8bff;
+  --blue-600: #1f4bff;
+  --blue-700: #0034eb;
+  --blue-800: #0026ad;
+  --blue-950: #00176b;
 
   /* Tinta untuk section gelap (maks. satu per layar) dan kertas */
   --ink-950: #0a0f1c;
@@ -47,7 +48,8 @@
   --border: #e4e4e7;
   --text: #18181b;
   --text-muted: #52525b;
-  --primary: var(--blue-700);
+  /* Primary = kobalt sejak R4 (disetujui Fahren, Okt 2026); dulu blue-700 PRD. */
+  --primary: var(--cobalt-600);
   --primary-soft: var(--blue-50);
   --success: #15803d;
   --warning: #b45309;
@@ -59,8 +61,8 @@
   --info-soft: #f0f9ff;
 
   /* State turunan (bukan warna aksen baru): hover/active (REDESIGN §14) */
-  --primary-hover: var(--blue-600);
-  --primary-active: var(--blue-800);
+  --primary-hover: var(--cobalt-700);
+  --primary-active: var(--cobalt-800);
   --surface-hover: #efeff1;
   --border-strong: #d4d4d8;
 

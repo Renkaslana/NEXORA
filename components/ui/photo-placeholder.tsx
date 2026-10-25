@@ -1,5 +1,5 @@
 import { cn } from "cn"
-import { Laptop } from "lucide-react"
+import { LaptopIcon } from "@phosphor-icons/react/dist/ssr/Laptop"
 
 // Placeholder foto produk 4:3 (PRD §22 Imagery). Diganti foto asli tiga perempat
 // berlatar `surface` saat aset tersedia.
@@ -25,7 +25,7 @@ function PhotoPlaceholder({
         className
       )}
     >
-      <Laptop className={cn("size-10 stroke-[1.25]", iconClassName)} aria-hidden="true" />
+      <LaptopIcon weight="bold" className={cn("size-10 stroke-[1.25]", iconClassName)} aria-hidden="true" />
       <span className="type-micro">{label}</span>
     </div>
   )

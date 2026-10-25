@@ -4,7 +4,12 @@ import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { motion, useReducedMotion } from "motion/react"
-import { ArrowRight, CircleAlert, ClipboardList, Pencil, RotateCcw, SearchX } from "lucide-react"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
+import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
+import { ClipboardTextIcon } from "@phosphor-icons/react/dist/ssr/ClipboardText"
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass"
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple"
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
 import { FlowHeader } from "@/components/layout/flow-header"
 import { profileChipItems } from "@/components/profile/profile-chips"
 import { CompareTray } from "@/components/results/compare-tray"
@@ -186,7 +191,7 @@ function NoResult({ profile }: { profile: UserProfile }) {
 
   return (
     <StateMessage
-      icon={SearchX}
+      icon={MagnifyingGlassIcon}
       title="Belum ada laptop yang memenuhi semua syaratmu."
       body={
         constraints.length
@@ -273,13 +278,13 @@ function FetchedResults({
   if (state.status === "error") {
     return (
       <StateMessage
-        icon={CircleAlert}
+        icon={WarningCircleIcon}
         tone="danger"
         title="Gagal memuat rekomendasi"
         body="Terjadi kesalahan saat membuat rekomendasi. Jawabanmu tetap tersimpan."
       >
         <Button onClick={onRetry}>
-          <RotateCcw aria-hidden="true" /> Coba lagi
+          <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Coba lagi
         </Button>
         <Button asChild variant="secondary">
           <Link href={stepHref("budget")}>Ubah jawaban</Link>
@@ -359,7 +364,7 @@ export function ResultsView() {
   const render = (set: RecommendationSet) => (
     <>
       <header className="flex flex-col gap-4">
-        <h1 className="type-h1 text-text">
+        <h1 className="max-w-4xl text-3xl leading-[1.1] font-extrabold tracking-[-0.035em] text-text md:text-[2.75rem]">
           {set.items.length === 0
             ? "Belum ada hasil untuk profilmu"
             : `Kami menemukan ${set.items.length} laptop yang cocok dengan kebutuhanmu.`}
@@ -371,7 +376,7 @@ export function ResultsView() {
               href={stepHref("budget")}
               className="inline-flex min-h-11 items-center gap-1 rounded-control type-small text-primary hover:underline"
             >
-              <Pencil className="size-3.5" aria-hidden="true" /> Ubah
+              <PencilSimpleIcon weight="bold" className="size-3.5" aria-hidden="true" /> Ubah
             </Link>
           </p>
         )}
@@ -388,19 +393,19 @@ export function ResultsView() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader />
+      <FlowHeader tone="cobalt" />
       <main className="page-container flex flex-1 flex-col gap-8 pt-8 pb-48 md:pt-12 md:pb-32">
         {!hydrated && <ResultsSkeleton />}
 
         {missing && (
           <StateMessage
-            icon={ClipboardList}
+            icon={ClipboardTextIcon}
             title="Jawab dulu beberapa pertanyaan"
             body={`Rekomendasi disusun dari jawabanmu. Langkah "${missing.label}" belum diisi.`}
           >
             <Button asChild>
               <Link href={stepHref(missing.id)}>
-                Isi langkah {missing.label} <ArrowRight aria-hidden="true" />
+                Isi langkah {missing.label} <ArrowRightIcon weight="bold" aria-hidden="true" />
               </Link>
             </Button>
           </StateMessage>

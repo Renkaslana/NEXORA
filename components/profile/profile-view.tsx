@@ -34,7 +34,7 @@ const personas = getWizardOptions().personas
 function GridSkeleton() {
   return (
     <div className="flex flex-col gap-6" aria-hidden="true">
-      <Skeleton className="h-48 rounded-card bg-ink-900" />
+      <Skeleton className="h-48 rounded-[20px] bg-cobalt-600/80" />
       <div className="flex flex-col gap-3">
         {Array.from({ length: 6 }, (_, i) => (
           <Skeleton key={i} className="h-20 rounded-card bg-surface" />
@@ -195,10 +195,12 @@ export function ProfileView() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader />
+      <FlowHeader tone="cobalt" />
       <main className="page-container flex flex-1 flex-col gap-8 pt-8 pb-32 md:pt-12 lg:pb-20">
         <header className="flex flex-col gap-4">
-          <h1 className="type-h1 text-text">Profil Laptop Kamu</h1>
+          <h1 className="text-4xl leading-[1.05] font-extrabold tracking-[-0.04em] text-text md:text-5xl">
+            Profil Laptop Kamu
+          </h1>
           {ready ? (
             <ProfileChips profile={profile} />
           ) : (

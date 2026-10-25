@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "cn"
-import { Star } from "lucide-react"
+import { StarIcon } from "@phosphor-icons/react/dist/ssr/Star"
 import { BudgetSlider } from "@/components/wizard/budget-slider"
 import { getOptionIcon } from "@/components/wizard/option-icon"
 import { SelectCard } from "@/components/wizard/select-card"
@@ -85,7 +85,7 @@ export function ActivityStep() {
 
       {selected.length === 1 && (
         <p className="flex items-center gap-2 type-small font-normal text-text">
-          <Star className="size-4 fill-primary text-primary" aria-hidden="true" />
+          <StarIcon weight="fill" className="size-4 text-primary" aria-hidden="true" />
           <span>
             <strong className="font-semibold">{selected[0].label}</strong> menjadi aktivitas utama. Pilih aktivitas
             lain bila ada.
@@ -121,7 +121,7 @@ export function ActivityStep() {
                   onChange={() => setPrimary(a.id)}
                   className="sr-only"
                 />
-                <Star className={cn("size-4", primary === a.id && "fill-current")} aria-hidden="true" />
+                <StarIcon weight={primary === a.id ? "fill" : "regular"} className="size-4" aria-hidden="true" />
                 {a.label}
               </label>
             ))}

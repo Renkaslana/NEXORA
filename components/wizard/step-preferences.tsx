@@ -2,7 +2,12 @@
 
 import * as React from "react"
 import { cn } from "cn"
-import { ArrowDown, ArrowUp, Plus, RotateCcw, Search, X } from "lucide-react"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown"
+import { ArrowUpIcon } from "@phosphor-icons/react/dist/ssr/ArrowUp"
+import { MagnifyingGlassIcon } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass"
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { Slider } from "@/components/ui/slider"
@@ -62,7 +67,7 @@ export function SoftwareStep() {
       <label className="flex max-w-md flex-col gap-1.5">
         <span className="type-small text-text">Cari aplikasi</span>
         <span className="flex h-11 items-center gap-2 rounded-control border border-border bg-bg px-3 focus-within:border-primary">
-          <Search className="size-5 shrink-0 text-text-muted" aria-hidden="true" />
+          <MagnifyingGlassIcon weight="bold" className="size-5 shrink-0 text-text-muted" aria-hidden="true" />
           <input
             type="search"
             value={query}
@@ -148,7 +153,7 @@ function RankMode() {
                   onClick={() => move(c, -1)}
                   aria-label={`Naikkan ${priorityLabel(c)}`}
                 >
-                  <ArrowUp aria-hidden="true" />
+                  <ArrowUpIcon weight="bold" aria-hidden="true" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -157,7 +162,7 @@ function RankMode() {
                   onClick={() => move(c, 1)}
                   aria-label={`Turunkan ${priorityLabel(c)}`}
                 >
-                  <ArrowDown aria-hidden="true" />
+                  <ArrowDownIcon weight="bold" aria-hidden="true" />
                 </Button>
                 <Button
                   variant="ghost"
@@ -165,7 +170,7 @@ function RankMode() {
                   onClick={() => togglePriority(c)}
                   aria-label={`Hapus ${priorityLabel(c)} dari prioritas`}
                 >
-                  <X aria-hidden="true" />
+                  <XIcon weight="bold" aria-hidden="true" />
                 </Button>
               </li>
             ))}
@@ -196,7 +201,7 @@ function RankMode() {
                 onClick={() => togglePriority(p.criterion)}
                 className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border bg-bg px-4 type-small text-text transition-colors duration-150 hover:border-border-strong hover:bg-surface disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Plus className="size-4" aria-hidden="true" />
+                <PlusIcon weight="bold" className="size-4" aria-hidden="true" />
                 {p.label}
               </button>
             ))}
@@ -221,7 +226,7 @@ function WeightMode() {
           <span className="num text-text">100%</span>.
         </p>
         <Button variant="ghost" size="sm" onClick={resetWeights}>
-          <RotateCcw aria-hidden="true" /> Bagi rata
+          <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Bagi rata
         </Button>
       </div>
       <ul className="flex flex-col gap-1">

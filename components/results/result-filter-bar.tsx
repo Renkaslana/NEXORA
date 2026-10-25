@@ -1,7 +1,7 @@
 "use client"
 
 import { cn } from "cn"
-import { RotateCcw } from "lucide-react"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
 import { Button } from "@/components/ui/button"
 
 // Bar filter Hasil (PRD §17, disetujui Fahren sebagai bar, bukan sidebar): hanya mempersempit
@@ -91,7 +91,7 @@ export function ResultFilterBar({ brands, sizes, value, onChange, shown, total }
         </p>
         {active && (
           <Button variant="ghost" size="sm" onClick={() => onChange({ ...value, brands: [], sizes: [] })}>
-            <RotateCcw aria-hidden="true" /> Hapus filter
+            <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Hapus filter
           </Button>
         )}
       </div>

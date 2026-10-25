@@ -19,7 +19,7 @@ import { getWizardOptions } from "@/lib/api"
 import { DURATION, EASE_OUT } from "@/lib/motion"
 import { rehydrateProfile, useProfileHydrated, useProfileStore } from "@/store/profile"
 
-// Kerangka Wizard (PRD §15, §24; REDESIGN §17): stepper di atas, pertanyaan 8 kolom + panel
+// Kerangka Wizard (PRD §15, §24; REDESIGN §17; R4 band kobalt): stepper di atas, pertanyaan 8 kolom + panel
 // "Profil kamu terbentuk" 4 kolom, tombol Kembali/Lanjut di bawah. Mobile: strip meter mini yang bisa
 // dibuka, tombol menempel. Transisi langkah mengikuti arah maju/mundur (gerak 6).
 // Dipasang di layout route group sehingga tetap terpasang saat berpindah langkah.
@@ -159,62 +159,72 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
     </div>
   )
 
+  const enter = {
+    initial: reduceMotion ? false : { opacity: 0, x: 24 * direction },
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: DURATION.medium, ease: EASE_OUT },
+  } as const
+
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <React.Suspense fallback={null}>
         <UrlPrefill />
       </React.Suspense>
 
-      <FlowHeader />
+      {/* Band kobalt (R4): header, stepper, dan pertanyaan. Pilihan dan panel Profil di kertas putih. */}
+      <div data-tone="cobalt" className="bg-cobalt-600 text-white">
+        <FlowHeader tone="cobalt" />
+        <div className="page-container flex flex-col gap-8 pt-4 pb-8 md:pt-6 md:pb-10">
+          <Stepper
+            steps={wizardSteps}
+            current={index}
+            done={hydrated ? wizardSteps.flatMap((s, i) => (answered.includes(s.id) ? [i] : [])) : []}
+            onStepClick={(i) => router.push(stepHref(wizardSteps[i].id))}
+            tone="cobalt"
+            className="lg:max-w-[calc(66.666%-0.5rem)]"
+          />
 
-      <div className="page-container flex flex-1 flex-col gap-6 pt-6 pb-28 md:pt-10 lg:pb-16">
-        <Stepper
-          steps={wizardSteps}
-          current={index}
-          done={hydrated ? wizardSteps.flatMap((s, i) => (answered.includes(s.id) ? [i] : [])) : []}
-          onStepClick={(i) => router.push(stepHref(wizardSteps[i].id))}
-          className="lg:max-w-[calc(66.666%-0.5rem)]"
-        />
+          <motion.header key={stepId} {...enter} className="flex max-w-3xl flex-col gap-3">
+            <p className="text-cobalt-100 tabular-nums" aria-hidden="true">
+              <span className="text-5xl leading-none font-extrabold tracking-[-0.04em] text-white">
+                {String(index + 1).padStart(2, "0")}
+              </span>{" "}
+              <span className="type-body">/ {String(wizardSteps.length).padStart(2, "0")}</span>
+            </p>
+            <h1
+              ref={headingRef}
+              tabIndex={-1}
+              id="step-question"
+              className="text-3xl leading-[1.1] font-extrabold tracking-[-0.035em] text-white outline-none md:text-[2.75rem]"
+            >
+              {step.question}
+            </h1>
+            <p className="max-w-[40rem] type-body-l text-cobalt-100">{step.helper}</p>
+            {error && (
+              <p
+                id="step-error"
+                role={showError ? "alert" : undefined}
+                className={cn(
+                  "flex items-center gap-2 type-small",
+                  showError ? "self-start rounded-full bg-signal px-3 py-1 text-signal-ink" : "font-normal text-cobalt-100"
+                )}
+              >
+                <WarningCircleIcon weight="bold" className="size-4 shrink-0" aria-hidden="true" />
+                {error}
+              </p>
+            )}
+          </motion.header>
+        </div>
+      </div>
 
+      <div className="page-container flex flex-1 flex-col gap-6 pt-6 pb-28 md:pt-8 lg:pb-16">
         <div className="lg:hidden">
           <ProfileFormingMobile current={stepId} forming={forming} />
         </div>
 
         <div className="grid flex-1 gap-8 lg:grid-cols-12 lg:gap-6">
           <main className="flex min-w-0 flex-col gap-8 lg:col-span-8">
-            <motion.div
-              key={stepId}
-              initial={reduceMotion ? false : { opacity: 0, x: 24 * direction }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
-              className="flex flex-col gap-8"
-            >
-              <header className="flex flex-col gap-3">
-                <p className="num text-text-muted" aria-hidden="true">
-                  <span className="text-4xl leading-none tracking-tight text-primary">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>{" "}
-                  <span className="type-body">/ {String(wizardSteps.length).padStart(2, "0")}</span>
-                </p>
-                <h1 ref={headingRef} tabIndex={-1} id="step-question" className="type-h1 text-text outline-none">
-                  {step.question}
-                </h1>
-                <p className="max-w-[40rem] type-body-l text-text-muted">{step.helper}</p>
-                {error && (
-                  <p
-                    id="step-error"
-                    role={showError ? "alert" : undefined}
-                    className={cn(
-                      "flex items-center gap-2 type-small",
-                      showError ? "text-danger" : "font-normal text-text-muted"
-                    )}
-                  >
-                    <WarningCircleIcon weight="bold" className="size-4 shrink-0" aria-hidden="true" />
-                    {error}
-                  </p>
-                )}
-              </header>
-
+            <motion.div key={stepId} {...enter} className="flex flex-col gap-8">
               {/* Isi langkah selalu dirender (validasi instant navigation Next 16), tapi
                   disembunyikan sampai isian sessionStorage terbaca agar tidak berkedip. */}
               {!hydrated && <StepSkeleton />}

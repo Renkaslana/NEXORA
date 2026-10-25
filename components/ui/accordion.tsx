@@ -3,7 +3,7 @@
 import * as React from "react"
 import { cn } from "cn"
 import { Accordion as AccordionPrimitive } from "radix-ui"
-import { ChevronDown } from "lucide-react"
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown"
 
 // shadcn Accordion (Radix) disesuaikan ke token PRD §22–24: versi mobile dari tabs Detail,
 // target sentuh ≥ 44px, ring fokus global (§28), animasi buka/tutup dimatikan saat reduced motion.
@@ -28,7 +28,7 @@ function AccordionTrigger({ className, children, ...props }: React.ComponentProp
         {...props}
       >
         {children}
-        <ChevronDown
+        <CaretDownIcon weight="bold"
           aria-hidden="true"
           className="size-5 shrink-0 text-text-muted transition-transform duration-200 group-aria-expanded/accordion-trigger:rotate-180"
         />

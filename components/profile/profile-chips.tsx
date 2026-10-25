@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Pencil } from "lucide-react"
+import { PencilSimpleIcon } from "@phosphor-icons/react/dist/ssr/PencilSimple"
 import { stepHref } from "@/components/wizard/steps"
 import { getWizardOptions } from "@/lib/api"
 import { formatRupiah } from "@/lib/format"
@@ -69,7 +69,7 @@ export function ProfileChips({ profile }: { profile: UserProfile }) {
               className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border bg-bg px-4 py-2 type-small whitespace-nowrap text-text transition-colors duration-150 hover:border-primary hover:bg-primary-soft hover:text-primary"
             >
               {item.text}
-              <Pencil className="size-3.5 shrink-0 text-text-muted" aria-hidden="true" />
+              <PencilSimpleIcon weight="bold" className="size-3.5 shrink-0 text-text-muted" aria-hidden="true" />
             </Link>
           </li>
         ))}

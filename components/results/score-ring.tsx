@@ -47,10 +47,20 @@ interface ScoreRingProps {
   /** Tampilkan label tier di bawah ring. */
   showLabel?: boolean
   animate?: boolean
+  /** "cobalt": di bidang kobalt (R4) — track gelap, busur kuning, angka putih. */
+  tone?: "default" | "cobalt"
   className?: string
 }
 
-function ScoreRing({ value, size = "md", showLabel = size !== "sm", animate: shouldAnimate = true, className }: ScoreRingProps) {
+function ScoreRing({
+  value,
+  size = "md",
+  showLabel = size !== "sm",
+  animate: shouldAnimate = true,
+  tone = "default",
+  className,
+}: ScoreRingProps) {
+  const cobalt = tone === "cobalt"
   const reduceMotion = useReducedMotion()
   const [display, setDisplay] = React.useState(shouldAnimate ? 0 : value)
 
@@ -79,7 +89,7 @@ function ScoreRing({ value, size = "md", showLabel = size !== "sm", animate: sho
     >
       <div className="relative" style={{ width: box, height: box }} aria-hidden="true">
         <svg width={box} height={box} viewBox={`0 0 ${box} ${box}`} className="-rotate-90">
-          <circle cx={box / 2} cy={box / 2} r={r} fill="none" strokeWidth={stroke} className="stroke-border" />
+          <circle cx={box / 2} cy={box / 2} r={r} fill="none" strokeWidth={stroke} className={cobalt ? "stroke-cobalt-800" : "stroke-border"} />
           <circle
             cx={box / 2}
             cy={box / 2}
@@ -89,16 +99,16 @@ function ScoreRing({ value, size = "md", showLabel = size !== "sm", animate: sho
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={offset}
-            className={tierStroke[tier]}
+            className={cobalt ? "stroke-signal" : tierStroke[tier]}
           />
         </svg>
         <span className="absolute inset-0 flex items-center justify-center">
-          <span className={cn("num text-text", number)}>{Math.round(shown)}</span>
-          <span className={cn("num ml-px self-center text-text-muted", suffix)}>%</span>
+          <span className={cn("num", cobalt ? "text-white" : "text-text", number)}>{Math.round(shown)}</span>
+          <span className={cn("num ml-px self-center", cobalt ? "text-cobalt-100" : "text-text-muted", suffix)}>%</span>
         </span>
       </div>
       {showLabel && (
-        <span className={cn("type-micro", tierText[tier])} aria-hidden="true">
+        <span className={cn("type-micro", cobalt ? "text-signal" : tierText[tier])} aria-hidden="true">
           {tierLabel[tier]}
         </span>
       )}

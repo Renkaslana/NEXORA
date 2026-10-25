@@ -1,5 +1,5 @@
 import { cn } from "cn"
-import { CircleDashed } from "lucide-react"
+import { CircleDashedIcon } from "@phosphor-icons/react/dist/ssr/CircleDashed"
 import { componentMeta } from "@/components/profile/requirement-card"
 import { Chip, StatusChip } from "@/components/ui/chip"
 import type { SpecCheckResult } from "@/lib/spec-check"
@@ -23,7 +23,7 @@ export function RequirementCheck({ specs, results, className }: RequirementCheck
         return (
           <li key={spec.component} className="grid gap-2 p-4 sm:grid-cols-[8rem_minmax(0,1fr)_minmax(0,1fr)_auto] sm:items-center sm:gap-4">
             <p className="flex items-center gap-2 type-small text-text">
-              <Icon className="size-5 shrink-0 text-text-muted" strokeWidth={1.5} aria-hidden="true" />
+              <Icon className="size-5 shrink-0 text-text-muted" aria-hidden="true" />
               {label}
             </p>
             <p className="type-small font-normal text-text-muted">
@@ -40,7 +40,7 @@ export function RequirementCheck({ specs, results, className }: RequirementCheck
               {r.status === "short" && <StatusChip status="short" />}
               {r.status === "unchecked" && (
                 <Chip tone="muted">
-                  <CircleDashed className="size-3.5" aria-hidden="true" />
+                  <CircleDashedIcon weight="bold" className="size-3.5" aria-hidden="true" />
                   Tidak dicek
                 </Chip>
               )}

@@ -4,7 +4,16 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { cn } from "cn"
-import { ArrowLeft, Award, Check, CircleAlert, GitCompareArrows, Laptop as LaptopIcon, Plus, RotateCcw, Trophy, X } from "lucide-react"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
+import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight"
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check"
+import { LaptopIcon } from "@phosphor-icons/react/dist/ssr/Laptop"
+import { MedalIcon } from "@phosphor-icons/react/dist/ssr/Medal"
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus"
+import { TrophyIcon } from "@phosphor-icons/react/dist/ssr/Trophy"
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 import { FlowHeader } from "@/components/layout/flow-header"
 import { compareHref } from "@/components/results/compare-tray"
 import { Button } from "@/components/ui/button"
@@ -44,7 +53,7 @@ function CellBadges({ cell }: { cell: CompareCell }) {
       {cell.status === "near" && <Chip tone="warning">≈ Mendekati</Chip>}
       {cell.best && (
         <Chip tone="primary">
-          <Award className="size-3.5" aria-hidden="true" />
+          <MedalIcon weight="bold" className="size-3.5" aria-hidden="true" />
           Unggul
         </Chip>
       )}
@@ -93,15 +102,15 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
     announce(`Kamu memilih ${nameOf(l)}. Keputusan tersimpan di perangkat ini.`)
   }
 
-  const chooseButton = (l: Laptop, className?: string) => (
+  const chooseButton = (l: Laptop, className?: string, onCobalt = false) => (
     <Button
       size="sm"
-      variant={chosen === l.id ? "primary" : "secondary"}
+      variant={onCobalt ? (chosen === l.id ? "inverse" : "signal") : chosen === l.id ? "primary" : "secondary"}
       aria-pressed={chosen === l.id}
       onClick={() => (chosen === l.id ? clearDecision() : choose(l))}
       className={className}
     >
-      {chosen === l.id ? <Check aria-hidden="true" /> : <Trophy aria-hidden="true" />}
+      {chosen === l.id ? <CheckIcon weight="bold" aria-hidden="true" /> : <TrophyIcon weight="bold" aria-hidden="true" />}
       {chosen === l.id ? "Pilihanmu" : "Pilih laptop ini"}
     </Button>
   )
@@ -110,15 +119,15 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
     <div className="flex flex-col gap-8">
       {/* ------------------------------------------------------------ Paling cocok untukmu */}
       {verdict && (
-        <section aria-labelledby="verdict-title" className="flex flex-col gap-3 rounded-card bg-primary-soft p-5 md:flex-row md:items-center md:gap-6 md:p-6">
-          <Trophy className="size-8 shrink-0 text-primary" strokeWidth={1.5} aria-hidden="true" />
+        <section aria-labelledby="verdict-title" data-tone="cobalt" className="flex flex-col gap-3 rounded-[20px] bg-cobalt-600 p-5 text-white md:flex-row md:items-center md:gap-6 md:p-6">
+          <TrophyIcon weight="fill" className="size-8 shrink-0 text-signal" aria-hidden="true" />
           <div className="flex flex-1 flex-col gap-1">
-            <h2 id="verdict-title" className="type-h3 text-text">
+            <h2 id="verdict-title" className="type-h3 text-white">
               Paling cocok untukmu: {nameOf(verdict.winner)}
             </h2>
-            <p className="type-body text-text">{verdict.text}</p>
+            <p className="type-body text-cobalt-100">{verdict.text}</p>
           </div>
-          {chooseButton(verdict.winner, "self-start md:self-center")}
+          {chooseButton(verdict.winner, "self-start md:self-center", true)}
         </section>
       )}
       {!profile && (
@@ -133,7 +142,7 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
 
       {chosen && (
         <p role="status" className="flex items-start gap-3 rounded-card bg-success/8 px-4 py-3 type-small text-text">
-          <Check className="size-4 shrink-0 text-success" strokeWidth={2.5} aria-hidden="true" />
+          <CheckIcon weight="bold" className="size-4 shrink-0 text-success" aria-hidden="true" />
           <span>
             Keputusanmu: <strong className="font-semibold">{nameOf(laptops.find((l) => l.id === chosen)!)}</strong>. Tersimpan
             di perangkat ini.
@@ -150,7 +159,7 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
         {laptops.length < MAX_COMPARE && (
           <Button asChild variant="ghost" size="sm">
             <Link href={RESULTS_HREF}>
-              <Plus aria-hidden="true" /> Tambah laptop
+              <PlusIcon weight="bold" aria-hidden="true" /> Tambah laptop
             </Link>
           </Button>
         )}
@@ -173,10 +182,10 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
                   <div className="flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-2">
                       <span aria-hidden="true" className="grid aspect-[4/3] w-16 place-items-center rounded-control bg-surface text-text-muted">
-                        <LaptopIcon className="size-5" strokeWidth={1.5} />
+                        <LaptopIcon weight="bold" className="size-5" />
                       </span>
                       <Button variant="ghost" size="icon" onClick={() => remove(l.id)} aria-label={`Hapus ${nameOf(l)} dari komparasi`}>
-                        <X aria-hidden="true" />
+                        <XIcon weight="bold" aria-hidden="true" />
                       </Button>
                     </div>
                     <Link href={`/laptop/${l.slug}`} className="type-small font-semibold text-text hover:underline">
@@ -225,7 +234,7 @@ function CompareBody({ data, ids, announce }: { data: CompareData; ids: string[]
                 {chooseButton(l, "self-start")}
               </div>
               <Button variant="ghost" size="icon" onClick={() => remove(l.id)} aria-label={`Hapus ${nameOf(l)} dari komparasi`}>
-                <X aria-hidden="true" />
+                <XIcon weight="bold" aria-hidden="true" />
               </Button>
             </li>
           ))}
@@ -295,9 +304,9 @@ function CompareLoader({ ids, mock, onRetry, announce }: { ids: string[]; mock: 
   }
   if (state.status === "error") {
     return (
-      <StateMessage icon={CircleAlert} tone="danger" title="Gagal memuat komparasi" body="Terjadi kesalahan saat memuat data laptop. Pilihanmu tetap tersimpan.">
+      <StateMessage icon={WarningCircleIcon} tone="danger" title="Gagal memuat komparasi" body="Terjadi kesalahan saat memuat data laptop. Pilihanmu tetap tersimpan.">
         <Button onClick={onRetry}>
-          <RotateCcw aria-hidden="true" /> Coba lagi
+          <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Coba lagi
         </Button>
         <Button asChild variant="secondary">
           <Link href={RESULTS_HREF}>Kembali ke hasil</Link>
@@ -311,10 +320,10 @@ function CompareLoader({ ids, mock, onRetry, announce }: { ids: string[]; mock: 
 
 function EmptyCompare() {
   return (
-    <StateMessage icon={GitCompareArrows} title="Pilih minimal 2 laptop untuk dibandingkan." body="Tekan “Bandingkan” di kartu laptop pada halaman hasil, lalu buka lagi dari tray komparasi.">
+    <StateMessage icon={ArrowsLeftRightIcon} title="Pilih minimal 2 laptop untuk dibandingkan." body="Tekan “Bandingkan” di kartu laptop pada halaman hasil, lalu buka lagi dari tray komparasi.">
       <Button asChild>
         <Link href={RESULTS_HREF}>
-          <ArrowLeft aria-hidden="true" /> Kembali ke hasil
+          <ArrowLeftIcon weight="bold" aria-hidden="true" /> Kembali ke hasil
         </Link>
       </Button>
     </StateMessage>
@@ -340,12 +349,12 @@ export function CompareView() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader />
+      <FlowHeader tone="cobalt" />
       <main className="page-container flex flex-1 flex-col gap-6 pt-6 pb-20 md:pt-8">
         <Link href={RESULTS_HREF} className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-control type-small text-primary hover:underline">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Kembali ke hasil
+          <ArrowLeftIcon weight="bold" className="size-4" aria-hidden="true" /> Kembali ke hasil
         </Link>
-        <h1 className="type-h1 text-text">Bandingkan laptop</h1>
+        <h1 className="text-3xl leading-[1.1] font-extrabold tracking-[-0.035em] text-text md:text-[2.75rem]">Bandingkan laptop</h1>
         {!hydrated ? (
           <CompareSkeleton />
         ) : ids.length < 2 ? (

@@ -2,7 +2,14 @@
 
 import * as React from "react"
 import { cn } from "cn"
-import { BatteryFull, Cpu, Monitor, Plus, Minus, Weight, Wrench, type LucideIcon } from "lucide-react"
+import type { Icon as PhosphorIcon } from "@phosphor-icons/react"
+import { BatteryFullIcon } from "@phosphor-icons/react/dist/ssr/BatteryFull"
+import { CpuIcon } from "@phosphor-icons/react/dist/ssr/Cpu"
+import { MinusIcon } from "@phosphor-icons/react/dist/ssr/Minus"
+import { MonitorIcon } from "@phosphor-icons/react/dist/ssr/Monitor"
+import { PlusIcon } from "@phosphor-icons/react/dist/ssr/Plus"
+import { ScalesIcon } from "@phosphor-icons/react/dist/ssr/Scales"
+import { WrenchIcon } from "@phosphor-icons/react/dist/ssr/Wrench"
 import { LaptopRender } from "@/components/ui/laptop-render"
 import { getWizardOptions } from "@/lib/api"
 import { formatRupiah, formatStorage, formatWeight } from "@/lib/format"
@@ -19,7 +26,17 @@ const inch = (n: number) => `${String(n).replace(".", ",")}″`
 // ---------------------------------------------------------------- Galeri
 
 // Hanya sudut yang punya file render yang tampil (REDESIGN §22, §24). Galeri geser (gerak 14) di R4.
-export function LaptopGallery({ name, image }: { name: string; image: LaptopImage }) {
+export function LaptopGallery({
+  name,
+  image,
+  tone = "default",
+}: {
+  name: string
+  image: LaptopImage
+  /** "cobalt": di band kobalt Detail (R4), penanda sudut aktif kuning. */
+  tone?: "default" | "cobalt"
+}) {
+  const cobalt = tone === "cobalt"
   const angles = availableAngles(image)
   const [active, setActive] = React.useState<LaptopAngle>("34")
   return (
@@ -29,7 +46,7 @@ export function LaptopGallery({ name, image }: { name: string; image: LaptopImag
         angle={active}
         sizes="(min-width: 1024px) 50vw, 100vw"
         eager
-        className="rounded-card"
+        className={cobalt ? "rounded-[18px]" : "rounded-card"}
       />
       {angles.length > 1 && (
         <div role="group" aria-label={`Sudut ilustrasi ${name}`} className="grid grid-cols-4 gap-2">
@@ -42,7 +59,13 @@ export function LaptopGallery({ name, image }: { name: string; image: LaptopImag
               onClick={() => setActive(angle)}
               className={cn(
                 "overflow-hidden rounded-control border-2 transition-colors duration-150",
-                active === angle ? "border-primary" : "border-transparent hover:border-border-strong"
+                active === angle
+                  ? cobalt
+                    ? "border-signal"
+                    : "border-primary"
+                  : cobalt
+                    ? "border-transparent hover:border-cobalt-100"
+                    : "border-transparent hover:border-border-strong"
               )}
             >
               <LaptopRender image={image} angle={angle} sizes="120px" label={false} decorative />
@@ -56,11 +79,11 @@ export function LaptopGallery({ name, image }: { name: string; image: LaptopImag
 
 // ---------------------------------------------------------------- Spesifikasi kunci
 
-function SpecCard({ icon: Icon, title, value, detail }: { icon: LucideIcon; title: string; value: string; detail: string }) {
+function SpecCard({ icon: Icon, title, value, detail }: { icon: PhosphorIcon; title: string; value: string; detail: string }) {
   return (
     <div className="flex flex-col gap-2 rounded-card border border-border p-5">
       <p className="flex items-center gap-2 type-small text-text-muted">
-        <Icon className="size-5" strokeWidth={1.5} aria-hidden="true" />
+        <Icon className="size-5" aria-hidden="true" />
         {title}
       </p>
       <p className="type-h3 text-text">{value}</p>
@@ -72,12 +95,12 @@ function SpecCard({ icon: Icon, title, value, detail }: { icon: LucideIcon; titl
 export function KeySpecs({ laptop: l }: { laptop: Laptop }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <SpecCard icon={Cpu} title="Performa" value={l.cpu.name} detail={`${l.cpu.cores} core / ${l.cpu.threads} thread · GPU ${l.gpu.name}${l.gpu.type === "dedicated" ? ` ${l.gpu.vramGb} GB` : " (integrated)"}`} />
-      <SpecCard icon={Monitor} title="Layar" value={`${inch(l.display.inch)} ${l.display.panel}`} detail={`${l.display.resolution.replace("x", " × ")} · ${l.display.srgbPercent}% sRGB · ${l.display.refreshHz} Hz`} />
-      <SpecCard icon={BatteryFull} title="Baterai" value={`${l.batteryWh} Wh`} detail="Kapasitas baterai; makin besar makin lama tahan tanpa colokan." />
-      <SpecCard icon={Weight} title="Portabilitas" value={formatWeight(l.weightKg)} detail={`Port: ${l.ports.join(", ")}`} />
+      <SpecCard icon={CpuIcon} title="Performa" value={l.cpu.name} detail={`${l.cpu.cores} core / ${l.cpu.threads} thread · GPU ${l.gpu.name}${l.gpu.type === "dedicated" ? ` ${l.gpu.vramGb} GB` : " (integrated)"}`} />
+      <SpecCard icon={MonitorIcon} title="Layar" value={`${inch(l.display.inch)} ${l.display.panel}`} detail={`${l.display.resolution.replace("x", " × ")} · ${l.display.srgbPercent}% sRGB · ${l.display.refreshHz} Hz`} />
+      <SpecCard icon={BatteryFullIcon} title="Baterai" value={`${l.batteryWh} Wh`} detail="Kapasitas baterai; makin besar makin lama tahan tanpa colokan." />
+      <SpecCard icon={ScalesIcon} title="Portabilitas" value={formatWeight(l.weightKg)} detail={`Port: ${l.ports.join(", ")}`} />
       <SpecCard
-        icon={Wrench}
+        icon={WrenchIcon}
         title="Upgradeability"
         value={l.ram.upgradeable ? `RAM bisa sampai ${l.ram.maxGb} GB` : "RAM tidak bisa ditambah"}
         detail={`Sekarang ${l.ram.gb} GB ${l.ram.type} · ${formatStorage(l.storage.gb)} ${l.storage.type}`}
@@ -96,7 +119,7 @@ export function ProsCons({ laptop }: { laptop: Laptop }) {
         <ul className="flex flex-col gap-2">
           {laptop.pros.map((p) => (
             <li key={p} className="flex gap-2 type-body text-text">
-              <Plus className="mt-1 size-4 shrink-0 text-success" strokeWidth={2.5} aria-hidden="true" />
+              <PlusIcon weight="bold" className="mt-1 size-4 shrink-0 text-success" aria-hidden="true" />
               <span><span className="sr-only">Kelebihan: </span>{p}</span>
             </li>
           ))}
@@ -107,7 +130,7 @@ export function ProsCons({ laptop }: { laptop: Laptop }) {
         <ul className="flex flex-col gap-2">
           {laptop.cons.map((c) => (
             <li key={c} className="flex gap-2 type-body text-text">
-              <Minus className="mt-1 size-4 shrink-0 text-danger" strokeWidth={2.5} aria-hidden="true" />
+              <MinusIcon weight="bold" className="mt-1 size-4 shrink-0 text-danger" aria-hidden="true" />
               <span><span className="sr-only">Kekurangan: </span>{c}</span>
             </li>
           ))}
@@ -130,7 +153,7 @@ export function SuitedFor({ laptop, userActivities }: { laptop: Laptop; userActi
         userActivities.includes(id) && "ring-1 ring-current"
       )}
     >
-      {good ? <Plus className="size-3.5" aria-hidden="true" /> : <Minus className="size-3.5" aria-hidden="true" />}
+      {good ? <PlusIcon weight="bold" className="size-3.5" aria-hidden="true" /> : <MinusIcon weight="bold" className="size-3.5" aria-hidden="true" />}
       {activityLabel(id)}
       {userActivities.includes(id) && <span className="type-micro">(kamu)</span>}
     </li>

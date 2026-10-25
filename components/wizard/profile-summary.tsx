@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { cn } from "cn"
-import { ChevronDown } from "lucide-react"
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown"
 import { stepHref } from "@/components/wizard/steps"
 import { getWizardOptions } from "@/lib/api"
 import { formatRupiah } from "@/lib/format"
@@ -134,7 +134,7 @@ export function ProfileSummaryMobile({ current }: { current: WizardStepId }) {
             {filled.length ? filled.map((r) => r.value).join(" · ") : "Belum ada yang diisi"}
           </span>
         </span>
-        <ChevronDown className="size-5 shrink-0 text-text-muted transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
+        <CaretDownIcon weight="bold" className="size-5 shrink-0 text-text-muted transition-transform duration-200 group-open:rotate-180" aria-hidden="true" />
       </summary>
       <div className="px-4 pb-4">
         <RowList rows={rows} current={current} />

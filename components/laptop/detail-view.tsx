@@ -3,7 +3,14 @@
 import * as React from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
-import { ArrowLeft, Bookmark, Check, CircleAlert, ExternalLink, GitCompareArrows, RotateCcw, TriangleAlert } from "lucide-react"
+import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
+import { ArrowSquareOutIcon } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut"
+import { ArrowsLeftRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowsLeftRight"
+import { BookmarkSimpleIcon } from "@phosphor-icons/react/dist/ssr/BookmarkSimple"
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check"
+import { WarningCircleIcon } from "@phosphor-icons/react/dist/ssr/WarningCircle"
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning"
 import { FlowHeader } from "@/components/layout/flow-header"
 import { FullSpecs, KeySpecs, LaptopGallery, ProsCons, SuitedFor } from "@/components/laptop/laptop-sections"
 import { CompareTray } from "@/components/results/compare-tray"
@@ -14,7 +21,6 @@ import { ScoreExplainer } from "@/components/results/score-explainer"
 import { ScoreRing } from "@/components/results/score-ring"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { Chip } from "@/components/ui/chip"
 import { Skeleton } from "@/components/ui/skeleton"
 import { StateMessage } from "@/components/ui/state-message"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -108,20 +114,27 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
   }
   const onSave = () => announce(toggleSaved(laptop.id) ? `${name} disimpan.` : `${name} dihapus dari simpanan.`)
 
-  const actions = (
+  // R4: di band kobalt Bandingkan = kuning sinyal, Simpan = inverse; di bar bawah mobile tetap biasa.
+  const actions = (tone: "default" | "cobalt") => (
     <div className="flex items-center gap-2">
-      <Button size="lg" aria-pressed={compared} onClick={onCompare} className="flex-1 sm:flex-none">
-        {compared ? <Check aria-hidden="true" /> : <GitCompareArrows aria-hidden="true" />}
+      <Button
+        size="lg"
+        variant={tone === "cobalt" ? "signal" : "primary"}
+        aria-pressed={compared}
+        onClick={onCompare}
+        className="flex-1 sm:flex-none"
+      >
+        {compared ? <CheckIcon weight="bold" aria-hidden="true" /> : <ArrowsLeftRightIcon weight="bold" aria-hidden="true" />}
         {compared ? "Dibandingkan" : "Bandingkan"}
       </Button>
       <Button
-        variant="secondary"
+        variant={tone === "cobalt" ? "inverse" : "secondary"}
         size="lg"
         aria-pressed={savedHydrated && saved}
         onClick={onSave}
-        className={cn(saved && "border-primary text-primary")}
+        className={cn(tone !== "cobalt" && saved && "border-primary text-primary")}
       >
-        <Bookmark className={cn(saved && "fill-current")} aria-hidden="true" />
+        <BookmarkSimpleIcon weight="bold" className={cn(saved && "fill-current")} aria-hidden="true" />
         {saved ? "Tersimpan" : "Simpan"}
       </Button>
     </div>
@@ -144,47 +157,50 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
 
   return (
     <div className="flex flex-col gap-14">
-      {/* ------------------------------------------------------------ 1. Hero */}
-      <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+      {/* ------------------------------------------------------------ 1. Hero (R4: band kobalt) */}
+      <div
+        data-tone="cobalt"
+        className="grid gap-6 rounded-[24px] bg-cobalt-600 p-2 text-white md:p-3 lg:grid-cols-12 lg:gap-8"
+      >
         <div className="lg:col-span-7">
-          <LaptopGallery name={name} image={laptop.image} />
+          <LaptopGallery name={name} image={laptop.image} tone="cobalt" />
         </div>
-        <div className="flex flex-col gap-6 lg:col-span-5">
+        <div className="flex flex-col gap-6 px-3 pb-4 lg:col-span-5 lg:px-2 lg:py-6 lg:pr-6">
           <div className="flex flex-col gap-2">
             {result?.category && (
-              <Chip tone="primary" className="self-start">
+              <span className="self-start rounded-full bg-signal px-2.5 py-0.5 type-micro text-signal-ink">
                 {categoryLabels[result.category]}
-              </Chip>
+              </span>
             )}
-            <h1 className="type-h1 text-text">{name}</h1>
-            <p className="num type-body text-text-muted">{formatRupiah(laptop.priceIdr)}</p>
+            <h1 className="text-3xl leading-[1.1] font-extrabold tracking-[-0.035em] text-white md:text-[2.75rem]">{name}</h1>
+            <p className="num type-body text-cobalt-100">{formatRupiah(laptop.priceIdr)}</p>
           </div>
           {result ? (
             <div className="flex items-center gap-5">
-              <ScoreRing value={result.matchScore} size="lg" />
-              <p className="type-body-l text-text">
+              <ScoreRing value={result.matchScore} size="lg" tone="cobalt" />
+              <p className="type-body-l text-white">
                 <strong className="font-semibold">{result.matchScore}% cocok.</strong> {result.summary}
               </p>
             </div>
           ) : (
-            <p className="rounded-card bg-surface p-4 type-small font-normal text-text">
+            <p className="rounded-[14px] bg-cobalt-700 p-4 type-small font-normal text-white">
               {profile
                 ? "Laptop ini tidak masuk rekomendasi untuk profilmu, jadi belum ada skor kecocokan."
                 : "Isi Wizard untuk melihat seberapa cocok laptop ini dengan kebutuhanmu."}
             </p>
           )}
-          <div className="hidden lg:block">{actions}</div>
+          <div className="hidden lg:block">{actions("cobalt")}</div>
           <a
             href={laptop.marketplaceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-control type-small text-primary hover:underline"
+            className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-control type-small text-white underline decoration-white/40 underline-offset-4 hover:decoration-white"
           >
-            Cek harga di toko (contoh) <ExternalLink className="size-4" aria-hidden="true" />
+            Cek harga di toko (contoh) <ArrowSquareOutIcon weight="bold" className="size-4" aria-hidden="true" />
             <span className="sr-only">(membuka tab baru)</span>
           </a>
           {!profile && (
-            <Button asChild variant="secondary" className="self-start">
+            <Button asChild variant="inverse" className="self-start">
               <Link href={stepHref("budget")}>Cari tahu kecocokannya</Link>
             </Button>
           )}
@@ -213,7 +229,7 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
             <ul className="flex flex-col gap-3">
               {result.reasons.map((r) => (
                 <li key={r.text} className="flex gap-3">
-                  <Check className="mt-1 size-5 shrink-0 text-success" strokeWidth={2.5} aria-hidden="true" />
+                  <CheckIcon weight="bold" className="mt-1 size-5 shrink-0 text-success" aria-hidden="true" />
                   <span className="type-body text-text">
                     {r.text}
                     <span className="block type-small font-normal text-text-muted">{r.source}</span>
@@ -226,7 +242,7 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
               <ul className="flex flex-col gap-3">
                 {result.tradeOffs.map((t) => (
                   <li key={t.text} className="flex gap-3">
-                    <TriangleAlert className="mt-1 size-5 shrink-0 text-warning" aria-hidden="true" />
+                    <WarningIcon weight="bold" className="mt-1 size-5 shrink-0 text-warning" aria-hidden="true" />
                     <span className="type-body text-text">
                       <span className="sr-only">Trade-off: </span>
                       {t.text}
@@ -292,7 +308,7 @@ function DetailBody({ data, profile, announce }: { data: DetailData & { laptop: 
 
       {/* Mobile & tablet: CTA menempel di bawah (PRD §14, §24) */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg py-3 lg:hidden">
-        <div className="page-container">{actions}</div>
+        <div className="page-container">{actions("default")}</div>
       </div>
     </div>
   )
@@ -330,9 +346,9 @@ function DetailLoader({ slug, mock, onRetry, announce }: { slug: string; mock: M
   }
   if (state.status === "error") {
     return (
-      <StateMessage icon={CircleAlert} tone="danger" title="Gagal memuat detail laptop" body="Terjadi kesalahan saat memuat data. Coba lagi sebentar lagi.">
+      <StateMessage icon={WarningCircleIcon} tone="danger" title="Gagal memuat detail laptop" body="Terjadi kesalahan saat memuat data. Coba lagi sebentar lagi.">
         <Button onClick={onRetry}>
-          <RotateCcw aria-hidden="true" /> Coba lagi
+          <ArrowCounterClockwiseIcon weight="bold" aria-hidden="true" /> Coba lagi
         </Button>
         <Button asChild variant="secondary">
           <Link href={RESULTS_HREF}>Kembali ke hasil</Link>
@@ -342,7 +358,7 @@ function DetailLoader({ slug, mock, onRetry, announce }: { slug: string; mock: M
   }
   if (!state.data.laptop) {
     return (
-      <StateMessage icon={CircleAlert} title="Laptop tidak ditemukan" body="Laptop tidak ditemukan atau sudah tidak tersedia.">
+      <StateMessage icon={WarningCircleIcon} title="Laptop tidak ditemukan" body="Laptop tidak ditemukan atau sudah tidak tersedia.">
         <Button asChild>
           <Link href={RESULTS_HREF}>Kembali ke hasil</Link>
         </Button>
@@ -369,10 +385,10 @@ export function DetailView({ slug }: { slug: string }) {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader />
+      <FlowHeader tone="cobalt" />
       <main className="page-container flex flex-1 flex-col gap-6 pt-6 pb-48 md:pt-8 lg:pb-32">
         <Link href={RESULTS_HREF} className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-control type-small text-primary hover:underline">
-          <ArrowLeft className="size-4" aria-hidden="true" /> Kembali ke hasil
+          <ArrowLeftIcon weight="bold" className="size-4" aria-hidden="true" /> Kembali ke hasil
         </Link>
         {hydrated ? (
           <DetailLoader key={`${slug}-${attempt}`} slug={slug} mock={mock} onRetry={() => setAttempt((a) => a + 1)} announce={announce} />

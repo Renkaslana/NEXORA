@@ -1,7 +1,9 @@
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
-import { Check, TriangleAlert, X } from "lucide-react"
+import { CheckIcon } from "@phosphor-icons/react/dist/ssr/Check"
+import { WarningIcon } from "@phosphor-icons/react/dist/ssr/Warning"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 
 // PRD §23 Chip/Tag: Filter, Selected, Status. Pill hanya untuk chip & badge (§22).
 // Status selalu ikon + teks, tidak hanya warna (§11, §28).
@@ -36,9 +38,9 @@ function Chip({
 }
 
 const statusMap = {
-  met: { tone: "success", icon: Check, text: "Memenuhi" },
-  short: { tone: "danger", icon: X, text: "Kurang" },
-  tradeoff: { tone: "warning", icon: TriangleAlert, text: "Trade-off" },
+  met: { tone: "success", icon: CheckIcon, text: "Memenuhi" },
+  short: { tone: "danger", icon: XIcon, text: "Kurang" },
+  tradeoff: { tone: "warning", icon: WarningIcon, text: "Trade-off" },
 } as const
 
 function StatusChip({
@@ -53,7 +55,7 @@ function StatusChip({
   const { tone, icon: Icon, text } = statusMap[status]
   return (
     <Chip tone={tone} className={className}>
-      <Icon className="size-3.5" strokeWidth={2.25} aria-hidden="true" />
+      <Icon className="size-3.5" aria-hidden="true" />
       {children ?? text}
     </Chip>
   )

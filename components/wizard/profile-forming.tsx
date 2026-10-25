@@ -106,15 +106,16 @@ export function ProfileForming({ current, forming }: { current: WizardStepId; fo
   const { updating, persona } = forming
   const filled = rows.filter((r) => r.value).length
   return (
-    <section aria-labelledby="forming-title" className="overflow-hidden rounded-card border border-border bg-bg">
+    <section aria-labelledby="forming-title" className="overflow-hidden rounded-[20px] bg-paper-100">
+      {/* Kepala kobalt (R4): judul + jumlah terisi, lalu render di bidang studio. */}
+      <div data-tone="cobalt" className="flex items-baseline justify-between gap-3 bg-cobalt-600 px-5 py-4 text-white">
+        <h2 id="forming-title" className="type-body font-semibold text-white">
+          Profil kamu terbentuk
+        </h2>
+        <span className="type-small text-cobalt-100 tabular-nums">{filled}/5 terisi</span>
+      </div>
       <MiniRender forming={forming} />
       <div className="flex flex-col gap-5 p-5">
-        <div className="flex items-baseline justify-between gap-3">
-          <h2 id="forming-title" className="type-small text-text">
-            Profil kamu terbentuk
-          </h2>
-          <span className="num type-micro text-text-muted">{filled}/5 terisi</span>
-        </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between gap-3">
@@ -135,10 +136,10 @@ export function ProfileFormingMobile({ current, forming }: { current: WizardStep
   const rows = useRows(current)
   const filled = rows.filter((r) => r.value)
   return (
-    <details className="group rounded-card border border-border bg-bg">
+    <details className="group overflow-hidden rounded-[16px] bg-paper-100">
       <summary className="flex min-h-12 cursor-pointer list-none flex-col gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden">
         <span className="flex items-center justify-between gap-3">
-          <span className="type-small text-text">Profil kamu terbentuk</span>
+          <span className="type-small text-cobalt-600">Profil kamu terbentuk</span>
           <span className="flex items-center gap-1 type-micro text-text-muted">
             <span className="num">{filled.length}/5</span>
             <CaretDownIcon
@@ -150,7 +151,7 @@ export function ProfileFormingMobile({ current, forming }: { current: WizardStep
         </span>
         <Meters forming={forming} size="mini" />
       </summary>
-      <div className="border-t border-border px-4 py-4">
+      <div className="bg-bg px-4 py-4">
         <RowList rows={rows} current={current} />
       </div>
     </details>

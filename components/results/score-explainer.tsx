@@ -1,6 +1,6 @@
 "use client"
 
-import { CircleHelp } from "lucide-react"
+import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -36,7 +36,7 @@ export function ScoreExplainer({ example, exampleName }: { example?: Recommendat
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="link" size="sm">
-          <CircleHelp aria-hidden="true" /> Bagaimana skor dihitung?
+          <QuestionIcon weight="bold" aria-hidden="true" /> Bagaimana skor dihitung?
         </Button>
       </DialogTrigger>
       <DialogContent>

@@ -9,7 +9,7 @@ import { Dialog as DialogPrimitive } from "radix-ui"
 // fokus kembali ke pemicu (§28) ditangani Radix.
 
 import { Button } from "@/components/ui/button"
-import { XIcon } from "lucide-react"
+import { XIcon } from "@phosphor-icons/react/dist/ssr/X"
 
 function Dialog({
   ...props
@@ -74,7 +74,7 @@ function DialogContent({
         {showCloseButton && (
           <DialogPrimitive.Close data-slot="dialog-close" asChild>
             <Button variant="ghost" className="absolute top-3 right-3" size="icon" aria-label="Tutup">
-              <XIcon aria-hidden="true" />
+              <XIcon weight="bold" aria-hidden="true" />
             </Button>
           </DialogPrimitive.Close>
         )}
