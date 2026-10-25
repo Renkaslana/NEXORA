@@ -3,6 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
+import { motion, useReducedMotion } from "motion/react"
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ArrowCounterClockwise"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
 import { ClipboardTextIcon } from "@phosphor-icons/react/dist/ssr/ClipboardText"
@@ -16,22 +17,24 @@ import { StateMessage } from "@/components/ui/state-message"
 import { firstMissingStep, stepHref } from "@/components/wizard/steps"
 import { getBudgetInsight, getRecommendations, getWizardOptions, parseMockMode, type MockMode } from "@/lib/api"
 import { formatRupiahShort } from "@/lib/format"
+import { DURATION, EASE_OUT } from "@/lib/motion"
 import { useApi } from "@/lib/use-api"
 import { rehydrateProfile, useProfileHydrated, useProfileStore } from "@/store/profile"
 import { useResultsStore } from "@/store/results"
 import type { UserProfile } from "@/types"
 
-// Layar Analisis /rekomendasi/analisis (PRD §14, §25, §26; REDESIGN §14): 4 tahap dicentang
-// bergantian sambil getRecommendations() berjalan, katalog 12 laptop tersaring di sebelahnya,
-// lalu otomatis ke Hasil. Tidak ada perhitungan SAW di frontend: penyaringan memakai harga vs
+// Layar Analisis /rekomendasi/analisis (PRD §14, §25, §26; REDESIGN §14), redesign "Garis
+// kebutuhan menyapu katalog" di bidang kobalt: kartu profil tercetak, 4 tahap dicentang
+// bergantian sambil getRecommendations() berjalan, katalog 12 laptop disapu garis budget dan
+// diurutkan, Best Match mengisi bingkai, lalu otomatis ke Hasil. Tidak ada perhitungan SAW di frontend: penyaringan memakai harga vs
 // budget dan himpunan hasil dari API.
 
 const PROFILE_HREF = "/rekomendasi/profil"
 const RESULT_HREF = "/rekomendasi/hasil"
 /** Waktu (ms) tiap tahap selesai; total ± 2,5 detik (PRD §25). */
 const STEP_DONE_AT = [700, 1300, 1900, 2500]
-/** Jeda menyorot Best Match sebelum pindah ke Hasil. */
-const HIGHLIGHT_MS = 700
+/** Jeda menampilkan Best Match (skor dihitung naik) sebelum pindah ke Hasil. */
+const HIGHLIGHT_MS = 1000
 const options = getWizardOptions()
 const labelOf = <T extends { id: string; label: string }>(list: T[], id: string) =>
   list.find((x) => x.id === id)?.label ?? id
@@ -65,9 +68,53 @@ function stepsFor(profile: UserProfile): AnalyzingStep[] {
   ]
 }
 
+type Hold = "steps" | "best" | null
+const parseHold = (v: string | null): Hold => (v === "1" ? "steps" : v === "best" ? "best" : null)
+
+/** Isi kartu profil yang "tercetak" di awal analisis. */
+function receiptFor(profile: UserProfile) {
+  const software = profile.software
+    .map((id) => options.software.find((s) => s.id === id)?.label ?? id)
+    .slice(0, 3)
+  return [
+    { label: "Jurusan", value: labelOf(options.majors, profile.major) },
+    { label: "Budget", value: `${formatRupiahShort(profile.budget.max)}${profile.budget.flexible ? " (fleksibel)" : ""}` },
+    { label: "Aktivitas", value: profile.primaryActivity ? labelOf(options.activities, profile.primaryActivity) : "–" },
+    { label: "Aplikasi", value: software.length ? software.join(", ") : "–" },
+  ]
+}
+
+/** Kartu profil keluar dari "printer" di atas: dibuka dari atas ke bawah, baris berurutan. */
+function ProfileReceipt({ rows }: { rows: { label: string; value: string }[] }) {
+  const reduce = useReducedMotion()
+  return (
+    <div className="overflow-hidden rounded-[16px] bg-cobalt-800 p-1.5">
+      <motion.dl
+        className="flex flex-col gap-2 rounded-[12px] bg-bg p-4 text-text"
+        initial={reduce ? false : { y: "-100%" }}
+        animate={{ y: "0%" }}
+        transition={{ duration: DURATION.slow, ease: EASE_OUT }}
+      >
+        {rows.map((r, i) => (
+          <motion.div
+            key={r.label}
+            className="flex items-baseline justify-between gap-4"
+            initial={reduce ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: reduce ? 0 : 0.25 + i * 0.08, duration: DURATION.medium }}
+          >
+            <dt className="type-small font-normal text-text-muted">{r.label}</dt>
+            <dd className="truncate text-right type-small text-text">{r.value}</dd>
+          </motion.div>
+        ))}
+      </motion.dl>
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------- Satu kali proses (remount untuk Coba lagi)
 
-function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boolean; onRetry: () => void }) {
+function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: Hold; onRetry: () => void }) {
   const router = useRouter()
   const setResult = useResultsStore((s) => s.setResult)
   // Profil dibekukan saat proses dimulai.
@@ -76,6 +123,7 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boo
   const state = useApi(load)
   const [elapsed, setElapsed] = React.useState(0)
   const steps = React.useMemo(() => stepsFor(profile), [profile])
+  const receipt = React.useMemo(() => receiptFor(profile), [profile])
   const headingRef = React.useRef<HTMLHeadingElement>(null)
 
   React.useEffect(() => {
@@ -86,7 +134,11 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boo
 
   // Tahap terakhir baru selesai setelah data datang.
   // `?hold=1` (halaman /dev/mockups): berhenti di tahap 3 tanpa pindah ke Hasil, untuk tangkapan layar.
-  const completed = Math.min(state.status === "success" ? elapsed : Math.min(elapsed, steps.length - 1), hold ? 3 : steps.length)
+  // `?hold=best`: semua tahap selesai dan Best Match tampil, tanpa pindah ke Hasil.
+  const completed = Math.min(
+    state.status === "success" ? elapsed : Math.min(elapsed, steps.length - 1),
+    hold === "steps" ? 3 : steps.length
+  )
   const finished = state.status === "success" && completed === steps.length
 
   React.useEffect(() => {
@@ -132,17 +184,23 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boo
         : `${counts.total} laptop di katalog`
 
   return (
-    <main data-tone="dark" className="flex flex-1 bg-ink-950 text-white">
+    <main data-tone="cobalt" className="flex flex-1 overflow-x-clip bg-cobalt-600 text-white">
+      {/* Mobile: judul → katalog (animasinya langsung terlihat) → profil & tahap. lg: kiri 4 kolom, katalog 8. */}
       <section
         aria-labelledby="analysis-title"
-        className="page-container grid content-start gap-10 py-10 md:py-16 lg:grid-cols-12 lg:gap-12"
+        className="page-container grid content-start gap-7 py-8 md:py-12 lg:grid-cols-12 lg:gap-x-12"
       >
-        <div className="flex flex-col gap-8 lg:col-span-5">
+        <div className="flex flex-col gap-7 lg:col-span-4 lg:row-start-1">
           <header className="flex flex-col gap-3">
-            <h1 id="analysis-title" ref={headingRef} tabIndex={-1} className="type-h1 text-white outline-none">
+            <h1
+              id="analysis-title"
+              ref={headingRef}
+              tabIndex={-1}
+              className="text-4xl leading-[1.05] font-extrabold tracking-[-0.04em] text-white outline-none md:text-5xl"
+            >
               {finished ? "Rekomendasi siap" : "Menganalisis kebutuhanmu…"}
             </h1>
-            <p className="type-body-l text-zinc-300">
+            <p className="type-body-l text-cobalt-100">
               {finished
                 ? "Membuka laptop yang paling cocok untukmu."
                 : "Kami mencocokkan jawabanmu dengan laptop di katalog. Ini hanya butuh beberapa detik."}
@@ -156,35 +214,39 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: boo
             aria-valuemax={steps.length}
             aria-valuenow={completed}
             aria-valuetext={finished ? "Selesai" : `Tahap ${completed + 1} dari ${steps.length}: ${current.label}`}
-            className="h-1.5 w-full overflow-hidden rounded-full bg-ink-700"
+            className="h-2 w-full overflow-hidden rounded-full bg-cobalt-800"
           >
             <div
-              className="h-full origin-left rounded-full bg-blue-400 transition-transform duration-300 ease-out"
+              className="h-full origin-left rounded-full bg-signal transition-transform duration-500 ease-out"
               style={{ transform: `scaleX(${completed / steps.length})` }}
             />
           </div>
+        </div>
 
-          <AnalyzingSteps steps={steps} completed={completed} tone="dark" />
+        <div className="flex flex-col gap-5 lg:col-span-8 lg:col-start-5 lg:row-span-3 lg:row-start-1">
+          <p className="type-body font-semibold text-white tabular-nums" aria-live="polite">
+            {countText}
+          </p>
+          <AnalysisCatalog stage={completed} limit={limit} results={results} />
+        </div>
+
+        <div className="flex flex-col gap-7 lg:col-span-4 lg:row-start-2">
+          <ProfileReceipt rows={receipt} />
+
+          <AnalyzingSteps steps={steps} completed={completed} tone="cobalt" />
 
           <p className="sr-only" aria-live="polite">
             {finished ? "Analisis selesai. Membuka hasil." : current.label}
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button asChild variant="secondary">
+            <Button asChild variant="inverse">
               <Link href={PROFILE_HREF}>Batal</Link>
             </Button>
-            <p className="type-micro font-medium tracking-normal text-zinc-400">
+            <p className="type-micro font-medium tracking-normal text-cobalt-100">
               Data contoh (demo); perhitungan asli dilakukan server.
             </p>
           </div>
-        </div>
-
-        <div className="flex flex-col gap-4 lg:col-span-7">
-          <p className="num type-small text-zinc-300" aria-live="polite">
-            {countText}
-          </p>
-          <AnalysisCatalog stage={completed} limit={limit} results={results} />
         </div>
       </section>
     </main>
@@ -208,9 +270,9 @@ export function AnalysisView() {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader />
+      <FlowHeader tone={hydrated && !missing ? "cobalt" : "default"} />
       {hydrated && !missing ? (
-        <AnalysisRun key={attempt} mock={mock} hold={params.get("hold") === "1"} onRetry={() => setAttempt((a) => a + 1)} />
+        <AnalysisRun key={attempt} mock={mock} hold={parseHold(params.get("hold"))} onRetry={() => setAttempt((a) => a + 1)} />
       ) : (
         <main className="page-container flex flex-1 flex-col items-center pt-12 pb-20 md:pt-20">
           {!hydrated && (

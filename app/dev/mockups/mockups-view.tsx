@@ -41,6 +41,7 @@ const SCREENS: { group: string; items: { name: string; href: string; note: strin
     items: [
       { name: "Profil Kebutuhan", href: "/rekomendasi/profil", note: "Kartu gelap + baris Garis Kebutuhan. Seed “budget ketat” untuk banner kompromi." },
       { name: "Analisis (ditahan)", href: "/rekomendasi/analisis?hold=1", note: "Berhenti di tahap 3: katalog tersaring + skor. Tunggu ±3 detik sebelum menangkap." },
+      { name: "Analisis (Best Match)", href: "/rekomendasi/analisis?hold=best", note: "Semua tahap selesai, Best Match mengisi bingkai. Tunggu ±4 detik." },
     ],
   },
   {
