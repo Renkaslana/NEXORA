@@ -10,13 +10,15 @@ import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
 import { HERO_TIERS } from "@/components/landing/hero-tiers"
 import { Button } from "@/components/ui/button"
 import { getBudgetInsight, getWizardOptions } from "@/lib/api"
-import { DURATION, EASE_IN_OUT, EASE_OUT } from "@/lib/motion"
+import { DURATION, EASE_OUT } from "@/lib/motion"
 import type { BudgetPresetId } from "@/types"
 
 // Hero "kartu budget yang membuka" (disetujui Fahren, Okt 2026; terinspirasi pola "Timed Card Opening";
 // isi PRD §12–13, gerak §25, aksesibilitas §28). Latar = render premium kisaran aktif, selebar layar.
 // Di sisi kiri (area kertas yang tenang): judul, spek khas kisaran, CTA ke Wizard dengan ?budget=, lalu
-// kartu kisaran lain. Memilih kartu membuka render-nya dari posisi kartu ke latar penuh (clip reveal, lg+).
+// kartu kisaran lain. Memilih kartu membuat kartunya tumbuh dari posisinya menjadi latar penuh (lg+); di layar
+// kecil berganti dengan crossfade. Kelima render ditumpuk sekali dan tidak pernah dipasang ulang, jadi tidak
+// ada gambar yang dimuat atau didekode ulang saat berpindah (penyebab kedipan sebelumnya).
 // Berganti otomatis tiap 3 detik, tanpa garis progres dan tanpa tombol jeda (permintaan Fahren). Pengganti
 // tombol jeda (WCAG 2.2.2): berhenti permanen setelah pengguna memilih kartu/panah, berhenti sementara saat
 // kursor/fokus di hero atau tab tersembunyi, dan mati total bila prefers-reduced-motion.
@@ -25,6 +27,14 @@ const options = getWizardOptions()
 const ORDER = options.budgetPresets.map((p) => p.id)
 const FIRST: BudgetPresetId = "8-10"
 const AUTOPLAY_S = 3
+/** Kartu tumbuh menjadi latar: lambat di awal dan akhir, tanpa hentakan. */
+const GROW_S = 0.85
+const EASE_GROW = [0.65, 0, 0.35, 1] as const
+
+type Box = { top: number; left: number; width: number; height: number }
+type Flight =
+  | { id: BudgetPresetId; mode: "grow"; from: Box; to: { width: number; height: number } }
+  | { id: BudgetPresetId; mode: "fade" }
 /** Fokus render: laptop ada di kanan-bawah setiap gambar. */
 const FOCUS = "68% 72%"
 
@@ -48,12 +58,25 @@ function useLargeScreen() {
   return large
 }
 
-function TierImage({ id, sizes, eager = false, className }: { id: BudgetPresetId; sizes: string; eager?: boolean; className?: string }) {
+function TierImage({
+  id,
+  sizes,
+  eager = false,
+  decorative = false,
+  className,
+}: {
+  id: BudgetPresetId
+  sizes: string
+  eager?: boolean
+  /** Lapisan yang tidak sedang tampil atau gambar kartu (sudah berlabel tombol): alt kosong. */
+  decorative?: boolean
+  className?: string
+}) {
   const tier = HERO_TIERS[id]
   return (
     <Image
       src={tier.src}
-      alt={tier.alt}
+      alt={decorative ? "" : tier.alt}
       fill
       sizes={sizes}
       loading={eager ? "eager" : "lazy"}
@@ -67,10 +90,10 @@ function TierImage({ id, sizes, eager = false, className }: { id: BudgetPresetId
 export function LandingHero() {
   const reduce = useReducedMotion()
   const large = useLargeScreen()
-  /** Kisaran di latar (berubah setelah reveal selesai). */
+  /** Kisaran di latar (berubah setelah transisi selesai). */
   const [active, setActive] = React.useState<BudgetPresetId>(FIRST)
-  /** Kisaran yang sedang dibuka dari kartu (lg+). */
-  const [reveal, setReveal] = React.useState<{ id: BudgetPresetId; inset: string } | null>(null)
+  /** Transisi yang sedang berjalan: kartu tumbuh dari posisinya (lg+) atau crossfade (layar kecil). */
+  const [flight, setFlight] = React.useState<Flight | null>(null)
   /** Pengguna sudah memilih sendiri: pergantian otomatis berhenti permanen. */
   const [stopped, setStopped] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
@@ -79,38 +102,59 @@ export function LandingHero() {
   const stageRef = React.useRef<HTMLDivElement>(null)
   const cardRefs = React.useRef<Partial<Record<BudgetPresetId, HTMLElement | null>>>({})
 
-  const shown = reveal?.id ?? active
+  /** Kisaran yang menentukan warna teks (tinta/putih): ikut latar yang benar-benar terlihat. */
+  const [toneId, setToneId] = React.useState<BudgetPresetId>(FIRST)
+
+  const shown = flight?.id ?? active
   const preset = presetOf(shown)
   const tier = HERO_TIERS[shown]
   const insight = getBudgetInsight(preset.value, true)
-  const dark = tier.tone === "dark"
+  const dark = HERO_TIERS[toneId].tone === "dark"
   const queue = queueAfter(shown)
+
+  // Warna teks berganti di pertengahan transisi, saat render baru sudah menutupi sebagian besar layar,
+  // agar teks tidak sempat berada di atas latar yang kontrasnya salah.
+  React.useEffect(() => {
+    if (!flight) return
+    const t = window.setTimeout(
+      () => setToneId(flight.id),
+      (flight.mode === "grow" ? GROW_S : DURATION.slow) * 500
+    )
+    return () => window.clearTimeout(t)
+  }, [flight])
 
   const select = React.useCallback(
     (id: BudgetPresetId, byUser: boolean) => {
-      if (id === shown || reveal) return
+      if (id === shown || flight) return
       if (byUser) {
         setStopped(true)
         setAnnounce(`Kisaran ${presetOf(id).label}: ${HERO_TIERS[id].kind}`)
       }
-      const card = cardRefs.current[id]
-      const stage = stageRef.current
-      if (reduce || !large || !card || !stage) {
+      if (reduce) {
         setActive(id)
+        setToneId(id)
+        return
+      }
+      const card = cardRefs.current[id]?.querySelector("[data-thumb]")
+      const stage = stageRef.current
+      if (!large || !card || !stage) {
+        setFlight({ id, mode: "fade" })
         return
       }
       const s = stage.getBoundingClientRect()
       const c = card.getBoundingClientRect()
-      setReveal({
+      setFlight({
         id,
-        inset: `inset(${c.top - s.top}px ${s.right - c.right}px ${s.bottom - c.bottom}px ${c.left - s.left}px round 16px)`,
+        mode: "grow",
+        from: { top: c.top - s.top, left: c.left - s.left, width: c.width, height: c.height },
+        to: { width: s.width, height: s.height },
       })
     },
-    [shown, reveal, reduce, large]
+    [shown, flight, reduce, large]
   )
 
   // Berganti otomatis: tunggu 3 detik lalu ke kisaran berikutnya. Saat jeda dilepas, hitungan mulai lagi.
-  const paused = stopped || hovered || hidden || Boolean(reveal)
+  const paused = stopped || hovered || hidden || Boolean(flight)
   const autoplay = !reduce
   React.useEffect(() => {
     if (!autoplay || paused) return
@@ -139,43 +183,48 @@ export function LandingHero() {
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(false)
       }}
-      className={cn("relative overflow-hidden transition-colors duration-700 ease-out", ink)}
+      className={cn("relative overflow-hidden transition-colors duration-[600ms] ease-out", ink)}
       style={{ backgroundColor: tier.paper }}
     >
       {/* ------------------------------------------------ Panggung render: di atas pada mobile, latar penuh pada lg */}
       <div ref={stageRef} className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={active}
-            className="absolute inset-0"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, transition: { duration: 0, delay: DURATION.medium } }}
-            transition={{ duration: reveal || reduce ? 0 : DURATION.slow, ease: EASE_OUT }}
-          >
-            <TierImage id={active} sizes="100vw" eager={active === FIRST} />
-          </motion.div>
-        </AnimatePresence>
+        {/* Kelima render ditumpuk sekali; yang aktif di atas. Lapisan lain tetap terpasang (sudah terdekode)
+            di bawahnya, jadi saat transisi selesai lapisan baru sudah siap dan pergantiannya tidak terlihat. */}
+        {ORDER.map((id) => (
+          <div key={id} aria-hidden={id !== active} className={cn("absolute inset-0", id === active ? "z-[1]" : "z-0")}>
+            <TierImage id={id} sizes="100vw" eager={id === FIRST} decorative={id !== active} />
+          </div>
+        ))}
 
-        {reveal && (
+        {flight && (
           <motion.div
-            className="absolute inset-0 z-10"
-            initial={{ clipPath: reveal.inset }}
-            animate={{ clipPath: "inset(0px 0px 0px 0px round 0px)" }}
-            transition={{ duration: 0.9, ease: EASE_IN_OUT }}
+            key={flight.id}
+            aria-hidden="true"
+            className="absolute z-[2] overflow-hidden"
+            initial={
+              flight.mode === "grow"
+                ? { ...flight.from, borderRadius: 16 }
+                : { top: 0, left: 0, width: "100%", height: "100%", opacity: 0 }
+            }
+            animate={
+              flight.mode === "grow"
+                ? { top: 0, left: 0, ...flight.to, borderRadius: 0 }
+                : { opacity: 1 }
+            }
+            transition={{ duration: flight.mode === "grow" ? GROW_S : DURATION.slow, ease: flight.mode === "grow" ? EASE_GROW : EASE_OUT }}
             onAnimationComplete={() => {
-              setActive(reveal.id)
-              setReveal(null)
+              setActive(flight.id)
+              setFlight(null)
             }}
           >
-            <TierImage id={reveal.id} sizes="100vw" eager />
+            <TierImage id={flight.id} sizes="100vw" decorative />
           </motion.div>
         )}
 
         <span
           aria-hidden="true"
           className={cn(
-            "absolute right-4 bottom-3 z-10 rounded-full px-2.5 py-1 type-micro lg:top-4 lg:bottom-auto",
+            "absolute right-4 bottom-3 z-[3] rounded-full px-2.5 py-1 type-micro lg:top-4 lg:bottom-auto",
             dark ? "bg-white/15 text-white" : "bg-black/45 text-white"
           )}
         >
@@ -186,13 +235,13 @@ export function LandingHero() {
       {/* ------------------------------------------------ Isi */}
       <div className="page-container relative z-20 flex flex-col gap-8 pt-8 pb-10 lg:min-h-[calc(100svh-4rem)] lg:justify-between lg:pt-14 lg:pb-10">
         <div className="flex max-w-[42rem] flex-col gap-6">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.p
               key={shown}
-              initial={reduce ? false : { opacity: 0, y: 10 }}
+              initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, y: -8 }}
-              transition={{ duration: DURATION.medium, ease: EASE_OUT }}
+              exit={reduce ? undefined : { opacity: 0, transition: { duration: DURATION.medium } }}
+              transition={{ duration: DURATION.slow, ease: EASE_OUT }}
               className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
             >
               <span className="text-2xl leading-8 font-extrabold tracking-[-0.03em] tabular-nums">{preset.label}</span>
@@ -204,13 +253,13 @@ export function LandingHero() {
             Laptop buat kuliahmu, <span className="whitespace-nowrap">pas di budget-mu.</span>
           </h1>
 
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.p
               key={shown}
-              initial={reduce ? false : { opacity: 0, y: 10 }}
+              initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, y: -8 }}
-              transition={{ duration: DURATION.medium, ease: EASE_OUT, delay: reduce ? 0 : 0.05 }}
+              exit={reduce ? undefined : { opacity: 0, transition: { duration: DURATION.medium } }}
+              transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: reduce ? 0 : 0.06 }}
               className="max-w-[32rem] type-body-l"
             >
               Di kisaran ini biasanya kamu dapat: {preset.typicalSpec}.{" "}
@@ -250,8 +299,8 @@ export function LandingHero() {
                       layout={reduce ? false : "position"}
                       initial={reduce ? false : { opacity: 0, x: 24 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={reduce ? undefined : { opacity: 0, scale: 0.96 }}
-                      transition={{ duration: DURATION.slow, ease: EASE_OUT }}
+                      exit={{ opacity: 0, transition: { duration: 0 } }}
+                      transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: reduce ? 0 : 0.2 }}
                     >
                       <button
                         type="button"
@@ -262,8 +311,8 @@ export function LandingHero() {
                         aria-label={`Tampilkan kisaran ${p.label}: ${t.kind}`}
                         className="group flex w-[8.75rem] flex-col gap-2 text-left"
                       >
-                        <span className="relative block aspect-[3/4] w-full overflow-hidden rounded-[16px] ring-1 ring-black/10 transition-transform duration-[var(--motion-medium)] ease-out group-hover:-translate-y-1 group-active:scale-[0.98]">
-                          <TierImage id={id} sizes="140px" className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105" />
+                        <span data-thumb className="relative block aspect-[3/4] w-full overflow-hidden rounded-[16px] ring-1 ring-black/10 transition-transform duration-[var(--motion-medium)] ease-out group-hover:-translate-y-1 group-active:scale-[0.98]">
+                          <TierImage id={id} sizes="140px" decorative className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105" />
                         </span>
                         <span className="flex flex-col">
                           <span className="type-small font-bold tabular-nums">{p.label}</span>
