@@ -18,15 +18,7 @@ export default async function Home() {
     <>
       <Navbar tone="cobalt" />
       <main className="flex-1">
-        <LandingHero
-          presetRequirements={sample.presetRequirements}
-          bestMatch={{
-            matchScore: sample.best.result.matchScore,
-            laptopName: `${sample.best.laptop.brand} ${sample.best.laptop.model}`,
-          }}
-          majorLabel={sample.majorLabel}
-          softwareLabels={sample.softwareLabels}
-        />
+        <LandingHero />
         <SoftwareSentence />
         <SpecIsNotEnough sample={sample} />
         <HowItWorks sample={sample} />
