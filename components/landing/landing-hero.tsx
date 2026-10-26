@@ -306,7 +306,8 @@ export function LandingHero() {
                         className="group flex w-[8.75rem] flex-col gap-2 text-left"
                       >
                         <span data-thumb className="relative block aspect-[3/4] w-full overflow-hidden rounded-[16px] ring-1 ring-black/10 transition-transform duration-[var(--motion-medium)] ease-out group-hover:-translate-y-1 group-active:scale-[0.98]">
-                          <TierImage id={id} sizes="140px" decorative className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105" />
+                          {/* Kartu 140x187 (3:4) memotong render 16:10, jadi gambar sebenarnya digambar ±280 px lebar. */}
+                          <TierImage id={id} sizes="280px" decorative className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105" />
                         </span>
                         <span className="flex flex-col">
                           <span className="type-small font-bold tabular-nums">{p.label}</span>
