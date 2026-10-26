@@ -83,6 +83,7 @@ function TierImage({
       sizes={sizes}
       loading="eager"
       fetchPriority={priority ? "high" : "auto"}
+      quality={90}
       className={cn("object-cover", className)}
       style={{ objectPosition: FOCUS }}
     />

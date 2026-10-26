@@ -3,6 +3,10 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
+  images: {
+    // 90 untuk render premium hero landing (gradasi kertas polos mudah berbanding di kualitas 75).
+    qualities: [75, 90],
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {
