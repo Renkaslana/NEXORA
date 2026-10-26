@@ -93,9 +93,15 @@ Redesign "Kalimat terbelah" (Okt 2026, disetujui Fahren; menggantikan tampilan R
   Hasil = Best Match di bidang kobalt (`ScoreRing tone="cobalt"`); Detail = hero band kobalt; Komparasi =
   banner + header tabel kobalt. Kuning tetap hanya untuk aksi utama di bidang kobalt.
 - Semua ikon Lucide di luar `/dev` sudah diganti Phosphor (arsip `/dev/*` masih memakai Lucide).
-- Landing: hero = kalimat "Laptop buat kuliahmu, / pas di budget-mu." dibelah bingkai studio (h1 sr-only,
-  belahan visual aria-hidden). Interaksi utama "Laptop buat ___" (`getSoftwareNeeds()`, mock
-  `softwareLoadNeeds` di data/landing.ts: filter ≥ ambang, bukan SAW). CTA penutup = kalimat dengan isian.
+- Landing hero (Okt 2026, menggantikan "kalimat terbelah"): 5 kartu kisaran budget dengan render premium
+  kertas berwarna + cahaya keras (`components/landing/hero-tiers.ts`, `public/images/laptops/premium/`,
+  Gemini via Figma). Kartu tumbuh dari posisinya jadi latar penuh (lg+), crossfade di layar kecil; kelima
+  render ditumpuk sekali agar tanpa kedipan. Berganti tiap 3 detik tanpa garis progres dan tanpa tombol
+  jeda; berhenti permanen setelah pengguna memilih, sementara saat hover/fokus/tab tersembunyi, mati saat
+  reduced motion. Warna latar = warna kertas render; warna teks berganti di pertengahan transisi. Tanpa
+  label "Ilustrasi" (keterangan AI di alt + footer).
+- Interaksi utama "Laptop buat ___" (`getSoftwareNeeds()`, mock `softwareLoadNeeds` di data/landing.ts:
+  filter ≥ ambang, bukan SAW). CTA penutup = kalimat dengan isian.
 - Foto suasana `scene-*` dibuat dengan Gemini 3.1 Flash Image lewat Figma `generate_image` (kredit AI Figma
   akun Kevin), berwarna asli, selalu berlabel "Ilustrasi AI" (`MoodPhoto label`).
 - Analisis: kartu profil tercetak → garis budget kuning menyapu katalog → hasil diurutkan skor (layout
@@ -124,7 +130,7 @@ Redesign R1 (REDESIGN §9–14, §24), keputusan Fahren:
   {bentuk}-{warna}-{sudut}.webp`. Status per sudut: `docs/MIDJOURNEY_PROMPTS.md` §0.
 - Mock laptop punya `image: { shape, color }`; `imageUrl` = render `34`. Manifest, cadangan sudut
   (warna tidak pernah ditukar), dan alt "Ilustrasi … bukan foto produk asli" di `lib/laptop-image.ts`.
-- Render selalu di bidang `bg-studio`, berlabel "Ilustrasi". `next/image` memakai `loading="eager"` +
+- Render katalog selalu di bidang `bg-studio`, berlabel "Ilustrasi" (kecuali render premium hero landing). `next/image` memakai `loading="eager"` +
   `fetchPriority` (prop `priority` deprecated di Next 16).
 - Foto suasana: campuran CC0 StockSnap + Gemini, duotone biru-950 seragam, `public/images/mood/`,
   metadata + kredit di `lib/mood-photos.ts`.

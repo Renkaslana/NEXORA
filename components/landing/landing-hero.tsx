@@ -58,16 +58,18 @@ function useLargeScreen() {
   return large
 }
 
+/** Semua gambar hero ada di layar pertama, jadi dimuat langsung (tanpa lazy, agar kartu tidak kosong sesaat). */
 function TierImage({
   id,
   sizes,
-  eager = false,
+  priority = false,
   decorative = false,
   className,
 }: {
   id: BudgetPresetId
   sizes: string
-  eager?: boolean
+  /** Latar pertama (LCP): prioritas unduh tertinggi. */
+  priority?: boolean
   /** Lapisan yang tidak sedang tampil atau gambar kartu (sudah berlabel tombol): alt kosong. */
   decorative?: boolean
   className?: string
@@ -79,8 +81,8 @@ function TierImage({
       alt={decorative ? "" : tier.alt}
       fill
       sizes={sizes}
-      loading={eager ? "eager" : "lazy"}
-      fetchPriority={eager ? "high" : "auto"}
+      loading="eager"
+      fetchPriority={priority ? "high" : "auto"}
       className={cn("object-cover", className)}
       style={{ objectPosition: FOCUS }}
     />
@@ -192,7 +194,7 @@ export function LandingHero() {
             di bawahnya, jadi saat transisi selesai lapisan baru sudah siap dan pergantiannya tidak terlihat. */}
         {ORDER.map((id) => (
           <div key={id} aria-hidden={id !== active} className={cn("absolute inset-0", id === active ? "z-[1]" : "z-0")}>
-            <TierImage id={id} sizes="100vw" eager={id === FIRST} decorative={id !== active} />
+            <TierImage id={id} sizes="100vw" priority={id === FIRST} decorative={id !== active} />
           </div>
         ))}
 
@@ -220,16 +222,7 @@ export function LandingHero() {
             <TierImage id={flight.id} sizes="100vw" decorative />
           </motion.div>
         )}
-
-        <span
-          aria-hidden="true"
-          className={cn(
-            "absolute right-4 bottom-3 z-[3] rounded-full px-2.5 py-1 type-micro lg:top-4 lg:bottom-auto",
-            dark ? "bg-white/15 text-white" : "bg-black/45 text-white"
-          )}
-        >
-          Ilustrasi
-        </span>
+        {/* Tanpa label "Ilustrasi" di hero (keputusan Fahren); keterangan ilustrasi AI ada di alt dan footer. */}
       </div>
 
       {/* ------------------------------------------------ Isi */}
