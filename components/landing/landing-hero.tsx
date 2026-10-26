@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { animate, AnimatePresence, motion, useMotionValue, useReducedMotion } from "motion/react"
+import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { cn } from "cn"
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
@@ -19,13 +19,13 @@ import type { BudgetPresetId } from "@/types"
 // isi PRD §12–13, gerak §25, aksesibilitas §28). Latar = render premium kisaran aktif, selebar layar.
 // Di sisi kiri (area kertas yang tenang): judul, spek khas kisaran, CTA ke Wizard dengan ?budget=, lalu
 // kartu kisaran lain. Memilih kartu membuka render-nya dari posisi kartu ke latar penuh (clip reveal, lg+).
-// Berganti otomatis tiap 6 detik; berhenti saat kursor/fokus di hero, saat dijeda, saat tab tersembunyi,
+// Berganti otomatis tiap 3 detik (tanpa garis progres, permintaan Fahren); berhenti saat kursor/fokus di hero, saat dijeda, saat tab tersembunyi,
 // dan mati total bila prefers-reduced-motion.
 
 const options = getWizardOptions()
 const ORDER = options.budgetPresets.map((p) => p.id)
 const FIRST: BudgetPresetId = "8-10"
-const AUTOPLAY_S = 6
+const AUTOPLAY_S = 3
 /** Fokus render: laptop ada di kanan-bawah setiap gambar. */
 const FOCUS = "68% 72%"
 
@@ -78,7 +78,6 @@ export function LandingHero() {
   const [announce, setAnnounce] = React.useState("")
   const stageRef = React.useRef<HTMLDivElement>(null)
   const cardRefs = React.useRef<Partial<Record<BudgetPresetId, HTMLElement | null>>>({})
-  const progress = useMotionValue(0)
 
   const shown = reveal?.id ?? active
   const preset = presetOf(shown)
@@ -107,22 +106,14 @@ export function LandingHero() {
     [shown, reveal, reduce, large]
   )
 
-  // Berganti otomatis: progres 0 → 1 dalam 6 detik, lalu ke kisaran berikutnya.
+  // Berganti otomatis: tunggu 3 detik lalu ke kisaran berikutnya. Saat jeda dilepas, hitungan mulai lagi.
   const paused = userPaused || hovered || hidden || Boolean(reveal)
   const autoplay = !reduce
   React.useEffect(() => {
     if (!autoplay || paused) return
-    const controls = animate(progress, 1, {
-      duration: AUTOPLAY_S * (1 - progress.get()),
-      ease: "linear",
-      onComplete: () => {
-        progress.set(0)
-        select(step(shown, 1), false)
-      },
-    })
-    return () => controls.stop()
-  }, [autoplay, paused, shown, progress, select])
-  React.useEffect(() => progress.set(0), [shown, progress])
+    const t = window.setTimeout(() => select(step(shown, 1), false), AUTOPLAY_S * 1000)
+    return () => window.clearTimeout(t)
+  }, [autoplay, paused, shown, select])
 
   React.useEffect(() => {
     const update = () => setHidden(document.visibilityState === "hidden")
@@ -313,9 +304,6 @@ export function LandingHero() {
                 {userPaused ? <PlayIcon weight="fill" aria-hidden="true" /> : <PauseIcon weight="fill" aria-hidden="true" />}
               </Button>
             )}
-            <div aria-hidden="true" className="h-0.5 w-24 overflow-hidden rounded-full bg-current/25 sm:w-40">
-              <motion.div className="h-full origin-left bg-current" style={{ scaleX: autoplay ? progress : 0 }} />
-            </div>
             <p className="ml-1 type-small font-bold tabular-nums">
               <span className="sr-only">Kisaran </span>
               {/* Penghitung slide "03 / 05" seperti referensi (disetujui Fahren). */}
