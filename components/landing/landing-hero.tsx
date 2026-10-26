@@ -7,8 +7,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 import { cn } from "cn"
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
-import { PauseIcon } from "@phosphor-icons/react/dist/ssr/Pause"
-import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play"
 import { HERO_TIERS } from "@/components/landing/hero-tiers"
 import { Button } from "@/components/ui/button"
 import { getBudgetInsight, getWizardOptions } from "@/lib/api"
@@ -19,8 +17,9 @@ import type { BudgetPresetId } from "@/types"
 // isi PRD §12–13, gerak §25, aksesibilitas §28). Latar = render premium kisaran aktif, selebar layar.
 // Di sisi kiri (area kertas yang tenang): judul, spek khas kisaran, CTA ke Wizard dengan ?budget=, lalu
 // kartu kisaran lain. Memilih kartu membuka render-nya dari posisi kartu ke latar penuh (clip reveal, lg+).
-// Berganti otomatis tiap 3 detik (tanpa garis progres, permintaan Fahren); berhenti saat kursor/fokus di hero, saat dijeda, saat tab tersembunyi,
-// dan mati total bila prefers-reduced-motion.
+// Berganti otomatis tiap 3 detik, tanpa garis progres dan tanpa tombol jeda (permintaan Fahren). Pengganti
+// tombol jeda (WCAG 2.2.2): berhenti permanen setelah pengguna memilih kartu/panah, berhenti sementara saat
+// kursor/fokus di hero atau tab tersembunyi, dan mati total bila prefers-reduced-motion.
 
 const options = getWizardOptions()
 const ORDER = options.budgetPresets.map((p) => p.id)
@@ -72,7 +71,8 @@ export function LandingHero() {
   const [active, setActive] = React.useState<BudgetPresetId>(FIRST)
   /** Kisaran yang sedang dibuka dari kartu (lg+). */
   const [reveal, setReveal] = React.useState<{ id: BudgetPresetId; inset: string } | null>(null)
-  const [userPaused, setUserPaused] = React.useState(false)
+  /** Pengguna sudah memilih sendiri: pergantian otomatis berhenti permanen. */
+  const [stopped, setStopped] = React.useState(false)
   const [hovered, setHovered] = React.useState(false)
   const [hidden, setHidden] = React.useState(false)
   const [announce, setAnnounce] = React.useState("")
@@ -89,7 +89,10 @@ export function LandingHero() {
   const select = React.useCallback(
     (id: BudgetPresetId, byUser: boolean) => {
       if (id === shown || reveal) return
-      if (byUser) setAnnounce(`Kisaran ${presetOf(id).label}: ${HERO_TIERS[id].kind}`)
+      if (byUser) {
+        setStopped(true)
+        setAnnounce(`Kisaran ${presetOf(id).label}: ${HERO_TIERS[id].kind}`)
+      }
       const card = cardRefs.current[id]
       const stage = stageRef.current
       if (reduce || !large || !card || !stage) {
@@ -107,7 +110,7 @@ export function LandingHero() {
   )
 
   // Berganti otomatis: tunggu 3 detik lalu ke kisaran berikutnya. Saat jeda dilepas, hitungan mulai lagi.
-  const paused = userPaused || hovered || hidden || Boolean(reveal)
+  const paused = stopped || hovered || hidden || Boolean(reveal)
   const autoplay = !reduce
   React.useEffect(() => {
     if (!autoplay || paused) return
@@ -233,8 +236,9 @@ export function LandingHero() {
         </div>
 
         {/* ------------------------------------------------ Kartu kisaran lain + kontrol */}
-        <div className="flex flex-col gap-4">
-          <div className="-mx-4 overflow-x-auto px-4 pb-1 lg:mx-0 lg:overflow-visible lg:px-0">
+        {/* Kontrol selebar deretan kartu: panah di tengah, penghitung rata kanan. */}
+        <div className="flex flex-col gap-4 lg:w-fit">
+          <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
             <ul className="flex w-max gap-3">
               <AnimatePresence initial={false} mode="popLayout">
                 {queue.map((id) => {
@@ -273,38 +277,29 @@ export function LandingHero() {
             </ul>
           </div>
 
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Kisaran sebelumnya"
-              onClick={() => select(step(shown, -1), true)}
-              className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
-            >
-              <ArrowLeftIcon weight="bold" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Kisaran berikutnya"
-              onClick={() => select(step(shown, 1), true)}
-              className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
-            >
-              <ArrowRightIcon weight="bold" aria-hidden="true" />
-            </Button>
-            {autoplay && (
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+            <span aria-hidden="true" />
+            <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="icon"
-                aria-pressed={userPaused}
-                aria-label={userPaused ? "Lanjutkan pergantian otomatis" : "Jeda pergantian otomatis"}
-                onClick={() => setUserPaused((p) => !p)}
+                aria-label="Kisaran sebelumnya"
+                onClick={() => select(step(shown, -1), true)}
                 className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
               >
-                {userPaused ? <PlayIcon weight="fill" aria-hidden="true" /> : <PauseIcon weight="fill" aria-hidden="true" />}
+                <ArrowLeftIcon weight="bold" aria-hidden="true" />
               </Button>
-            )}
-            <p className="ml-1 type-small font-bold tabular-nums">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Kisaran berikutnya"
+                onClick={() => select(step(shown, 1), true)}
+                className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
+              >
+                <ArrowRightIcon weight="bold" aria-hidden="true" />
+              </Button>
+            </div>
+            <p className="justify-self-end type-small font-bold tabular-nums">
               <span className="sr-only">Kisaran </span>
               {/* Penghitung slide "03 / 05" seperti referensi (disetujui Fahren). */}
               {String(indexOf(shown) + 1).padStart(2, "0") /* taste-skill-ignore */}
