@@ -36,7 +36,8 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
 - Semua data dari mock di `data/`, diakses **hanya** lewat `lib/api.ts`. Komponen dan
   halaman tidak boleh mengimpor `@/data/*` secara langsung.
 - UI berbahasa Indonesia. Mobile-first. Aksesibel: keyboard, focus ring, kontras AA.
-- Tanpa gradient, glow, glassmorphism, blob, atau 3D dekoratif.
+- Tanpa gradient, glow, glassmorphism, blob, atau 3D dekoratif. Pengecualian (disetujui Fahren): blur kaca
+  hanya di navbar mengambang landing.
 - Setelah tiap tahap: jalankan `npm run lint` dan `npm run build`, perbaiki error,
   lalu ringkas apa yang berubah.
 
@@ -83,6 +84,25 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
   - [x] R2 Landing: hero hybrid + callout meter, "Spek saja tidak menjawab", cerita ter-pin, persona
     berfoto, band gelap, CTA dengan render.
   - [x] R3 Wizard/Profil/Analisis · [x] R4 Hasil/Detail/Komparasi (gaya kobalt, Okt 2026) · [ ] R5 Should have
+
+Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahren, menggantikan landing di bawah):
+- Palet landing: latar `canvas` #F7F5F0, teks `ink-strong` #171717 / `ink-soft` #62625C, garis `canvas-line`
+  #DCDAD2, kuning `signal` #F3E91F = aksi utama, `data-blue` #1238F5 = data/skor/pilihan (bidang biru penuh hanya
+  di CTA akhir). Foto jadi sumber warna. Halaman lain tetap gaya kobalt R4.
+- `LandingNav`: navbar mengambang kaca (blur) di atas hero → putih hangat saat scroll, 72 → 64 px, nilai
+  diturunkan dari scrollY (tanpa loncat). `Navbar` lama tidak dipakai lagi di `/`.
+- Alur: hero slider kisaran budget → "Budget sama. Kebutuhan bisa berbeda." (demo Rp8 jt: Kuliah/Coding/Desain/
+  Gaming/Kerja, ambang Profil Kebutuhan, jumlah laptop katalog yang lolos; bukan skor) → cara kerja 3 langkah →
+  pratinjau 5 pertanyaan (opsi asli Wizard, `?budget=&jurusan=` ke Wizard) → rekomendasi sticky (lg+, skor naik
+  ke Best Match mock) → transparansi bobot (breakdown mock + tooltip, tautan ke `ScoreExplainer`) → bukan toko
+  (fakta produk, bukan statistik karangan) → CTA biru. Persona Raka/Salsa/Dinda/Bima dihapus dari landing.
+- Hero: 6 detik/slide, digerakkan `animationend` garis progres di thumbnail aktif (jeda = animation-play-state);
+  berhenti saat hover/fokus/tab tersembunyi lalu lanjut; kelima render ditumpuk (keluar 1→1,03 −20 px, masuk
+  0,98 +20 px blur tipis, 800 ms). Paralaks + kursor ≤ 8 px hanya desktop. Copy memakai "budget, kuliah, dan
+  aplikasi", bukan "skill" (Wizard tidak menanyakan skill).
+- Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
+  terpisah wajib); di Rp8 jt 0 lolos + catatan kompromi. Data landing: `getLandingStoryContent()`,
+  `components/landing/sample-data.ts`. Arsip /dev/landing-a|b memakai `archive-sample.ts`.
 
 Redesign "Kalimat terbelah" (Okt 2026, disetujui Fahren; menggantikan tampilan R2 landing + Analisis R3):
 - Palet: bidang kobalt `--cobalt-600` #0034EB (hero, Analisis, CTA) + kuning `--signal` #E9E34A hanya untuk

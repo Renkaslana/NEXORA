@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { getLandingSample } from "@/components/landing/sample-data";
+import { getArchiveLandingSample as getLandingSample } from "@/components/landing/archive-sample";
 import { RequirementSnippet, ResultSnippet, WizardSnippet } from "@/components/landing/snippets";
 import { Button } from "@/components/ui/button";
 import { PhotoPlaceholder } from "@/components/ui/photo-placeholder";

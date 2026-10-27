@@ -288,6 +288,19 @@ export interface LandingCase {
   rows: LandingMeterRef[];
 }
 
+/**
+ * Demo landing "Budget sama, kebutuhan berbeda" (brief redesign landing §12, disetujui Fahren).
+ * Aktivitas dipetakan ke Profil Kebutuhan persona yang sudah ada, kecuali gaming yang punya mock sendiri.
+ */
+export interface LandingActivity {
+  id: "kuliah" | "coding" | "desain" | "gaming" | "kerja";
+  label: string;
+  /** Persona yang Profil Kebutuhannya dipakai. Kosong = memakai `gamingRequirement`. */
+  persona?: PersonaId;
+  /** Tiga faktor yang paling menentukan untuk aktivitas ini (teks pendek). */
+  factors: string[];
+}
+
 // ---------------------------------------------------------------- Penyimpanan lokal (PRD §20)
 
 export interface SavedLaptop {

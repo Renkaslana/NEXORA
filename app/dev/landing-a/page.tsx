@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
-import { getLandingSample, type LandingSample } from "@/components/landing/sample-data";
+import { getArchiveLandingSample as getLandingSample, type ArchiveLandingSample as LandingSample } from "@/components/landing/archive-sample";
 import { RequirementSnippet, ResultSnippet, WizardSnippet } from "@/components/landing/snippets";
 import { ScoreRing } from "@/components/results/score-ring";
 import { Button } from "@/components/ui/button";

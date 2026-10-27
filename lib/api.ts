@@ -1,7 +1,12 @@
 import { glossary } from "@/data/glossary";
 import {
+  criterionHints,
+  demoBudget,
+  gamingNote,
+  gamingRequirement,
   gpuSoftware,
   heavyComboCpuBonus,
+  landingActivities,
   landingCases,
   personaHighlights,
   softwareLoadNeeds,
@@ -128,6 +133,14 @@ export function getNoResultSuggestions(profile: UserProfile) {
 /** Konten landing redesign: kasus "Spek saja tidak menjawab" + kebutuhan khas persona. Statis. */
 export function getLandingContent() {
   return { cases: landingCases, personaHighlights };
+}
+
+/**
+ * Konten landing "Editorial Tech": aktivitas demo + mock gaming, budget demo, dan penjelasan kriteria.
+ * Statis; Profil Kebutuhan tiap aktivitas tetap diambil lewat `getRequirements()`.
+ */
+export function getLandingStoryContent() {
+  return { activities: landingActivities, gamingRequirement, gamingNote, demoBudget, criterionHints };
 }
 
 /**

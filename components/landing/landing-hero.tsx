@@ -3,62 +3,47 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "motion/react"
 import { cn } from "cn"
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
 import { HERO_TIERS } from "@/components/landing/hero-tiers"
 import { Button } from "@/components/ui/button"
 import { getBudgetInsight, getWizardOptions } from "@/lib/api"
-import { DURATION, EASE_OUT } from "@/lib/motion"
+import { DURATION, EASE_OUT, EASE_SMOOTH } from "@/lib/motion"
 import type { BudgetPresetId } from "@/types"
 
-// Hero "kartu budget yang membuka" (disetujui Fahren, Okt 2026; terinspirasi pola "Timed Card Opening";
-// isi PRD §12–13, gerak §25, aksesibilitas §28). Latar = render premium kisaran aktif, selebar layar.
-// Di sisi kiri (area kertas yang tenang): judul, spek khas kisaran, CTA ke Wizard dengan ?budget=, lalu
-// kartu kisaran lain. Memilih kartu membuat kartunya tumbuh dari posisinya menjadi latar penuh (lg+); di layar
-// kecil berganti dengan crossfade. Kelima render ditumpuk sekali dan tidak pernah dipasang ulang, jadi tidak
-// ada gambar yang dimuat atau didekode ulang saat berpindah (penyebab kedipan sebelumnya).
-// Berganti otomatis tiap 3 detik, tanpa garis progres dan tanpa tombol jeda (permintaan Fahren). Pengganti
-// tombol jeda (WCAG 2.2.2): berhenti permanen setelah pengguna memilih kartu/panah, berhenti sementara saat
-// kursor/fokus di hero atau tab tersembunyi, dan mati total bila prefers-reduced-motion.
+// Hero slider kisaran budget (brief redesign landing §5–11, disetujui Fahren Okt 2026; isi PRD §12–13).
+// Latar = render premium kisaran aktif selebar layar; laptop selalu di kanan, sisi kiri zona aman teks.
+// - Kelima thumbnail selalu tampil; yang aktif disorot dengan garis progres. Pergantian otomatis tiap
+//   6 detik digerakkan oleh `animationend` garis progres (CSS), jadi jeda dan progres selalu sinkron.
+// - Berhenti saat kursor/fokus di hero atau tab tersembunyi, lalu lanjut lagi; mati bila reduced motion.
+// - Kelima render ditumpuk dan tidak pernah dipasang ulang (tanpa kedipan): yang keluar membesar 1,03
+//   dan geser −20 px sambil memudar, yang masuk dari 0,98 / +20 px dengan blur tipis (800 ms).
 
 const options = getWizardOptions()
 const ORDER = options.budgetPresets.map((p) => p.id)
 const FIRST: BudgetPresetId = "8-10"
-const AUTOPLAY_S = 3
-/** Kartu tumbuh menjadi latar: lambat di awal dan akhir, tanpa hentakan. */
-const GROW_S = 0.85
-const EASE_GROW = [0.65, 0, 0.35, 1] as const
-
-type Box = { top: number; left: number; width: number; height: number }
-type Flight =
-  | { id: BudgetPresetId; mode: "grow"; from: Box; to: { width: number; height: number } }
-  | { id: BudgetPresetId; mode: "fade" }
+const AUTOPLAY_S = 6
+const SLIDE_S = 0.8
 /** Fokus render: laptop ada di kanan-bawah setiap gambar. */
 const FOCUS = "68% 72%"
 
 const presetOf = (id: BudgetPresetId) => options.budgetPresets.find((p) => p.id === id)!
 const indexOf = (id: BudgetPresetId) => ORDER.indexOf(id)
 const step = (id: BudgetPresetId, by: number) => ORDER[(indexOf(id) + by + ORDER.length) % ORDER.length]
-/** Kartu yang tampil: kisaran setelah yang aktif, berputar. */
-const queueAfter = (id: BudgetPresetId) => ORDER.map((_, i) => step(id, i + 1)).slice(0, ORDER.length - 1)
 // "< Rp6 jt" → "di bawah Rp6 jt", "Rp15 jt+" → "Rp15 jt ke atas"
 const inWords = (label: string) => label.replace(/^<\s*/, "di bawah ").replace(/\+$/, " ke atas")
 
-function useLargeScreen() {
-  const [large, setLarge] = React.useState(false)
-  React.useEffect(() => {
-    const q = window.matchMedia("(min-width: 1024px)")
-    const update = () => setLarge(q.matches)
-    update()
-    q.addEventListener("change", update)
-    return () => q.removeEventListener("change", update)
-  }, [])
-  return large
-}
-
-/** Semua gambar hero ada di layar pertama, jadi dimuat langsung (tanpa lazy, agar kartu tidak kosong sesaat). */
+/** Semua gambar hero ada di layar pertama, jadi dimuat langsung (tanpa lazy). */
 function TierImage({
   id,
   sizes,
@@ -70,7 +55,7 @@ function TierImage({
   sizes: string
   /** Latar pertama (LCP): prioritas unduh tertinggi. */
   priority?: boolean
-  /** Lapisan yang tidak sedang tampil atau gambar kartu (sudah berlabel tombol): alt kosong. */
+  /** Lapisan yang tidak sedang tampil atau gambar thumbnail (sudah berlabel tombol): alt kosong. */
   decorative?: boolean
   className?: string
 }) {
@@ -90,80 +75,74 @@ function TierImage({
   )
 }
 
+/** Paralaks scroll + kedalaman kursor halus pada render (desktop, pointer halus, tanpa reduced motion). */
+function useDepth(ref: React.RefObject<HTMLElement | null>) {
+  const reduce = useReducedMotion()
+  const [fine, setFine] = React.useState(false)
+  React.useEffect(() => {
+    const q = window.matchMedia("(hover: hover) and (pointer: fine) and (min-width: 1024px)")
+    const update = () => setFine(q.matches)
+    update()
+    q.addEventListener("change", update)
+    return () => q.removeEventListener("change", update)
+  }, [])
+  const enabled = fine && !reduce
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
+  const scrollY = useTransform(scrollYProgress, [0, 1], [0, 40])
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+  const sx = useSpring(px, { stiffness: 90, damping: 20, mass: 0.6 })
+  const sy = useSpring(py, { stiffness: 90, damping: 20, mass: 0.6 })
+  const x = useTransform(sx, (v) => v * 8)
+  const y = useTransform([sy, scrollY], ([a, b]: number[]) => a * 8 + b)
+  return {
+    style: enabled ? { x, y } : undefined,
+    onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+      if (!enabled) return
+      const r = e.currentTarget.getBoundingClientRect()
+      px.set((e.clientX - r.left) / r.width - 0.5)
+      py.set((e.clientY - r.top) / r.height - 0.5)
+    },
+    onPointerLeave: () => {
+      px.set(0)
+      py.set(0)
+    },
+  }
+}
+
 export function LandingHero() {
   const reduce = useReducedMotion()
-  const large = useLargeScreen()
-  /** Kisaran di latar (berubah setelah transisi selesai). */
+  const sectionRef = React.useRef<HTMLElement>(null)
+  const depth = useDepth(sectionRef)
   const [active, setActive] = React.useState<BudgetPresetId>(FIRST)
-  /** Transisi yang sedang berjalan: kartu tumbuh dari posisinya (lg+) atau crossfade (layar kecil). */
-  const [flight, setFlight] = React.useState<Flight | null>(null)
-  /** Pengguna sudah memilih sendiri: pergantian otomatis berhenti permanen. */
-  const [stopped, setStopped] = React.useState(false)
+  const [previous, setPrevious] = React.useState<BudgetPresetId | null>(null)
+  /** Kisaran yang menentukan warna teks: berganti di pertengahan transisi agar kontras tetap benar. */
+  const [toneId, setToneId] = React.useState<BudgetPresetId>(FIRST)
   const [hovered, setHovered] = React.useState(false)
   const [hidden, setHidden] = React.useState(false)
   const [announce, setAnnounce] = React.useState("")
-  const stageRef = React.useRef<HTMLDivElement>(null)
-  const cardRefs = React.useRef<Partial<Record<BudgetPresetId, HTMLElement | null>>>({})
 
-  /** Kisaran yang menentukan warna teks (tinta/putih): ikut latar yang benar-benar terlihat. */
-  const [toneId, setToneId] = React.useState<BudgetPresetId>(FIRST)
-
-  const shown = flight?.id ?? active
-  const preset = presetOf(shown)
-  const tier = HERO_TIERS[shown]
+  const preset = presetOf(active)
+  const tier = HERO_TIERS[active]
   const insight = getBudgetInsight(preset.value, true)
   const dark = HERO_TIERS[toneId].tone === "dark"
-  const queue = queueAfter(shown)
-
-  // Warna teks berganti di pertengahan transisi, saat render baru sudah menutupi sebagian besar layar,
-  // agar teks tidak sempat berada di atas latar yang kontrasnya salah.
-  React.useEffect(() => {
-    if (!flight) return
-    const t = window.setTimeout(
-      () => setToneId(flight.id),
-      (flight.mode === "grow" ? GROW_S : DURATION.slow) * 500
-    )
-    return () => window.clearTimeout(t)
-  }, [flight])
+  const autoplay = !reduce
+  const paused = hovered || hidden
 
   const select = React.useCallback(
     (id: BudgetPresetId, byUser: boolean) => {
-      if (id === shown || flight) return
-      if (byUser) {
-        setStopped(true)
-        setAnnounce(`Kisaran ${presetOf(id).label}: ${HERO_TIERS[id].kind}`)
-      }
-      if (reduce) {
-        setActive(id)
-        setToneId(id)
-        return
-      }
-      const card = cardRefs.current[id]?.querySelector("[data-thumb]")
-      const stage = stageRef.current
-      if (!large || !card || !stage) {
-        setFlight({ id, mode: "fade" })
-        return
-      }
-      const s = stage.getBoundingClientRect()
-      const c = card.getBoundingClientRect()
-      setFlight({
-        id,
-        mode: "grow",
-        from: { top: c.top - s.top, left: c.left - s.left, width: c.width, height: c.height },
-        to: { width: s.width, height: s.height },
-      })
+      if (id === active) return
+      if (byUser) setAnnounce(`Kisaran ${presetOf(id).label}: ${HERO_TIERS[id].kind}`)
+      setPrevious(active)
+      setActive(id)
     },
-    [shown, flight, reduce, large]
+    [active]
   )
 
-  // Berganti otomatis: tunggu 3 detik lalu ke kisaran berikutnya. Saat jeda dilepas, hitungan mulai lagi.
-  const paused = stopped || hovered || hidden || Boolean(flight)
-  const autoplay = !reduce
   React.useEffect(() => {
-    if (!autoplay || paused) return
-    const t = window.setTimeout(() => select(step(shown, 1), false), AUTOPLAY_S * 1000)
+    const t = window.setTimeout(() => setToneId(active), reduce ? 0 : SLIDE_S * 500)
     return () => window.clearTimeout(t)
-  }, [autoplay, paused, shown, select])
+  }, [active, reduce])
 
   React.useEffect(() => {
     const update = () => setHidden(document.visibilityState === "hidden")
@@ -171,17 +150,37 @@ export function LandingHero() {
     return () => document.removeEventListener("visibilitychange", update)
   }, [])
 
-  const ink = dark ? "text-white" : "text-text"
-  const ctaHref = `/rekomendasi/budget?budget=${preset.value}`
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return
+    e.preventDefault()
+    const next = step(active, e.key === "ArrowRight" ? 1 : -1)
+    select(next, true)
+    document.getElementById(`hero-thumb-${next}`)?.focus()
+  }
+
+  const ink = dark ? "text-white" : "text-ink-strong"
   const words = inWords(preset.label)
+  const enter = (delay: number) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 12 },
+          animate: { opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE_OUT, delay } },
+          exit: { opacity: 0, transition: { duration: DURATION.medium } },
+        }
 
   return (
     <section
+      ref={sectionRef}
       aria-roledescription="carousel"
       aria-label="Kisaran budget laptop"
       data-tone={dark ? "cobalt" : undefined}
       onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
+      onPointerLeave={() => {
+        setHovered(false)
+        depth.onPointerLeave()
+      }}
+      onPointerMove={depth.onPointerMove}
       onFocusCapture={() => setHovered(true)}
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(false)
@@ -189,86 +188,87 @@ export function LandingHero() {
       className={cn("relative overflow-hidden transition-colors duration-[600ms] ease-out", ink)}
       style={{ backgroundColor: tier.paper }}
     >
-      {/* ------------------------------------------------ Panggung render: di atas pada mobile, latar penuh pada lg */}
-      <div ref={stageRef} className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
-        {/* Kelima render ditumpuk sekali; yang aktif di atas. Lapisan lain tetap terpasang (sudah terdekode)
-            di bawahnya, jadi saat transisi selesai lapisan baru sudah siap dan pergantiannya tidak terlihat. */}
-        {ORDER.map((id) => (
-          <div key={id} aria-hidden={id !== active} className={cn("absolute inset-0", id === active ? "z-[1]" : "z-0")}>
-            <TierImage id={id} sizes="100vw" priority={id === FIRST} decorative={id !== active} />
-          </div>
-        ))}
-
-        {flight && (
-          <motion.div
-            key={flight.id}
-            aria-hidden="true"
-            className="absolute z-[2] overflow-hidden"
-            initial={
-              flight.mode === "grow"
-                ? { ...flight.from, borderRadius: 16 }
-                : { top: 0, left: 0, width: "100%", height: "100%", opacity: 0 }
-            }
-            animate={
-              flight.mode === "grow"
-                ? { top: 0, left: 0, ...flight.to, borderRadius: 0 }
-                : { opacity: 1 }
-            }
-            transition={{ duration: flight.mode === "grow" ? GROW_S : DURATION.slow, ease: flight.mode === "grow" ? EASE_GROW : EASE_OUT }}
-            onAnimationComplete={() => {
-              setActive(flight.id)
-              setFlight(null)
-            }}
-          >
-            <TierImage id={flight.id} sizes="100vw" decorative />
-          </motion.div>
-        )}
-        {/* Tanpa label "Ilustrasi" di hero (keputusan Fahren); keterangan ilustrasi AI ada di alt dan footer. */}
+      {/* ------------------------------------------------ Render: di atas pada mobile, latar penuh pada lg */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
+        <motion.div className="absolute -inset-4" style={depth.style}>
+          {ORDER.map((id) => {
+            const state = id === active ? "active" : id === previous ? "leaving" : "idle"
+            return (
+              <motion.div
+                key={id}
+                aria-hidden={id !== active}
+                className={cn("absolute inset-0", state === "active" ? "z-[2]" : state === "leaving" ? "z-[1]" : "z-0")}
+                initial={false}
+                animate={state}
+                variants={{
+                  active: { opacity: 1, scale: 1, x: 0, filter: "blur(0px)" },
+                  leaving: { opacity: 0, scale: 1.03, x: -20, filter: "blur(0px)" },
+                  idle: { opacity: 0, scale: 0.98, x: 20, filter: "blur(6px)" },
+                }}
+                transition={
+                  reduce
+                    ? { duration: 0.2 }
+                    : state === "idle"
+                      ? { duration: 0 }
+                      : { duration: SLIDE_S, ease: EASE_SMOOTH }
+                }
+              >
+                <TierImage id={id} sizes="100vw" priority={id === FIRST} decorative={id !== active} />
+              </motion.div>
+            )
+          })}
+        </motion.div>
       </div>
 
       {/* ------------------------------------------------ Isi */}
-      <div className="page-container relative z-20 flex flex-col gap-8 pt-8 pb-10 lg:min-h-[calc(100svh-4rem)] lg:justify-between lg:pt-14 lg:pb-10">
+      <div className="page-container relative z-10 flex flex-col gap-8 pt-8 pb-10 lg:min-h-svh lg:justify-between lg:pt-28 lg:pb-8">
         <div className="flex max-w-[42rem] flex-col gap-6">
           <AnimatePresence mode="popLayout" initial={false}>
-            <motion.p
-              key={shown}
-              initial={reduce ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, transition: { duration: DURATION.medium } }}
-              transition={{ duration: DURATION.slow, ease: EASE_OUT }}
-              className="flex flex-wrap items-baseline gap-x-3 gap-y-1"
-            >
+            <motion.p key={`label-${active}`} {...enter(0)} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-2xl leading-8 font-extrabold tracking-[-0.03em] tabular-nums">{preset.label}</span>
               <span className="type-body font-semibold">{tier.kind}</span>
             </motion.p>
           </AnimatePresence>
 
-          <h1 className="text-[2.5rem] leading-[1.02] font-extrabold tracking-[-0.045em] md:text-[3.5rem]">
+          <motion.h1
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.1 }}
+            className="text-[2.5rem] leading-[1] font-extrabold tracking-[-0.045em] md:text-[3.5rem]"
+          >
             Laptop buat kuliahmu, <span className="whitespace-nowrap">pas di budget-mu.</span>
-          </h1>
+          </motion.h1>
 
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.p
-              key={shown}
-              initial={reduce ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? undefined : { opacity: 0, transition: { duration: DURATION.medium } }}
-              transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: reduce ? 0 : 0.06 }}
-              className="max-w-[32rem] type-body-l"
-            >
-              Di kisaran ini biasanya kamu dapat: {preset.typicalSpec}.{" "}
-              <span className="font-semibold tabular-nums">{insight.laptopCount} laptop</span> di katalog contoh kami.
-            </motion.p>
-          </AnimatePresence>
+          <div className="flex max-w-[34rem] flex-col gap-2">
+            <p className="type-body-l">
+              Temukan laptop berdasarkan budget, kuliah, dan aplikasi yang kamu pakai. NEXORA menyaring pilihan sampai
+              ketemu yang paling sesuai.
+            </p>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.p key={`spec-${active}`} {...enter(0.18)} className="type-body font-medium">
+                Di kisaran ini: {preset.typicalSpec}.{" "}
+                <span className="font-bold tabular-nums">{insight.laptopCount} laptop</span> di katalog contoh.
+              </motion.p>
+            </AnimatePresence>
+          </div>
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Button asChild variant="signal" size="lg">
-              <Link href={ctaHref}>
-                Cari laptop {words.startsWith("di bawah") ? "" : "untuk "}
-                {words}
-                <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
-              </Link>
-            </Button>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div key={`cta-${active}`} {...enter(0.26)}>
+                <Button
+                  asChild
+                  variant="signal"
+                  size="lg"
+                  className="rounded-[14px] transition-[background-color,transform] duration-[var(--motion-medium)] hover:scale-[1.015] hover:[&_[data-arrow]]:translate-x-1 active:scale-[0.98]"
+                >
+                  <Link href={`/rekomendasi/budget?budget=${preset.value}`}>
+                    Cari laptop {words.startsWith("di bawah") ? "" : "untuk "}
+                    {words}
+                    <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                  </Link>
+                </Button>
+              </motion.div>
+            </AnimatePresence>
             <Link
               href="#cara-kerja"
               className="inline-flex min-h-11 items-center type-body font-semibold underline decoration-current/40 underline-offset-4 transition-colors hover:decoration-current"
@@ -278,75 +278,89 @@ export function LandingHero() {
           </div>
         </div>
 
-        {/* ------------------------------------------------ Kartu kisaran lain + kontrol */}
-        {/* Kontrol selebar deretan kartu: panah di tengah, penghitung rata kanan. */}
+        {/* ------------------------------------------------ Thumbnail kisaran + navigasi */}
         <div className="flex flex-col gap-4 lg:w-fit">
-          <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
-            <ul className="flex w-max gap-3">
-              <AnimatePresence initial={false} mode="popLayout">
-                {queue.map((id) => {
-                  const p = presetOf(id)
-                  const t = HERO_TIERS[id]
-                  return (
-                    <motion.li
-                      key={id}
-                      layout={reduce ? false : "position"}
-                      initial={reduce ? false : { opacity: 0, x: 24 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, transition: { duration: 0 } }}
-                      transition={{ duration: DURATION.slow, ease: EASE_OUT, delay: reduce ? 0 : 0.2 }}
+          <div className="-mx-4 overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+            <div role="group" aria-label="Pilih kisaran budget" onKeyDown={onKeyDown} className="flex w-max gap-3">
+              {ORDER.map((id) => {
+                const p = presetOf(id)
+                const t = HERO_TIERS[id]
+                const on = id === active
+                return (
+                  <button
+                    key={id}
+                    id={`hero-thumb-${id}`}
+                    type="button"
+                    aria-pressed={on}
+                    aria-label={`Tampilkan kisaran ${p.label}: ${t.kind}`}
+                    onClick={() => select(id, true)}
+                    className={cn(
+                      "group flex w-[6.5rem] flex-col gap-2 text-left transition-[opacity,transform] duration-[var(--motion-medium)] ease-out",
+                      on ? "scale-100 opacity-100" : "scale-[0.97] opacity-70 hover:scale-[1.02] hover:opacity-100"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "relative block aspect-[3/4] w-full overflow-hidden rounded-[14px] ring-offset-2 transition-shadow duration-[var(--motion-medium)]",
+                        on ? "ring-2 ring-current ring-offset-transparent" : "ring-1 ring-black/10 group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.18)]" /* taste-skill-ignore: elevasi hanya saat hover (brief §10) */
+                      )}
                     >
-                      <button
-                        type="button"
-                        ref={(el) => {
-                          cardRefs.current[id] = el
-                        }}
-                        onClick={() => select(id, true)}
-                        aria-label={`Tampilkan kisaran ${p.label}: ${t.kind}`}
-                        className="group flex w-[8.75rem] flex-col gap-2 text-left"
-                      >
-                        <span data-thumb className="relative block aspect-[3/4] w-full overflow-hidden rounded-[16px] ring-1 ring-black/10 transition-transform duration-[var(--motion-medium)] ease-out group-hover:-translate-y-1 group-active:scale-[0.98]">
-                          {/* Kartu 140x187 (3:4) memotong render 16:10, jadi gambar sebenarnya digambar ±280 px lebar. */}
-                          <TierImage id={id} sizes="280px" decorative className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105" />
+                      <TierImage
+                        id={id}
+                        sizes="208px"
+                        decorative
+                        className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105"
+                      />
+                      {on && autoplay && (
+                        <span aria-hidden="true" className="absolute inset-x-2 bottom-2 h-[3px] overflow-hidden rounded-full bg-white/45">
+                          <span
+                            key={active}
+                            className="block h-full origin-left rounded-full bg-white"
+                            style={{
+                              animation: `nexora-progress ${AUTOPLAY_S}s linear forwards`,
+                              animationPlayState: paused ? "paused" : "running",
+                            }}
+                            onAnimationEnd={() => select(step(active, 1), false)}
+                          />
                         </span>
-                        <span className="flex flex-col">
-                          <span className="type-small font-bold tabular-nums">{p.label}</span>
-                          <span className="type-micro font-medium tracking-normal">{t.kind}</span>
-                        </span>
-                      </button>
-                    </motion.li>
-                  )
-                })}
-              </AnimatePresence>
-            </ul>
+                      )}
+                    </span>
+                    <span className="flex flex-col">
+                      <span className="type-small font-bold tabular-nums">{p.label}</span>
+                      <span className="type-micro font-medium tracking-normal">{t.kind}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
           </div>
 
           <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
             <span aria-hidden="true" />
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Kisaran sebelumnya"
-                onClick={() => select(step(shown, -1), true)}
-                className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
-              >
-                <ArrowLeftIcon weight="bold" aria-hidden="true" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Kisaran berikutnya"
-                onClick={() => select(step(shown, 1), true)}
-                className={cn("rounded-full ring-1 ring-current/30", dark ? "text-white hover:bg-white/15" : "text-text hover:bg-black/10")}
-              >
-                <ArrowRightIcon weight="bold" aria-hidden="true" />
-              </Button>
+              {[
+                { by: -1, label: "Kisaran sebelumnya", Icon: ArrowLeftIcon },
+                { by: 1, label: "Kisaran berikutnya", Icon: ArrowRightIcon },
+              ].map(({ by, label, Icon }) => (
+                <Button
+                  key={label}
+                  variant="ghost"
+                  size="icon"
+                  aria-label={label}
+                  onClick={() => select(step(active, by), true)}
+                  className={cn(
+                    "rounded-full ring-1 ring-current/30 transition-transform active:scale-95",
+                    dark ? "text-white hover:bg-white/15" : "text-ink-strong hover:bg-black/10"
+                  )}
+                >
+                  <Icon weight="bold" aria-hidden="true" />
+                </Button>
+              ))}
             </div>
             <p className="justify-self-end type-small font-bold tabular-nums">
               <span className="sr-only">Kisaran </span>
-              {/* Penghitung slide "03 / 05" seperti referensi (disetujui Fahren). */}
-              {String(indexOf(shown) + 1).padStart(2, "0") /* taste-skill-ignore */}
+              {/* Penghitung slide "03 / 05" (brief §5). */}
+              {String(indexOf(active) + 1).padStart(2, "0") /* taste-skill-ignore */}
               <span className="font-medium"> / {String(ORDER.length).padStart(2, "0") /* taste-skill-ignore */}</span>
             </p>
           </div>

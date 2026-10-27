@@ -1,31 +1,35 @@
 import { Footer } from "@/components/layout/footer";
-import { Navbar } from "@/components/layout/navbar";
-import { ClosingCta } from "@/components/landing/closing-cta";
+import { FinalCta } from "@/components/landing/final-cta";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { InteractiveBudget } from "@/components/landing/interactive-budget";
 import { LandingHero } from "@/components/landing/landing-hero";
+import { LandingNav } from "@/components/landing/landing-nav";
+import { NotAStore } from "@/components/landing/not-a-store";
+import { QuestionnairePreview } from "@/components/landing/questionnaire-preview";
+import { RecommendationStory } from "@/components/landing/recommendation-story";
 import { getLandingSample } from "@/components/landing/sample-data";
-import { BudgetTiers, HowItWorks, PersonaEntry, SpecIsNotEnough, TrustBand } from "@/components/landing/sections";
-import { SoftwareSentence } from "@/components/landing/software-sentence";
+import { SawTransparency } from "@/components/landing/saw-transparency";
 
-// Landing redesign "Kalimat terbelah" (disetujui Fahren, Okt 2026; isi PRD §8, §12–14). Urutan:
-// hero kobalt (kalimat dibelah bingkai render) → "Laptop buat ___" (interaksi utama) → etalase
-// vs kebutuhan → lima pertanyaan + cerita ter-pin → batas tiap budget → persona → bukan toko →
-// CTA kalimat dengan isian.
+// Landing "Editorial Tech × Product Recommendation" (brief redesign landing, disetujui Fahren Okt 2026;
+// isi PRD §6, §12–14, §27). Alur cerita: hero (kisaran budget) → masalah: budget sama, kebutuhan beda →
+// cara kerja → coba 5 pertanyaan → rekomendasi (sticky, skor naik) → transparansi bobot → bukan toko →
+// CTA akhir. UI netral hangat; foto = warna, kuning = aksi utama, biru = data.
 
 export default async function Home() {
   const sample = await getLandingSample();
 
   return (
     <>
-      <Navbar tone="cobalt" />
-      <main className="flex-1">
+      <LandingNav />
+      <main className="flex-1 bg-canvas">
         <LandingHero />
-        <SoftwareSentence />
-        <SpecIsNotEnough sample={sample} />
-        <HowItWorks sample={sample} />
-        <BudgetTiers sample={sample} />
-        <PersonaEntry sample={sample} />
-        <TrustBand />
-        <ClosingCta />
+        <InteractiveBudget sample={sample} />
+        <HowItWorks />
+        <QuestionnairePreview />
+        <RecommendationStory sample={sample} />
+        <SawTransparency sample={sample} />
+        <NotAStore sample={sample} />
+        <FinalCta />
       </main>
       <Footer />
     </>

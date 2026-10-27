@@ -7,7 +7,7 @@ import { getOptionIcon } from "@/components/wizard/option-icon"
 import { SelectCard } from "@/components/wizard/select-card"
 import { Stepper } from "@/components/wizard/stepper"
 import { formatRupiahShort } from "@/lib/format"
-import type { LandingSample } from "@/components/landing/sample-data"
+import type { ArchiveLandingSample as LandingSample } from "@/components/landing/archive-sample"
 
 // Cuplikan UI asli untuk "Cara kerja" (PRD §11: tunjukkan, bukan klaim; §13).
 // Ilustratif: `inert` agar tidak masuk urutan Tab; isinya dijelaskan oleh teks di sekitarnya.

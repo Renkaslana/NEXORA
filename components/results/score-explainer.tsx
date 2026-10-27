@@ -1,5 +1,6 @@
 "use client"
 
+import type * as React from "react"
 import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,13 +32,24 @@ const steps = [
   { title: "Jumlahkan", body: "Hasil perkalian dijumlahkan menjadi skor kecocokan, lalu laptop diurutkan dari skor tertinggi." },
 ]
 
-export function ScoreExplainer({ example, exampleName }: { example?: RecommendationResult; exampleName?: string }) {
+export function ScoreExplainer({
+  example,
+  exampleName,
+  trigger,
+}: {
+  example?: RecommendationResult
+  exampleName?: string
+  /** Tombol pembuka kustom (mis. tautan "Pelajari cara perhitungannya →" di landing). */
+  trigger?: React.ReactNode
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="link" size="sm">
-          <QuestionIcon weight="bold" aria-hidden="true" /> Bagaimana skor dihitung?
-        </Button>
+        {trigger ?? (
+          <Button variant="link" size="sm">
+            <QuestionIcon weight="bold" aria-hidden="true" /> Bagaimana skor dihitung?
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

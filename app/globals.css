@@ -34,10 +34,18 @@
   --cobalt-700: #002fd6;
   --cobalt-800: #0026ad;
   --cobalt-950: #00176b;
-  --signal: #e9e34a;
-  --signal-hover: #f2ed73;
-  --signal-active: #d9d23a;
+  --signal: #f3e91f;
+  --signal-hover: #e4da16;
+  --signal-active: #d4ca12;
   --signal-ink: #111111;
+
+  /* Landing "Editorial Tech" (brief redesign landing, disetujui Fahren Okt 2026): UI netral hangat,
+     foto jadi sumber warna, kuning = aksi utama, biru = data/fungsional (skor, progres, pilihan). */
+  --canvas: #f7f5f0;
+  --canvas-line: #dcdad2;
+  --ink-strong: #171717;
+  --ink-soft: #62625c;
+  --data-blue: #1238f5;
 
   /* Bidang di belakang render laptop: sama persis dengan latar render (REDESIGN §24) */
   --studio: #eef0f4;
@@ -139,6 +147,11 @@
   --color-signal-hover: var(--signal-hover);
   --color-signal-active: var(--signal-active);
   --color-signal-ink: var(--signal-ink);
+  --color-canvas: var(--canvas);
+  --color-canvas-line: var(--canvas-line);
+  --color-ink-strong: var(--ink-strong);
+  --color-ink-soft: var(--ink-soft);
+  --color-data-blue: var(--data-blue);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -337,6 +350,16 @@
 }
 @utility animate-flash {
   animation: nexora-flash 1.2s ease-out;
+}
+
+/* Garis progres slide hero (pergantian otomatis memakai animationend-nya) */
+@keyframes nexora-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 /* Gambar bergerak pelan (foto suasana, render CTA) */

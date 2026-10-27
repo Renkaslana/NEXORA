@@ -23,3 +23,31 @@ export const STAGGER_MAX_ITEMS = 6;
 export function staggerDelay(index: number): number {
   return Math.min(index, STAGGER_MAX_ITEMS - 1) * STAGGER;
 }
+
+/** Kurva lembut untuk perpindahan besar (slide hero, layout): lambat di awal dan akhir. */
+export const EASE_SMOOTH = [0.65, 0, 0.35, 1] as const;
+
+/**
+ * Variant bersama (brief landing §38). Dipakai dengan `initial="hidden"` + `whileInView="show"` atau
+ * `animate`. Reduced motion ditangani komponen (lewati `initial`).
+ */
+export const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: DURATION.slow, ease: EASE_OUT } },
+} as const;
+
+export const fadeIn = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: DURATION.slow, ease: EASE_OUT } },
+} as const;
+
+export const scaleIn = {
+  hidden: { opacity: 0, scale: 0.96 },
+  show: { opacity: 1, scale: 1, transition: { duration: DURATION.slow, ease: EASE_OUT } },
+} as const;
+
+export const staggerContainer = (stagger = 0.08, delayChildren = 0) =>
+  ({
+    hidden: {},
+    show: { transition: { staggerChildren: stagger, delayChildren } },
+  }) as const;

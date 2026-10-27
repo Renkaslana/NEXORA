@@ -1,6 +1,7 @@
 import { cacheLife } from "next/cache";
 import {
-  getLandingContent,
+  getCatalogPreview,
+  getLandingStoryContent,
   getLaptops,
   getRecommendations,
   getRequirements,
@@ -8,80 +9,113 @@ import {
   getWizardOptions,
 } from "@/lib/api";
 import { landingMeterRows } from "@/lib/need-meter";
-import type { BudgetPresetId, RequirementProfile } from "@/types";
+import { checkSpecs } from "@/lib/spec-check";
+import type { Laptop, LandingMeterRef, RequirementProfile } from "@/types";
 
 /**
- * Data contoh landing, lewat `lib/api.ts`. `use cache` membuat jeda palsu terjadi sekali saat
- * build, sehingga halaman tetap prerender statis tanpa skeleton: profil kelima preset budget
- * hero, kasus "Spek saja tidak menjawab", dan kebutuhan khas tiap persona (REDESIGN §15–16).
+ * Data landing "Editorial Tech" (brief redesign landing, disetujui Fahren Okt 2026), lewat `lib/api.ts`.
+ * `use cache` membuat jeda palsu terjadi sekali saat build, jadi `/` tetap prerender statis tanpa
+ * skeleton. Tidak ada perhitungan SAW: skor dan bobot diambil apa adanya dari hasil mock, dan demo
+ * aktivitas hanya membandingkan spek laptop dengan ambang Profil Kebutuhan (≥ min, seperti daftar periksa).
  */
-export async function getLandingSample() {
-  "use cache";
-  cacheLife("max");
 
-  const profile = getSampleProfile("teknik");
-  const options = getWizardOptions();
-  const content = getLandingContent();
+const SPEC_ROWS: LandingMeterRef[] = [
+  { kind: "spec", component: "cpu" },
+  { kind: "spec", component: "ram" },
+  { kind: "spec", component: "storage" },
+  { kind: "spec", component: "gpu" },
+]
 
-  const [requirement, recommendations, presetEntries, caseLaptops] = await Promise.all([
-    getRequirements(profile),
-    getRecommendations(profile),
-    Promise.all(
-      options.budgetPresets.map(
-        async (p) =>
-          [p.id, await getRequirements({ ...profile, budget: { ...profile.budget, max: p.value } })] as const
-      )
-    ),
-    getLaptops(content.cases.map((c) => c.laptopId)),
-  ]);
-
-  const majorLabel = (id: string) => options.majors.find((m) => m.id === id)?.label ?? id;
-  const softwareLabels = profile.software
-    .map((id) => options.software.find((s) => s.id === id)?.label ?? id)
-    .slice(0, 2);
-  const spec = (c: string) => requirement.specs.find((s) => s.component === c)!;
-
-  const cases = await Promise.all(
-    content.cases.map(async (c) => {
-      const laptop = caseLaptops.find((l) => l.id === c.laptopId)!;
-      const caseRequirement = await getRequirements(getSampleProfile(c.persona));
-      return {
-        ...c,
-        laptop: { name: `${laptop.brand} ${laptop.model}`, image: laptop.image, priceIdr: laptop.priceIdr },
-        meters: landingMeterRows(c.rows, caseRequirement, laptop),
-      };
-    })
-  );
-
-  const personas = await Promise.all(
-    options.personas.map(async (p) => {
-      const personaProfile = getSampleProfile(p.id);
-      const personaRequirement = await getRequirements(personaProfile);
-      return {
-        ...p,
-        major: personaProfile.major,
-        majorLabel: majorLabel(personaProfile.major),
-        budgetMax: personaProfile.budget.max,
-        meters: landingMeterRows(content.personaHighlights[p.id], personaRequirement),
-      };
-    })
-  );
-
-  return {
-    profile,
-    majorLabel: majorLabel(profile.major),
-    softwareLabels,
-    requirement,
-    presetRequirements: Object.fromEntries(presetEntries) as Record<BudgetPresetId, RequirementProfile>,
-    ram: spec("ram"),
-    storage: spec("storage"),
-    best: recommendations.items[0],
-    alternatives: recommendations.items.slice(1, 3),
-    activities: options.activities,
-    budgetPresets: options.budgetPresets,
-    cases,
-    personas,
-  };
+/** Laptop lolos bila tidak ada ambang yang kurang dan harganya dalam budget (+10% toleransi). */
+function passes(requirement: RequirementProfile, laptop: Laptop, budget: number) {
+  return laptop.priceIdr <= budget * 1.1 && checkSpecs(requirement, laptop).every((c) => c.status !== "short")
 }
 
-export type LandingSample = Awaited<ReturnType<typeof getLandingSample>>;
+export async function getLandingSample() {
+  "use cache"
+  cacheLife("max")
+
+  const options = getWizardOptions()
+  const story = getLandingStoryContent()
+  const profile = getSampleProfile("teknik")
+
+  const [requirement, recommendations, catalog] = await Promise.all([
+    getRequirements(profile),
+    getRecommendations(profile),
+    getLaptops(getCatalogPreview().map((l) => l.id)),
+  ])
+
+  // ------------------------------------------------ Demo "Budget sama, kebutuhan berbeda"
+  const activities = await Promise.all(
+    story.activities.map(async (a) => {
+      const req = a.persona
+        ? await getRequirements({ ...getSampleProfile(a.persona), budget: { min: 0, max: story.demoBudget, flexible: true } })
+        : story.gamingRequirement
+      const passing = catalog
+        .filter((l) => passes(req, l, story.demoBudget))
+        .sort((x, y) => x.priceIdr - y.priceIdr)
+      const cheapest = passing[0]
+      return {
+        id: a.id,
+        label: a.label,
+        factors: a.factors,
+        summary: req.summary,
+        meters: landingMeterRows(SPEC_ROWS, req),
+        passCount: passing.length,
+        example: cheapest ? { name: `${cheapest.brand} ${cheapest.model}`, priceIdr: cheapest.priceIdr } : null,
+        note:
+          passing.length === 0
+            ? a.id === "gaming"
+              ? story.gamingNote
+              : (req.warnings[0]?.message ?? "Belum ada laptop di katalog contoh yang memenuhi semua ambang di budget ini.")
+            : null,
+      }
+    })
+  )
+
+  // ------------------------------------------------ Contoh rekomendasi (Best Match profil Informatika Rp8 jt)
+  const best = recommendations.items[0]
+  const label = (id: string) => options.criterionLabels[id as keyof typeof options.criterionLabels] ?? id
+  const breakdown = [...best.result.breakdown]
+    .sort((a, b) => b.weight - a.weight)
+    .map((b) => ({ ...b, label: label(b.criterion), hint: story.criterionHints[b.criterion] }))
+
+  const majorLabel = options.majors.find((m) => m.id === profile.major)?.label ?? profile.major
+  const softwareLabels = profile.software.map((id) => options.software.find((s) => s.id === id)?.label ?? id)
+  const activityLabel = options.activities.find((a) => a.id === profile.primaryActivity)?.label ?? ""
+
+  return {
+    demoBudget: story.demoBudget,
+    activities,
+    profile: {
+      budget: profile.budget.max,
+      majorLabel,
+      activityLabel,
+      softwareLabels,
+      priorityCount: profile.priorities.length,
+    },
+    requirementSummary: requirement.summary,
+    best: {
+      laptop: {
+        name: `${best.laptop.brand} ${best.laptop.model}`,
+        slug: best.laptop.slug,
+        image: best.laptop.image,
+        priceIdr: best.laptop.priceIdr,
+        cpu: best.laptop.cpu.name,
+        ramGb: best.laptop.ram.gb,
+        storageGb: best.laptop.storage.gb,
+        gpu: best.laptop.gpu.name,
+        display: `${String(best.laptop.display.inch).replace(".", ",")}″ ${best.laptop.display.panel} ${best.laptop.display.resolution}`,
+      },
+      matchScore: best.result.matchScore,
+      reasons: best.result.reasons.slice(0, 3).map((r) => r.text),
+      meters: landingMeterRows(SPEC_ROWS.slice(0, 3), requirement, best.laptop),
+      result: best.result,
+    },
+    breakdown,
+    catalogSize: catalog.length,
+    resultCount: recommendations.items.length,
+  }
+}
+
+export type LandingSample = Awaited<ReturnType<typeof getLandingSample>>
