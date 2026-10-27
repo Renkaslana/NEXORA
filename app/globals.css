@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Layar lebar yang cukup tinggi untuk section ter-pin (isi muat satu layar) dan tanpa reduced motion.
+   Di layar pendek (mis. laptop 1366×768) section ter-pin memakai tata letak statis agar tidak keluar section. */
+@custom-variant tall {
+  @media (min-width: 64rem) and (min-height: 50rem) and (prefers-reduced-motion: no-preference) {
+    @slot;
+  }
+}
+
 /*
  * Design token NEXORA — PRD §22, diperluas untuk redesign "Live Spec" (docs/REDESIGN.md §10–13).
  * Light mode saja; dark mode masuk Nice to have (PRD §31).

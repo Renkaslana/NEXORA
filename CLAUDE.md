@@ -143,6 +143,9 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   foto, jadi gerak (reveal skala 1,05→1, paralaks ±12 px, geser/miring kursor ≤ 0,8° di lg) ada di lapisan foto
   (`final-cta-scene.tsx`); veil putih tipis di atas langit untuk keterbacaan. Tinggi lg 54rem agar laptop mulai
   di bawah baris info. Mobile: teks → tombol → foto sebagai blok → info.
+- Rekomendasi ter-pin hanya di varian `tall` (`@custom-variant` di globals.css: lg + tinggi ≥ 800 px + tanpa reduced
+  motion; pakai bentuk blok `@slot`, bentuk singkat tidak menghasilkan utility). Di layar pendek tata letak statis
+  dua kolom, agar kartu Best Match (diringkas: gambar 3:1, tanpa baris spek) tidak keluar section.
 - Hero: wadah foto wajib `isolate` agar scrim selalu di atas foto; tanpa itu, saat skala scroll = 1 Motion
   menulis `transform: none` dan foto aktif (z-2) naik di atas scrim (sisi kiri terang tidak konsisten).
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
@@ -188,7 +191,8 @@ Redesign R2 Landing (REDESIGN §15–16), keputusan Fahren:
 - Cerita ter-pin: wrapper 300vh + sticky di md+, dipilih lewat CSS (`md:` / `motion-reduce:`) agar
   tanpa beda server/klien; mobile & reduced motion = tiga blok statis. UI asli diskalakan ke
   `FRONT_SCREEN_RECT`.
-- `Reveal` mengamati elemen luar; varian "clip" memakai masker overflow + translateY. Elemen yang
+- `Reveal` mengamati elemen luar; varian "clip" memakai masker overflow + translateY. Masker clip diberi `pb-4 -mb-4` agar ekor huruf
+  (g, y, j) judul ber-leading rapat tidak terpotong. Elemen yang
   tersembunyi lewat clip-path/scale nol tidak terdeteksi IntersectionObserver.
 - Reveal hero memakai keyframe CSS (tw-animate-css) agar render tampil sebelum hidrasi (LCP).
 - `type-display-xl` 64px di lg, 80px baru di xl agar "kebutuhanmu." muat di setengah kolom.

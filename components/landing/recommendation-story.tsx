@@ -9,7 +9,7 @@ import { Reveal } from "@/components/landing/reveal"
 import type { LandingSample } from "@/components/landing/sample-data"
 import { LaptopRender } from "@/components/ui/laptop-render"
 import { NeedMeter } from "@/components/ui/need-meter"
-import { formatRupiah, formatRupiahShort, formatStorage } from "@/lib/format"
+import { formatRupiah, formatRupiahShort } from "@/lib/format"
 import { DURATION, EASE_OUT } from "@/lib/motion"
 
 // "Dari jawabanmu, kami menemukan kecocokan." (brief redesign landing §15 + §23; PRD §17, §27).
@@ -64,7 +64,7 @@ function RecCard({ sample, stage }: { sample: Sample; stage: number }) {
   return (
     <div className="flex flex-col overflow-hidden rounded-[24px] border border-canvas-line bg-white">
       <div className="relative">
-        <LaptopRender image={laptop.image} sizes="(min-width: 1024px) 32vw, 90vw" className="aspect-[2/1] lg:aspect-[5/2]" />
+        <LaptopRender image={laptop.image} sizes="(min-width: 1024px) 32vw, 90vw" className="aspect-[2/1] lg:aspect-[3/1]" />
         <motion.span
           initial={false}
           animate={{ opacity: stage >= 4 ? 1 : 0, y: stage >= 4 ? 0 : 6 }}
@@ -74,7 +74,7 @@ function RecCard({ sample, stage }: { sample: Sample; stage: number }) {
           <SealCheckIcon weight="fill" className="size-3.5" aria-hidden="true" /> Best Match
         </motion.span>
       </div>
-      <div className="flex flex-col gap-4 p-5 lg:p-6">
+      <div className="flex flex-col gap-3.5 p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-0.5">
             <p className="type-h3 text-ink-strong">{laptop.name}</p>
@@ -85,9 +85,6 @@ function RecCard({ sample, stage }: { sample: Sample; stage: number }) {
         </div>
 
         <div className={cn("flex flex-col gap-3 transition-opacity duration-500", lit(1))}>
-          <p className="type-small font-normal text-ink-strong">
-            {laptop.cpu} · {laptop.ramGb} GB · SSD {formatStorage(laptop.storageGb)} · {laptop.gpu} · {laptop.display}
-          </p>
           {sample.best.meters.map((m, i) => (
             <NeedMeter key={m.key} component={m.component} scale={m.scale} need={m.need} value={m.value} index={i} size="mini" />
           ))}
@@ -199,8 +196,8 @@ export function RecommendationStory({ sample }: { sample: Sample }) {
   return (
     <section id="rekomendasi" aria-labelledby="rekomendasi-title" className="scroll-mt-24 bg-white">
       {/* ------------------------------------------------ Ter-pin: md+ tanpa reduced motion */}
-      <div ref={wrapperRef} className="relative hidden h-[300vh] lg:block motion-reduce:lg:hidden">
-        <div className="sticky top-0 flex h-svh items-center pt-24 pb-6">
+      <div ref={wrapperRef} className="relative hidden h-[300vh] tall:block">
+        <div className="sticky top-0 flex h-svh items-center pt-20 pb-6">
           <div className="page-container grid items-center gap-10 lg:grid-cols-12">
             <div className="flex flex-col gap-10 lg:col-span-6">
               {header}
@@ -213,23 +210,27 @@ export function RecommendationStory({ sample }: { sample: Sample }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------ Statis: mobile & reduced motion */}
-      <div ref={staticRef} className="page-container flex flex-col gap-10 py-20 lg:hidden motion-reduce:lg:flex">
-        {header}
-        <ol className="flex flex-col gap-4">
-          {steps(sample).map((s, i) => (
-            <li key={s.title} className="flex gap-4">
-              <span aria-hidden="true" className="text-2xl leading-8 font-extrabold text-data-blue tabular-nums">
-                {i + 1}
-              </span>
-              <div className="flex flex-col gap-0.5">
-                <h3 className="type-h3 text-ink-strong">{s.title}</h3>
-                <p className="type-body text-ink-soft">{s.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <RecCard sample={sample} stage={staticInView ? 4 : 0} />
+      {/* ------------------------------------------------ Statis: mobile, layar pendek, & reduced motion */}
+      <div ref={staticRef} className="page-container grid gap-10 py-20 tall:hidden lg:grid-cols-12 lg:items-center lg:gap-10 lg:py-28">
+        <div className="flex flex-col gap-10 lg:col-span-6">
+          {header}
+          <ol className="flex flex-col gap-4">
+            {steps(sample).map((s, i) => (
+              <li key={s.title} className="flex gap-4">
+                <span aria-hidden="true" className="text-2xl leading-8 font-extrabold text-data-blue tabular-nums">
+                  {i + 1}
+                </span>
+                <div className="flex flex-col gap-0.5">
+                  <h3 className="type-h3 text-ink-strong">{s.title}</h3>
+                  <p className="type-body text-ink-soft">{s.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <div className="lg:col-span-5 lg:col-start-8">
+          <RecCard sample={sample} stage={staticInView ? 4 : 0} />
+        </div>
       </div>
     </section>
   )

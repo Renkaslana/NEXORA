@@ -30,7 +30,9 @@ export function Reveal({
   const shown = variant === "clip" ? { y: "0%" } : { opacity: 1, y: 0 }
 
   return (
-    <div ref={ref} className={cn(variant === "clip" && "overflow-hidden", className)}>
+    // Clip: masker diberi ruang bawah (pb-4 -mb-4) agar ekor huruf (g, y, j) pada judul ber-leading rapat
+    // tidak ikut terpotong, tanpa mengubah tinggi layout.
+    <div ref={ref} className={cn(variant === "clip" && "-mb-4 overflow-hidden pb-4", className)}>
       <motion.div
         className={cn("h-full", innerClassName)}
         initial={reduce ? false : hidden}
