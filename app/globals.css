@@ -375,6 +375,20 @@
   animation: nexora-drift 18s ease-in-out infinite alternate;
 }
 
+/* Visual laptop "SPECO bukan toko": melayang sangat halus (−5 px), mati saat reduced motion */
+@keyframes nexora-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -5px, 0);
+  }
+}
+@utility animate-float {
+  animation: nexora-float 5s ease-in-out infinite;
+}
+
 /* PRD §22/§28: semua animasi dimatikan saat prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   *,

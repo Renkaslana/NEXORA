@@ -125,6 +125,13 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   niat 140 ms) / klik / fokus / panah memilih langkah (pola tablist): sorotan latar meluncur (`layoutId`),
   segmen terisi sampai langkah terpilih, takik panel detail bergeser ke kolomnya. Intro sekali: segmen 1→2→3
   terisi berurutan lalu kembali ke langkah terpilih. Mobile: timeline vertikal, detail di dalam langkah.
+- "SPECO bukan toko" (#tentang, Okt 2026, brief SPECO_Section_Redesign + referensi Fahren): judul 4 baris sebesar
+  hero (800/400, "sengaja." biru + garis tangan kuning digambar sekali), visual laptop transparan (aset Fahren,
+  `public/images/landing/bukan-toko-laptop.webp`, melayang −5 px), tiga prinsip (kartu ringan, hover CSS), lalu
+  bidang biru sangat tipis berisi 3 fakta (5 pertanyaan, `${kriteria}+` faktor, 1 tujuan; CountUp sekali) +
+  visual perjalanan kuliah (aset Fahren, tulisan tangan bagian dari gambar; dibuka clip-path + paralaks ±12 px).
+  Mentah di `img/` (di-ignore). Section = Server Component; gerak di `not-a-store-visuals.tsx`. Wadah yang
+  diamati `useInView` harus di luar elemen ber-clip-path.
 - Hero: wadah foto wajib `isolate` agar scrim selalu di atas foto; tanpa itu, saat skala scroll = 1 Motion
   menulis `transform: none` dan foto aktif (z-2) naik di atas scrim (sisi kiri terang tidak konsisten).
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
