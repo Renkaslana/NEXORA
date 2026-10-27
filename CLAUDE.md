@@ -229,6 +229,16 @@ Detail (PRD §19, §27, §14), keputusan Fahren:
   ajakan isi Wizard.
 - Mobile: bar CTA (Bandingkan, Simpan) menempel di bawah; `CompareTray raised` menumpuk di atasnya.
 
+Hasil redesign (Okt 2026, brief REDESIGN UI/UX HASIL + referensi Fahren; menggantikan tampilan di bawah):
+- Alur: intro (foto aset Fahren `public/images/hasil/intro.webp`, teks di kiri di atas veil putih; ringkasan budget /
+  kategori utama / kebutuhan lain atau jurusan; "Ubah kebutuhan" → Wizard dengan jawaban tetap) → Best Match
+  (gambar | info + spek | ScoreRing + breakdown `subScores` + "Cocok untuk") → alasan (`reasons`) + trade-off →
+  alternatif (pill merek maks 4 + Lainnya, urutan skor/harga/performa/portabilitas; badge = kategori + satu
+  keunggulan relatif dari data) → CTA bandingkan (default Best Match + 2 teratas) → `CompareBar` menempel mulai 2.
+- Switch persona & catatan persona dihapus. `FlowHeader back` = "Kembali" (ke Profil) + "Keluar".
+- Label breakdown mengikuti data (`budgetFit` = "Sesuai budget"), bukan "Kesesuaian Kebutuhan" seperti referensi.
+- `ResultFilterBar` & `CompareTray` tidak dipakai lagi di Hasil (Tray tetap di Detail).
+
 Hasil (PRD §17, §26, §27), keputusan Fahren:
 - Data dari `store/results.ts` bila `profileKey` cocok; selain itu `getRecommendations()` + skeleton.
 - Switch persona hanya mengganti tampilan (jawaban di store tidak berubah).
