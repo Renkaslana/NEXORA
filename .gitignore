@@ -43,3 +43,4 @@ next-env.d.ts
 
 # render AI mentah (hasil olahan ada di public/images/laptops)
 /img/
+/img-laptopherosection/

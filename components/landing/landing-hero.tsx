@@ -236,6 +236,17 @@ export function LandingHero() {
         </motion.div>
       </motion.div>
 
+      {/* Scrim keterbacaan (desktop): gelap halus dari kiri untuk teks, dan tipis dari bawah untuk thumbnail &
+          navigasi. Teks putih lolos AA di kelima foto (diukur). Mobile tidak perlu: teks di bidang solid. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[1] hidden lg:block"
+        style={{
+          background:
+            "linear-gradient(90deg, rgba(0,0,0,0.66) 0%, rgba(0,0,0,0.5) 38%, rgba(0,0,0,0) 66%), linear-gradient(0deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 32%)", // taste-skill-ignore: scrim keterbacaan di atas foto
+        }}
+      />
+
       {/* ------------------------------------------------ Teks: zona aman di kiri */}
       <motion.div
         style={reduce ? undefined : { y: outY, opacity: outOpacity }}

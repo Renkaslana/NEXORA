@@ -1,10 +1,10 @@
 import type { BudgetPresetId } from "@/types"
 
-// Visual hero "kartu budget yang membuka" (disetujui Fahren, Okt 2026): satu render premium per kisaran
-// budget, kertas berwarna + cahaya keras. Dibuat dengan Gemini 3.1 Flash Image lewat Figma, diproses ke
-// WebP di public/images/laptops/premium/. `paper` = warna kertas di sisi kiri render (diambil dari
-// gambarnya), dipakai sebagai latar section agar foto menyatu. `tone` menentukan warna teks: tinta gelap
-// lolos AA di kertas terang (4,7–7,4:1), putih di kobalt (10,6:1).
+// Visual hero kisaran budget (Okt 2026). Foto meja kerja bercahaya alami dari Fahren (mentah di
+// img-laptopherosection/, di-ignore), diperbesar 1,5x (Lanczos + penajaman halus) ke WebP kualitas 90 di
+// public/images/laptops/premium/. Laptop selalu di kanan; sisi kiri diberi scrim gelap di desktop agar teks
+// putih lolos AA (diukur: 90% area teks ≥ 4,9:1). `paper` = warna rata-rata foto yang digelapkan, dipakai
+// sebagai latar teks di mobile (teks di atas bidang solid, bukan di atas foto).
 
 export interface HeroTier {
   /** Nama kelas laptop di kartu, mis. "Tipis & layar OLED". */
@@ -21,36 +21,36 @@ export const HERO_TIERS: Record<BudgetPresetId, HeroTier> = {
   "lt-6": {
     kind: "Hemat & cukup",
     src: "/images/laptops/premium/tier-lt-6.webp",
-    alt: `Ilustrasi laptop 14 inci grafit di atas kertas hijau sage, ${ALT_SUFFIX}`,
-    paper: "#99a790",
-    tone: "light",
+    alt: `Ilustrasi laptop abu-abu di meja kerja yang terkena cahaya matahari, ${ALT_SUFFIX}`,
+    paper: "#21201c",
+    tone: "dark",
   },
   "6-8": {
     kind: "Serba bisa",
     src: "/images/laptops/premium/tier-6-8.webp",
-    alt: `Ilustrasi laptop 14 inci silver di atas kertas abu batu, ${ALT_SUFFIX}`,
-    paper: "#928c84",
-    tone: "light",
+    alt: `Ilustrasi laptop silver di meja kerja dekat jendela, ${ALT_SUFFIX}`,
+    paper: "#201e1c",
+    tone: "dark",
   },
   "8-10": {
     kind: "Paling seimbang",
     src: "/images/laptops/premium/tier-8-10.webp",
-    alt: `Ilustrasi laptop 14 inci navy di atas kertas warna pasir, ${ALT_SUFFIX}`,
-    paper: "#ad8453",
-    tone: "light",
+    alt: `Ilustrasi laptop silver di meja belajar minimalis yang terang, ${ALT_SUFFIX}`,
+    paper: "#2c2c26",
+    tone: "dark",
   },
   "10-15": {
     kind: "Tipis & layar OLED",
     src: "/images/laptops/premium/tier-10-15.webp",
-    alt: `Ilustrasi ultrabook tipis biru keabuan di atas kertas terakota, ${ALT_SUFFIX}`,
-    paper: "#ad6f54",
-    tone: "light",
+    alt: `Ilustrasi laptop tipis berlayar cerah di meja saat matahari terbenam, ${ALT_SUFFIX}`,
+    paper: "#251c14",
+    tone: "dark",
   },
   "15-plus": {
     kind: "Kreator & GPU",
     src: "/images/laptops/premium/tier-15-plus.webp",
-    alt: `Ilustrasi laptop kreator 16 inci grafit di atas kertas biru kobalt, ${ALT_SUFFIX}`,
-    paper: "#014074",
+    alt: `Ilustrasi laptop grafit di meja kerja dengan rak buku dan tanaman, ${ALT_SUFFIX}`,
+    paper: "#2a2825",
     tone: "dark",
   },
 }

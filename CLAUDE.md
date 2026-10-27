@@ -130,6 +130,10 @@ Redesign "Kalimat terbelah" (Okt 2026, disetujui Fahren; menggantikan tampilan R
   jeda; berhenti permanen setelah pengguna memilih, sementara saat hover/fokus/tab tersembunyi, mati saat
   reduced motion. Warna latar = warna kertas render; warna teks berganti di pertengahan transisi. Tanpa
   label "Ilustrasi" (keterangan AI di alt + footer).
+  Okt 2026: render kertas diganti foto meja kerja bercahaya alami dari Fahren (mentah di
+  `img-laptopherosection/`, di-ignore; diperbesar 1,5x + penajaman halus, WebP q90). Semua tier `tone: "dark"`:
+  teks putih di atas scrim gelap kiri+bawah di desktop (90% area teks ≥ 4,9:1), di mobile di atas bidang
+  `paper` gelap. Pemetaan foto → tier ada di `hero-tiers.ts`.
 - Interaksi utama "Laptop buat ___" (`getSoftwareNeeds()`, mock `softwareLoadNeeds` di data/landing.ts:
   filter ≥ ambang, bukan SAW). CTA penutup = kalimat dengan isian.
 - Foto suasana `scene-*` dibuat dengan Gemini 3.1 Flash Image lewat Figma `generate_image` (kredit AI Figma
