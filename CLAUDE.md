@@ -119,10 +119,12 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   Gambar kartu = render katalog sebagai placeholder, tiap halaman dipaksa tiga bentuk berbeda (`assignRenders`);
   ganti dengan foto produk asli nanti. Dua kolom mulai xl (1 : 1,05); di bawahnya bertumpuk. Pengecualian
   disetujui Fahren khusus section ini: aksen radial biru sangat tipis dan bayangan lembut panel.
-- Cara Kerja (Okt 2026, brief + referensi Fahren): judul tengah + 3 langkah 01 → 02 → 03 dengan garis penghubung
-  (horizontal md+, timeline vertikal di mobile), tanpa gambar/mockup. Hover menyorot langkah; klik/fokus/panah
-  memilih langkah (pola tablist) dan panel detail di bawah berganti isi (mobile: detail di dalam langkah).
-  Garis terisi biru sampai langkah aktif. Animasi masuk sekali: langkah → garis → langkah berikutnya.
+- Cara Kerja (Okt 2026, brief + referensi Fahren, dipoles setelah review): header rata kiri seperti section
+  lain (judul kiri, subjudul kanan mulai lg). 3 kolom sama lebar dengan garis progres bersegmen selebar kontainer,
+  satu penanda per langkah (nomor), kolom memakai `grid-rows-subgrid` agar judul/paragraf sejajar. Hover (jeda
+  niat 140 ms) / klik / fokus / panah memilih langkah (pola tablist): sorotan latar meluncur (`layoutId`),
+  segmen terisi sampai langkah terpilih, takik panel detail bergeser ke kolomnya. Intro sekali: segmen 1→2→3
+  terisi berurutan lalu kembali ke langkah terpilih. Mobile: timeline vertikal, detail di dalam langkah.
 - Hero: wadah foto wajib `isolate` agar scrim selalu di atas foto; tanpa itu, saat skala scroll = 1 Motion
   menulis `transform: none` dan foto aktif (z-2) naik di atas scrim (sisi kiri terang tidak konsisten).
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
