@@ -204,7 +204,9 @@ export function LandingHero() {
       {/* ------------------------------------------------ Render: setelah CTA pada mobile, latar penuh pada lg */}
       <motion.div
         style={reduce ? undefined : { scale: outScale }}
-        className="relative order-2 aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto"
+        // `isolate`: lapisan foto (z-0…z-2) selalu dalam konteks sendiri di bawah scrim. Tanpa ini, saat skala
+        // scroll = 1 Motion menulis `transform: none`, konteks hilang, dan foto aktif naik di atas scrim.
+        className="relative isolate z-0 order-2 aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto"
       >
         <motion.div className="absolute -inset-4" style={depth.style}>
           {ORDER.map((id) => {
