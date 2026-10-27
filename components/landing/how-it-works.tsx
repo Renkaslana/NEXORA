@@ -9,7 +9,7 @@ const STEPS = [
     body: "Budget, jurusan, aktivitas, aplikasi yang kamu pakai, dan prioritasmu. Cukup klik, tanpa istilah teknis.",
   },
   {
-    title: "NEXORA menghitung kecocokan",
+    title: "SPECO menghitung kecocokan",
     body: "Setiap laptop dinilai pada kriteria yang relevan, dengan bobot dari prioritasmu.",
   },
   {
@@ -30,7 +30,7 @@ export function HowItWorks() {
               </h2>
             </Reveal>
             <Reveal delay={0.08}>
-              <p className="max-w-[28rem] type-body-l text-ink-soft">Sisanya NEXORA yang menyaring, menilai, dan menjelaskan.</p>
+              <p className="max-w-[28rem] type-body-l text-ink-soft">Sisanya SPECO yang menyaring, menilai, dan menjelaskan.</p>
             </Reveal>
           </div>
         </div>

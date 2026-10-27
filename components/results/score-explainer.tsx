@@ -55,7 +55,7 @@ export function ScoreExplainer({
         <DialogHeader>
           <DialogTitle>Bagaimana skor dihitung?</DialogTitle>
           <DialogDescription>
-            NEXORA memakai metode Simple Additive Weighting (SAW). Singkatnya ada empat langkah.
+            SPECO memakai metode Simple Additive Weighting (SAW). Singkatnya ada empat langkah.
           </DialogDescription>
         </DialogHeader>
 

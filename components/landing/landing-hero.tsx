@@ -15,13 +15,16 @@ import {
 import { cn } from "cn"
 import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
+import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play"
+import { useHeroTone } from "@/components/landing/hero-tone"
 import { HERO_TIERS } from "@/components/landing/hero-tiers"
 import { Button } from "@/components/ui/button"
 import { getBudgetInsight, getWizardOptions } from "@/lib/api"
 import { DURATION, EASE_OUT, EASE_SMOOTH } from "@/lib/motion"
 import type { BudgetPresetId } from "@/types"
 
-// Hero slider kisaran budget (brief redesign landing §5–11, disetujui Fahren Okt 2026; isi PRD §12–13).
+// Hero slider kisaran budget SPECO (brief redesign landing §5–11 + brief SPECO §11–23, disetujui Fahren
+// Okt 2026; isi PRD §12–13). Foto tetap render kertas berwarna (keputusan Fahren); CTA kuning.
 // Latar = render premium kisaran aktif selebar layar; laptop selalu di kanan, sisi kiri zona aman teks.
 // - Kelima thumbnail selalu tampil; yang aktif disorot dengan garis progres. Pergantian otomatis tiap
 //   6 detik digerakkan oleh `animationend` garis progres (CSS), jadi jeda dan progres selalu sinkron.
@@ -88,12 +91,12 @@ function useDepth(ref: React.RefObject<HTMLElement | null>) {
   }, [])
   const enabled = fine && !reduce
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] })
-  const scrollY = useTransform(scrollYProgress, [0, 1], [0, 40])
+  const scrollY = useTransform(scrollYProgress, [0, 1], [0, 24])
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const sx = useSpring(px, { stiffness: 90, damping: 20, mass: 0.6 })
   const sy = useSpring(py, { stiffness: 90, damping: 20, mass: 0.6 })
-  const x = useTransform(sx, (v) => v * 8)
+  const x = useTransform(sx, (v) => v * 8) // ±4 px (posisi kursor −0,5…0,5)
   const y = useTransform([sy, scrollY], ([a, b]: number[]) => a * 8 + b)
   return {
     style: enabled ? { x, y } : undefined,
@@ -158,6 +161,16 @@ export function LandingHero() {
     document.getElementById(`hero-thumb-${next}`)?.focus()
   }
 
+  // Nada slide aktif dibagikan ke navbar (teks, logo, gradien keterbacaan).
+  const { setTone } = useHeroTone()
+  React.useEffect(() => setTone(dark ? "dark" : "light"), [dark, setTone])
+
+  // Keluar dari hero (brief SPECO §21): gambar membesar sedikit, teks naik dan sedikit memudar.
+  const { scrollYProgress: out } = useScroll({ target: sectionRef, offset: ["start start", "end start"] })
+  const outScale = useTransform(out, [0, 1], [1, 1.05])
+  const outY = useTransform(out, [0, 0.6], [0, -24])
+  const outOpacity = useTransform(out, [0, 0.6], [1, 0.6])
+
   const ink = dark ? "text-white" : "text-ink-strong"
   const words = inWords(preset.label)
   const enter = (delay: number) =>
@@ -185,11 +198,14 @@ export function LandingHero() {
       onBlurCapture={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setHovered(false)
       }}
-      className={cn("relative overflow-hidden transition-colors duration-[600ms] ease-out", ink)}
+      className={cn("relative flex flex-col overflow-hidden transition-colors duration-[600ms] ease-out lg:min-h-svh", ink)}
       style={{ backgroundColor: tier.paper }}
     >
-      {/* ------------------------------------------------ Render: di atas pada mobile, latar penuh pada lg */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto">
+      {/* ------------------------------------------------ Render: setelah CTA pada mobile, latar penuh pada lg */}
+      <motion.div
+        style={reduce ? undefined : { scale: outScale }}
+        className="relative order-2 aspect-[4/3] w-full overflow-hidden sm:aspect-[16/9] lg:absolute lg:inset-0 lg:aspect-auto"
+      >
         <motion.div className="absolute -inset-4" style={depth.style}>
           {ORDER.map((id) => {
             const state = id === active ? "active" : id === previous ? "leaving" : "idle"
@@ -218,11 +234,14 @@ export function LandingHero() {
             )
           })}
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* ------------------------------------------------ Isi */}
-      <div className="page-container relative z-10 flex flex-col gap-8 pt-8 pb-10 lg:min-h-svh lg:justify-between lg:pt-28 lg:pb-8">
-        <div className="flex max-w-[42rem] flex-col gap-6">
+      {/* ------------------------------------------------ Teks: zona aman di kiri */}
+      <motion.div
+        style={reduce ? undefined : { y: outY, opacity: outOpacity }}
+        className="page-container relative z-10 order-1 pt-24 pb-8 lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:pt-28 lg:pb-8"
+      >
+        <div className="flex max-w-[42rem] flex-col gap-5">
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.p key={`label-${active}`} {...enter(0)} className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-2xl leading-8 font-extrabold tracking-[-0.03em] tabular-nums">{preset.label}</span>
@@ -239,27 +258,27 @@ export function LandingHero() {
             Laptop buat kuliahmu, <span className="whitespace-nowrap">pas di budget-mu.</span>
           </motion.h1>
 
-          <div className="flex max-w-[34rem] flex-col gap-2">
+          <div className="flex max-w-[32rem] flex-col gap-2">
             <p className="type-body-l">
-              Temukan laptop berdasarkan budget, kuliah, dan aplikasi yang kamu pakai. NEXORA menyaring pilihan sampai
-              ketemu yang paling sesuai.
+              Jawab beberapa pertanyaan tentang budget dan kebutuhanmu. SPECO menghitung laptop yang paling sesuai
+              untukmu.
             </p>
             <AnimatePresence mode="popLayout" initial={false}>
-              <motion.p key={`spec-${active}`} {...enter(0.18)} className="type-body font-medium">
-                Di kisaran ini: {preset.typicalSpec}.{" "}
-                <span className="font-bold tabular-nums">{insight.laptopCount} laptop</span> di katalog contoh.
+              <motion.p key={`spec-${active}`} {...enter(0.18)} className="type-small font-medium">
+                Di {preset.label}: {preset.typicalSpec} ·{" "}
+                <span className="font-bold tabular-nums">{insight.laptopCount} laptop</span> di katalog contoh
               </motion.p>
             </AnimatePresence>
           </div>
 
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div className="flex flex-wrap items-center gap-x-7 gap-y-3">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.div key={`cta-${active}`} {...enter(0.26)}>
                 <Button
                   asChild
                   variant="signal"
                   size="lg"
-                  className="rounded-[14px] transition-[background-color,transform] duration-[var(--motion-medium)] hover:scale-[1.015] hover:[&_[data-arrow]]:translate-x-1 active:scale-[0.98]"
+                  className="rounded-[12px] transition-[background-color,transform] duration-[var(--motion-medium)] hover:-translate-y-0.5 hover:[&_[data-arrow]]:translate-x-1 active:translate-y-0 active:scale-[0.98]"
                 >
                   <Link href={`/rekomendasi/budget?budget=${preset.value}`}>
                     Cari laptop {words.startsWith("di bawah") ? "" : "untuk "}
@@ -269,107 +288,122 @@ export function LandingHero() {
                 </Button>
               </motion.div>
             </AnimatePresence>
-            <Link
-              href="#cara-kerja"
-              className="inline-flex min-h-11 items-center type-body font-semibold underline decoration-current/40 underline-offset-4 transition-colors hover:decoration-current"
-            >
-              Lihat cara kerjanya
+            <Link href="#cara-kerja" className="group inline-flex min-h-11 items-center gap-3 type-body font-semibold">
+              {/* Motif cincin SPECO pada tombol sekunder. */}
+              <span
+                aria-hidden="true"
+                className="grid size-9 place-items-center rounded-full ring-[1.5px] ring-current transition-transform duration-[var(--motion-medium)] ease-out group-hover:scale-105"
+              >
+                <PlayIcon weight="fill" className="size-3.5 translate-x-px" />
+              </span>
+              <span className="underline decoration-transparent underline-offset-4 transition-colors group-hover:decoration-current">
+                Lihat cara kerjanya
+              </span>
             </Link>
           </div>
         </div>
+      </motion.div>
 
-        {/* ------------------------------------------------ Thumbnail kisaran + navigasi */}
-        <div className="flex flex-col gap-4 lg:w-fit">
-          <div className="-mx-4 overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
-            <div role="group" aria-label="Pilih kisaran budget" onKeyDown={onKeyDown} className="flex w-max gap-3">
-              {ORDER.map((id) => {
-                const p = presetOf(id)
-                const t = HERO_TIERS[id]
-                const on = id === active
-                return (
-                  <button
-                    key={id}
-                    id={`hero-thumb-${id}`}
-                    type="button"
-                    aria-pressed={on}
-                    aria-label={`Tampilkan kisaran ${p.label}: ${t.kind}`}
-                    onClick={() => select(id, true)}
+      {/* ------------------------------------------------ Thumbnail kisaran (kiri) + navigasi (kanan) */}
+      {/* Dalam alur normal (mt-auto), bukan absolut: di layar pendek hero memanjang, tidak menumpuk teks. */}
+      <div className="page-container relative z-10 order-3 flex flex-col gap-5 pt-6 pb-8 lg:mt-auto lg:flex-row lg:items-end lg:justify-between lg:pb-10">
+        <div className="-mx-4 overflow-x-auto px-4 pt-2 pb-1 [scrollbar-width:none] lg:mx-0 lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden">
+          <div role="group" aria-label="Pilih kisaran budget" onKeyDown={onKeyDown} className="flex w-max gap-3">
+            {ORDER.map((id) => {
+              const p = presetOf(id)
+              const t = HERO_TIERS[id]
+              const on = id === active
+              return (
+                <button
+                  key={id}
+                  id={`hero-thumb-${id}`}
+                  type="button"
+                  aria-pressed={on}
+                  aria-label={`Tampilkan kisaran ${p.label}: ${t.kind}`}
+                  onClick={() => select(id, true)}
+                  className={cn(
+                    "group flex w-[8rem] flex-col gap-2 text-left transition-[opacity,transform,filter] duration-[var(--motion-medium)] ease-out",
+                    on ? "scale-[1.03] opacity-100" : "opacity-75 saturate-[.55] hover:scale-[1.02] hover:opacity-100 hover:saturate-100"
+                  )}
+                >
+                  <span
                     className={cn(
-                      "group flex w-[6.5rem] flex-col gap-2 text-left transition-[opacity,transform] duration-[var(--motion-medium)] ease-out",
-                      on ? "scale-100 opacity-100" : "scale-[0.97] opacity-70 hover:scale-[1.02] hover:opacity-100"
+                      "relative block aspect-[4/3] w-full overflow-hidden rounded-[12px] transition-shadow duration-[var(--motion-medium)]",
+                      on ? "ring-2 ring-current" : "ring-1 ring-black/10"
                     )}
                   >
-                    <span
-                      className={cn(
-                        "relative block aspect-[3/4] w-full overflow-hidden rounded-[14px] ring-offset-2 transition-shadow duration-[var(--motion-medium)]",
-                        on ? "ring-2 ring-current ring-offset-transparent" : "ring-1 ring-black/10 group-hover:shadow-[0_10px_24px_rgba(0,0,0,0.18)]" /* taste-skill-ignore: elevasi hanya saat hover (brief §10) */
-                      )}
-                    >
-                      <TierImage
-                        id={id}
-                        sizes="208px"
-                        decorative
-                        className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105"
-                      />
-                      {on && autoplay && (
-                        <span aria-hidden="true" className="absolute inset-x-2 bottom-2 h-[3px] overflow-hidden rounded-full bg-white/45">
-                          <span
-                            key={active}
-                            className="block h-full origin-left rounded-full bg-white"
-                            style={{
-                              animation: `nexora-progress ${AUTOPLAY_S}s linear forwards`,
-                              animationPlayState: paused ? "paused" : "running",
-                            }}
-                            onAnimationEnd={() => select(step(active, 1), false)}
-                          />
-                        </span>
-                      )}
-                    </span>
+                    <TierImage
+                      id={id}
+                      sizes="256px"
+                      decorative
+                      className="transition-transform duration-[var(--motion-slow)] ease-out group-hover:scale-105"
+                    />
+                  </span>
+                  <span className="flex flex-col gap-1.5">
                     <span className="flex flex-col">
                       <span className="type-small font-bold tabular-nums">{p.label}</span>
                       <span className="type-micro font-medium tracking-normal">{t.kind}</span>
                     </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-            <span aria-hidden="true" />
-            <div className="flex items-center gap-3">
-              {[
-                { by: -1, label: "Kisaran sebelumnya", Icon: ArrowLeftIcon },
-                { by: 1, label: "Kisaran berikutnya", Icon: ArrowRightIcon },
-              ].map(({ by, label, Icon }) => (
-                <Button
-                  key={label}
-                  variant="ghost"
-                  size="icon"
-                  aria-label={label}
-                  onClick={() => select(step(active, by), true)}
-                  className={cn(
-                    "rounded-full ring-1 ring-current/30 transition-transform active:scale-95",
-                    dark ? "text-white hover:bg-white/15" : "text-ink-strong hover:bg-black/10"
-                  )}
-                >
-                  <Icon weight="bold" aria-hidden="true" />
-                </Button>
-              ))}
-            </div>
-            <p className="justify-self-end type-small font-bold tabular-nums">
-              <span className="sr-only">Kisaran </span>
-              {/* Penghitung slide "03 / 05" (brief §5). */}
-              {String(indexOf(active) + 1).padStart(2, "0") /* taste-skill-ignore */}
-              <span className="font-medium"> / {String(ORDER.length).padStart(2, "0") /* taste-skill-ignore */}</span>
-            </p>
+                    {/* Progres slide aktif: garis teal tipis (motif cincin brand). */}
+                    <span aria-hidden="true" className={cn("h-[2px] overflow-hidden rounded-full", on ? "bg-current/20" : "bg-transparent")}>
+                      {on && autoplay && (
+                        <span
+                          key={active}
+                          className="block h-full origin-left rounded-full bg-[#14b8a6]"
+                          style={{
+                            animation: `nexora-progress ${AUTOPLAY_S}s linear forwards`,
+                            animationPlayState: paused ? "paused" : "running",
+                          }}
+                          onAnimationEnd={() => select(step(active, 1), false)}
+                        />
+                      )}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
           </div>
         </div>
 
-        <p className="sr-only" aria-live="polite">
-          {announce}
-        </p>
+        <div className="flex items-center gap-4">
+          {[
+            { by: -1, label: "Kisaran sebelumnya", Icon: ArrowLeftIcon },
+            { by: 1, label: "Kisaran berikutnya", Icon: ArrowRightIcon },
+          ].map(({ by, label, Icon }) => (
+            <Button
+              key={label}
+              variant="ghost"
+              size="icon"
+              aria-label={label}
+              onClick={() => select(step(active, by), true)}
+              className={cn(
+                "rounded-full ring-1 ring-current/30 transition-transform active:scale-95",
+                dark ? "text-white hover:bg-white/15" : "text-ink-strong hover:bg-black/10"
+              )}
+            >
+              <Icon weight="bold" aria-hidden="true" />
+            </Button>
+          ))}
+          <p className="ml-2 type-small font-bold tabular-nums">
+            <span className="sr-only">Kisaran </span>
+            {/* Penghitung slide "03 / 05" (brief SPECO §19). */}
+            {String(indexOf(active) + 1).padStart(2, "0") /* taste-skill-ignore */}
+            <span className="font-medium"> / {String(ORDER.length).padStart(2, "0") /* taste-skill-ignore */}</span>
+          </p>
+          <span aria-hidden="true" className="h-[2px] w-20 overflow-hidden rounded-full bg-current/20 sm:w-28">
+            <motion.span
+              className="block h-full origin-left rounded-full bg-current"
+              initial={false}
+              animate={{ scaleX: (indexOf(active) + 1) / ORDER.length }}
+              transition={{ duration: reduce ? 0 : SLIDE_S, ease: EASE_SMOOTH }}
+            />
+          </span>
+        </div>
       </div>
+
+      <p className="sr-only" aria-live="polite">
+        {announce}
+      </p>
     </section>
   )
 }

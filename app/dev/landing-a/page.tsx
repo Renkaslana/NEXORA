@@ -13,7 +13,7 @@ import { formatRupiahShort } from "@/lib/format";
 // Kiri: headline + CTA + preset budget. Kanan: foto laptop + satu kartu Profil Kebutuhan
 // mengambang (satu-satunya elemen ber-shadow-lg). Mobile: foto + kartu pindah ke bawah (§13, §24).
 
-export const metadata: Metadata = { title: "Landing A — Hybrid · NEXORA (dev)" };
+export const metadata: Metadata = { title: "Landing A — Hybrid · SPECO (dev)" };
 
 function ProfileCard({ sample }: { sample: LandingSample }) {
   const chips = [

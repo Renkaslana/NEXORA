@@ -5,7 +5,7 @@ import { ProfileView } from "@/components/profile/profile-view";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // /rekomendasi/profil — Profil Kebutuhan (PRD §8, §16). Mendukung ?mock=error (PRD §26).
-export const metadata: Metadata = { title: "Profil Kebutuhan · NEXORA" };
+export const metadata: Metadata = { title: "Profil Kebutuhan · SPECO" };
 
 function Fallback() {
   return (

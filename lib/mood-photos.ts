@@ -1,6 +1,6 @@
 import type { PersonaId } from "@/types"
 
-// Foto suasana (REDESIGN §24): hanya untuk suasana, tidak pernah disajikan sebagai produk NEXORA,
+// Foto suasana (REDESIGN §24): hanya untuk suasana, tidak pernah disajikan sebagai produk SPECO,
 // pengguna asli, atau testimoni. Foto lama (persona-*, band-desk) ber-duotone; foto "scene-*" berwarna asli,
 // dibuat dengan Gemini 3.1 Flash Image lewat Figma (redesign "Kalimat terbelah", Okt 2026).
 

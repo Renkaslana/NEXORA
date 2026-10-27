@@ -32,7 +32,7 @@ export const RENDER_HEIGHT = 1536;
 
 /**
  * Kotak layar pada render `front`, dalam persen dari lebar/tinggi gambar, untuk menempelkan
- * UI NEXORA tepat di layar (REDESIGN §13 gerak 11). Diukur dari file hasil olahan.
+ * UI SPECO tepat di layar (REDESIGN §13 gerak 11). Diukur dari file hasil olahan.
  */
 export const FRONT_SCREEN_RECT: Partial<Record<string, { left: number; top: number; width: number; height: number }>> = {
   "mainstream-silver-front": { left: 18.6, top: 14.52, width: 62.65, height: 52.73 },

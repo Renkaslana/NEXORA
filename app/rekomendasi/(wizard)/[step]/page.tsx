@@ -14,7 +14,7 @@ export function generateStaticParams() {
 
 // Metadata statis: generateMetadata yang membaca params memblokir prefetch (Next 16).
 // Judul tab per langkah dirender oleh WizardShell.
-export const metadata: Metadata = { title: "Rekomendasi · NEXORA" };
+export const metadata: Metadata = { title: "Rekomendasi · SPECO" };
 
 // params di-await di dalam <Suspense> agar navigasi antar langkah tetap instan
 // (lihat node_modules/next/dist/docs/01-app/02-guides/instant-navigation.md).

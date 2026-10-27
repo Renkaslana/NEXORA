@@ -37,7 +37,7 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
   halaman tidak boleh mengimpor `@/data/*` secara langsung.
 - UI berbahasa Indonesia. Mobile-first. Aksesibel: keyboard, focus ring, kontras AA.
 - Tanpa gradient, glow, glassmorphism, blob, atau 3D dekoratif. Pengecualian (disetujui Fahren): blur kaca
-  hanya di navbar mengambang landing.
+  dan scrim gradien keterbacaan yang sangat tipis hanya di navbar landing.
 - Setelah tiap tahap: jalankan `npm run lint` dan `npm run build`, perbaiki error,
   lalu ringkas apa yang berubah.
 
@@ -84,6 +84,16 @@ anti-slop dipatuhi. Bagian yang paling sering dipakai:
   - [x] R2 Landing: hero hybrid + callout meter, "Spek saja tidak menjawab", cerita ter-pin, persona
     berfoto, band gelap, CTA dengan render.
   - [x] R3 Wizard/Profil/Analisis · [x] R4 Hasil/Detail/Komparasi (gaya kobalt, Okt 2026) · [ ] R5 Should have
+
+Brand SPECO (27 Okt 2026, brief dari Fahren): nama produk di UI = **SPECO** ("Spec for You"), menggantikan
+NEXORA. Nama repo, folder, kode, dan kunci penyimpanan (`nexora-profile`, `nexora-compare`, `nexora-saved`)
+tetap agar data pengguna tidak hilang. Aset dari panduan brand Fahren: `public/brand/speco-logo.png` (navy,
+latar terang), `speco-logo-white.png` (huruf putih, latar gelap/kobalt), `app/icon.png` + `app/favicon.ico`.
+Warna brand: blue #2563FF, teal #14B8A6 (motif cincin: progres slide hero), dark #0B1F3B, latar #F7F5F0.
+- Navbar landing (brief SPECO §4–10): selebar layar, transparan di atas hero dengan scrim tipis (terang di
+  kisaran kertas, gelap tipis di kobalt), lalu putih hangat + blur + garis bawah tipis setelah scroll 48 px
+  (72 → 64 px, 400 ms). Menu: Cara Kerja, Tentang (penanda aktif garis 1,5 px). Nada slide hero dibagi lewat
+  `HeroToneProvider` (`components/landing/hero-tone.tsx`). Foto hero tetap render kertas; CTA tetap kuning.
 
 Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahren, menggantikan landing di bawah):
 - Palet landing: latar `canvas` #F7F5F0, teks `ink-strong` #171717 / `ink-soft` #62625C, garis `canvas-line`

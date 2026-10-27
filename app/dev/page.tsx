@@ -14,7 +14,7 @@ export default function DevIndex() {
   return (
     <main className="page-container flex flex-col gap-8 py-16">
       <header className="flex flex-col gap-2">
-        <p className="type-small text-text-muted">NEXORA · prototype frontend</p>
+        <p className="type-small text-text-muted">SPECO · prototype frontend</p>
         <h1 className="type-h1 text-text">Halaman eksplorasi</h1>
         <p className="max-w-xl type-body text-text-muted">
           Halaman untuk review desain dan komponen. Varian landing di bawah disimpan sebagai arsip eksplorasi.

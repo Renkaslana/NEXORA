@@ -99,7 +99,7 @@ export function QuestionnairePreview() {
           </Reveal>
           <Reveal delay={0.08}>
             <p className="max-w-[30rem] type-body-l text-ink-soft">
-              Coba langsung di sini. Pertanyaannya sama dengan yang ada di NEXORA, dan jawaban budget serta jurusanmu
+              Coba langsung di sini. Pertanyaannya sama dengan yang ada di SPECO, dan jawaban budget serta jurusanmu
               ikut terbawa saat kamu lanjut.
             </p>
           </Reveal>
@@ -189,7 +189,7 @@ export function QuestionnairePreview() {
               {last ? (
                 <Button asChild variant="signal" className="rounded-[12px]">
                   <Link href={wizardHref}>
-                    Lanjutkan di NEXORA <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                    Lanjutkan di SPECO <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
                   </Link>
                 </Button>
               ) : (

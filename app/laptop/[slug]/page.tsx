@@ -14,7 +14,7 @@ export function generateStaticParams() {
 }
 
 // Metadata statis (generateMetadata yang membaca params memblokir prefetch di Next 16).
-export const metadata: Metadata = { title: "Detail Laptop · NEXORA" };
+export const metadata: Metadata = { title: "Detail Laptop · SPECO" };
 
 export default function LaptopPage({ params }: { params: Params }) {
   return (

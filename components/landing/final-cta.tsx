@@ -21,7 +21,7 @@ export function FinalCta() {
           </Reveal>
           <Reveal delay={0.08}>
             <p className="max-w-[32rem] type-body-l text-white/85">
-              Biarkan NEXORA membantu menemukan pilihan yang paling sesuai. Lima pertanyaan, tanpa akun.
+              Biarkan SPECO membantu menemukan pilihan yang paling sesuai. Lima pertanyaan, tanpa akun.
             </p>
           </Reveal>
           <Reveal delay={0.16}>

@@ -17,7 +17,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NEXORA — Laptop Decision Assistant",
+  title: "SPECO — Spec for You",
   description:
     "Jawab 5 pertanyaan singkat, lihat spek yang kamu butuh, lalu laptop yang cocok lengkap dengan alasannya.",
 };

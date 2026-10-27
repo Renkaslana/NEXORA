@@ -2,7 +2,7 @@ import { CountUp } from "@/components/landing/count-up"
 import { Reveal } from "@/components/landing/reveal"
 import type { LandingSample } from "@/components/landing/sample-data"
 
-// "NEXORA bukan toko. Dan itu memang sengaja." (brief redesign landing §18–19; PRD §27). Pernyataan
+// "SPECO bukan toko. Dan itu memang sengaja." (brief redesign landing §18–19; PRD §27). Pernyataan
 // besar + fakta produk yang memang benar (jumlah pertanyaan Wizard, jumlah kriteria penilaian dari mock,
 // satu Best Match), bukan statistik bisnis karangan.
 
@@ -20,7 +20,7 @@ export function NotAStore({ sample }: { sample: LandingSample }) {
           <div className="lg:col-span-12">
             <Reveal variant="clip">
               <h2 id="tentang-title" className="text-[2.75rem] leading-[1] font-extrabold tracking-[-0.05em] text-ink-strong md:text-[4.5rem]">
-                NEXORA bukan toko.
+                SPECO bukan toko.
               </h2>
             </Reveal>
             <Reveal variant="clip" delay={0.1}>
@@ -32,7 +32,7 @@ export function NotAStore({ sample }: { sample: LandingSample }) {
           <Reveal delay={0.16} className="lg:col-span-5 lg:col-start-8">
             <p className="type-body-l text-ink-strong">
               Kami tidak menjual laptop atau mendorongmu memilih produk tertentu. Tidak ada iklan, promo, atau komisi.
-              NEXORA membantu membandingkan pilihan berdasarkan kebutuhan dan prioritasmu, dan selalu menyebut
+              SPECO membantu membandingkan pilihan berdasarkan kebutuhan dan prioritasmu, dan selalu menyebut
               kekurangannya.
             </p>
           </Reveal>

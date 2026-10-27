@@ -112,7 +112,7 @@ export function SawTransparency({ sample }: { sample: LandingSample }) {
             })}
           </ul>
           <p className="mt-4 px-3 type-micro font-medium tracking-normal text-ink-soft">
-            Bobot contoh dari data demo; perhitungan asli dilakukan server NEXORA.
+            Bobot contoh dari data demo; perhitungan asli dilakukan server SPECO.
           </p>
         </div>
       </div>

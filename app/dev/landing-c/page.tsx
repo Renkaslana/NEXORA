@@ -6,7 +6,7 @@ import { Consultation } from "./consultation";
 // Varian C — Konsultasi (PRD §12 Concept C): pertanyaan "Berapa budget-mu?" langsung di hero,
 // preset budget, dan preview Profil Kebutuhan (Informatika) yang berubah saat preset dipilih.
 
-export const metadata: Metadata = { title: "Landing C — Konsultasi · NEXORA (dev)" };
+export const metadata: Metadata = { title: "Landing C — Konsultasi · SPECO (dev)" };
 
 export default function LandingC() {
   return (

@@ -90,7 +90,7 @@ export function WizardShell({ children }: { children: React.ReactNode }) {
 
   // Judul tab per langkah (metadata statis halaman tidak tahu langkahnya).
   React.useEffect(() => {
-    const title = `${step.label} · Rekomendasi · NEXORA`
+    const title = `${step.label} · Rekomendasi · SPECO`
     document.title = title
     const t = window.setTimeout(() => (document.title = title), 50)
     return () => window.clearTimeout(t)

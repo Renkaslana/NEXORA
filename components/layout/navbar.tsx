@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { cn } from "cn"
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight"
@@ -16,25 +17,19 @@ import { Button } from "@/components/ui/button"
 // agar demo tidak menemui 404. Tambahkan kembali: { href: "/jelajah", label: "Jelajahi Laptop" }.
 const links = [
   { href: "/#cara-kerja", label: "Cara Kerja" },
-  { href: "/#persona", label: "Persona" },
+  { href: "/#tentang", label: "Tentang" },
 ]
 
+/** Logo SPECO (aset dari panduan brand, public/brand/): navy untuk latar terang, putih untuk latar gelap/kobalt. */
+const LOGO = {
+  default: "/brand/speco-logo.png",
+  cobalt: "/brand/speco-logo-white.png",
+} as const
+
 export function Wordmark({ className, tone = "default" }: { className?: string; tone?: "default" | "cobalt" }) {
-  const cobalt = tone === "cobalt"
   return (
-    <Link
-      href="/"
-      className={cn("inline-flex min-h-11 items-center gap-2 rounded-control", cobalt ? "text-white" : "text-text", className)}
-    >
-      <span aria-hidden="true" className={cn("grid size-7 place-items-center rounded-control", cobalt ? "bg-white" : "bg-primary")}>
-        <span
-          className={cn(
-            "h-3 w-3.5 rounded-[2px] border-2 border-b-[3px]",
-            cobalt ? "border-cobalt-600" : "border-primary-foreground"
-          )}
-        />
-      </span>
-      <span className="text-[17px] leading-none font-bold tracking-[-0.01em]">NEXORA</span>
+    <Link href="/" aria-label="SPECO, ke beranda" className={cn("inline-flex min-h-11 items-center rounded-control", className)}>
+      <Image src={LOGO[tone]} alt="" width={353} height={128} priority={false} loading="eager" className="h-9 w-auto" />
     </Link>
   )
 }

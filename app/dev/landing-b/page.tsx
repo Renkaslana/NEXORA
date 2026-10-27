@@ -12,7 +12,7 @@ import { PhotoPlaceholder } from "@/components/ui/photo-placeholder";
 // banyak ruang kosong, CTA tunggal. "Cara kerja" ditulis seperti artikel: judul kiri
 // yang menempel, tiga bab di kanan, masing-masing dengan satu cuplikan UI asli.
 
-export const metadata: Metadata = { title: "Landing B — Editorial · NEXORA (dev)" };
+export const metadata: Metadata = { title: "Landing B — Editorial · SPECO (dev)" };
 
 const chapters = [
   {
@@ -47,7 +47,7 @@ export default async function LandingB() {
           <div className="mt-12 grid gap-10 md:mt-20 md:grid-cols-12 md:gap-6">
             <div className="flex flex-col gap-8 md:col-span-5 md:pt-2 lg:col-span-4">
               <p className="max-w-[36ch] type-body-l text-text">
-                NEXORA membantu mahasiswa memilih laptop dari budget, jurusan, dan aplikasi yang benar-benar dipakai.
+                SPECO membantu mahasiswa memilih laptop dari budget, jurusan, dan aplikasi yang benar-benar dipakai.
                 Lima pertanyaan, lalu spek yang kamu butuh dan laptop yang cocok, lengkap dengan alasannya.
               </p>
               <Button asChild size="lg" className="self-start">
@@ -70,7 +70,7 @@ export default async function LandingB() {
                 Dari bingung ke yakin
               </h2>
               <p className="max-w-[34ch] type-body text-text-muted">
-                Cara kerja NEXORA dalam tiga bab. Cuplikan di sampingnya adalah layar aslinya, dengan contoh mahasiswa
+                Cara kerja SPECO dalam tiga bab. Cuplikan di sampingnya adalah layar aslinya, dengan contoh mahasiswa
                 Informatika berbudget Rp8 juta.
               </p>
             </header>
