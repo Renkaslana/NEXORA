@@ -134,8 +134,9 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   diamati `useInView` harus di luar elemen ber-clip-path.
   Perbaikan (Okt 2026): laptop diperbesar + digeser ke arah judul (`lg:-ml-24`) dengan glow radial tipis dan
   3 anotasi HTML (melayang lg+, chip di bawahnya); prinsip jadi tautan (#rekomendasi, #transparansi,
-  #cara-kerja) dengan panah, redup kartu lain (`:has`), glow kursor via CSS var; fakta vertikal di lg dan
-  visual kedua menembus ke tepi kanan (reveal opacity + scale 0,97, paralaks ±12 px).
+  #cara-kerja) dengan panah, redup kartu lain (`:has`), glow kursor via CSS var. Fakta + visual kedua = satu
+  panel putih seperti referensi Fahren: 3 fakta berikon dengan pemisah, visual menempel di kanan (tepi kiri
+  memudar lewat mask, paralaks ±10 px), lalu tautan "Lanjut ke rekomendasi" ke `#mulai` (FinalCta).
 - Hero: wadah foto wajib `isolate` agar scrim selalu di atas foto; tanpa itu, saat skala scroll = 1 Motion
   menulis `transform: none` dan foto aktif (z-2) naik di atas scrim (sisi kiri terang tidak konsisten).
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU

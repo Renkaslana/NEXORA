@@ -1,5 +1,9 @@
 import Link from "next/link"
+import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown"
 import { PlayIcon } from "@phosphor-icons/react/dist/ssr/Play"
+import { QuestionIcon } from "@phosphor-icons/react/dist/ssr/Question"
+import { StackIcon } from "@phosphor-icons/react/dist/ssr/Stack"
+import { TargetIcon } from "@phosphor-icons/react/dist/ssr/Target"
 import { CountUp } from "@/components/landing/count-up"
 import { JourneyVisual, LaptopVisual, Principles, SengajaUnderline } from "@/components/landing/not-a-store-visuals"
 import { Reveal } from "@/components/landing/reveal"
@@ -16,11 +20,10 @@ const HEADLINE = "text-[clamp(2.75rem,12vw,3.75rem)] leading-[0.95] tracking-[-0
 
 export function NotAStore({ sample }: { sample: LandingSample }) {
   const facts = [
-    { value: 5, suffix: "", unit: "pertanyaan", text: "untuk memahami kebutuhanmu." },
-    { value: sample.breakdown.length, suffix: "+", unit: "faktor", text: "yang dipertimbangkan dalam rekomendasi." },
-    { value: 1, suffix: "", unit: "tujuan", text: "menemukan laptop yang paling cocok untukmu." },
+    { value: 5, suffix: "", unit: "pertanyaan", text: "untuk memahami kebutuhanmu.", Icon: QuestionIcon },
+    { value: sample.breakdown.length, suffix: "+", unit: "faktor", text: "yang dipertimbangkan dalam rekomendasi.", Icon: StackIcon },
+    { value: 1, suffix: "", unit: "tujuan", text: "menemukan laptop yang paling cocok untukmu.", Icon: TargetIcon },
   ]
-
   return (
     <section id="tentang" aria-labelledby="tentang-title" className="scroll-mt-24 overflow-x-clip bg-white">
       {/* ------------------------------------------------ Pernyataan + visual laptop */}
@@ -82,36 +85,49 @@ export function NotAStore({ sample }: { sample: LandingSample }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------ Fakta + visual perjalanan (bidang biru sangat tipis) */}
-      <div className="mt-20 overflow-hidden bg-data-blue/[0.035] py-16 md:mt-28 md:py-24">
-        <div className="page-container grid items-center gap-12 lg:grid-cols-12 lg:gap-10">
-          <ul className="grid gap-8 sm:grid-cols-3 sm:gap-6 lg:col-span-5 lg:grid-cols-1 lg:gap-10">
-            {facts.map((f, i) => (
-              <li key={f.unit}>
-              <Reveal delay={0.09 * i}>
-                <p className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-end gap-x-5 sm:flex sm:flex-col sm:items-start sm:gap-4 lg:grid lg:grid-cols-[7.5rem_minmax(0,1fr)] lg:items-center lg:gap-x-6">
-                  <span className="sr-only">{`${f.value}${f.suffix} ${f.unit} ${f.text}`}</span>
-                  <span aria-hidden="true">
-                    <CountUp
-                      value={f.value}
-                      suffix={f.suffix}
-                      duration={0.9}
-                      className="text-[4.5rem] leading-[0.85] font-extrabold tracking-[-0.06em] text-ink-strong tabular-nums lg:text-[5.5rem]"
-                    />
-                  </span>
-                  <span aria-hidden="true" className="flex flex-col gap-1">
-                    <span className="text-xl leading-7 font-extrabold tracking-[-0.02em] text-ink-strong">{f.unit}</span>
-                    <span className="type-body text-ink-soft">{f.text}</span>
-                  </span>
-                </p>
-              </Reveal>
-              </li>
-            ))}
-          </ul>
-          {/* Visual lebih besar dan menembus sampai tepi kanan layar (lg+), agar menyatu dengan bidang. */}
-          <div className="lg:col-span-7 lg:mr-[calc((min(100vw,1248px)-100vw)/2-1.5rem)]">
-            <JourneyVisual />
-          </div>
+      {/* ------------------------------------------------ Fakta + visual perjalanan: satu panel putih (referensi Fahren) */}
+      <div className="mt-20 bg-data-blue/[0.035] pt-14 pb-10 md:mt-28 md:pt-20 md:pb-12">
+        <div className="page-container">
+          <Reveal>
+            <div className="grid overflow-hidden rounded-[28px] border border-canvas-line bg-white lg:grid-cols-[minmax(0,1fr)_minmax(0,0.5fr)]">
+              <ul
+                className="grid divide-y divide-canvas-line sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:py-6 lg:py-8" // taste-skill-ignore: pemisah antarfakta sesuai referensi Fahren
+              >
+                {facts.map((f, i) => (
+                  <li key={f.unit} className="px-6 py-6 sm:py-2 md:px-7">
+                    <Reveal delay={0.1 + 0.09 * i} innerClassName="flex gap-4">
+                      <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-data-blue/[0.08] text-data-blue">
+                        <f.Icon weight="bold" className="size-[22px]" />
+                      </span>
+                      <p className="flex flex-col">
+                        <span className="sr-only">{`${f.value}${f.suffix} ${f.unit} ${f.text}`}</span>
+                        <CountUp
+                          value={f.value}
+                          suffix={f.suffix}
+                          duration={0.9}
+                          className="text-[3.5rem] leading-[0.9] font-extrabold tracking-[-0.06em] text-ink-strong tabular-nums md:text-[4rem]"
+                        />
+                        <span aria-hidden="true" className="mt-2 text-lg leading-6 font-extrabold tracking-[-0.02em] text-ink-strong">
+                          {f.unit}
+                        </span>
+                        <span aria-hidden="true" className="mt-1 type-small font-normal text-ink-soft">
+                          {f.text}
+                        </span>
+                      </p>
+                    </Reveal>
+                  </li>
+                ))}
+              </ul>
+              <JourneyVisual className="min-h-[13rem] sm:min-h-[16rem] lg:min-h-0" />
+            </div>
+          </Reveal>
+
+          <Link href="#mulai" className="group mx-auto mt-6 flex w-fit flex-col items-center gap-2 type-small font-medium text-ink-strong">
+            <span className="flex size-9 items-center justify-center rounded-full border border-canvas-line bg-white transition-colors duration-300 group-hover:border-data-blue group-hover:text-data-blue">
+              <ArrowDownIcon weight="bold" className="size-4 transition-transform duration-300 ease-out group-hover:translate-y-0.5" aria-hidden="true" />
+            </span>
+            Lanjut ke rekomendasi
+          </Link>
         </div>
       </div>
     </section>

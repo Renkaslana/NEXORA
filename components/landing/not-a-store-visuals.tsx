@@ -211,29 +211,32 @@ export function Principles() {
 
 // ---------------------------------------------------------------- Visual perjalanan kuliah
 
-/** Visual 2 (aset Fahren, tulisan tangan bagian dari gambar): muncul (opacity + scale 0,97) + paralaks halus. */
+/**
+ * Visual 2 (aset Fahren, tulisan tangan bagian dari gambar) di sisi kanan panel fakta: mengisi kolomnya, tepi kiri
+ * memudar ke putih panel agar menyatu. Muncul (opacity + scale 0,97) + paralaks halus ±10 px.
+ */
 export function JourneyVisual({ className }: { className?: string }) {
   const reduce = useReducedMotion()
   const ref = React.useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, amount: 0.2 })
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] })
-  const y = useTransform(scrollYProgress, [0, 1], [12, -12])
+  const y = useTransform(scrollYProgress, [0, 1], [10, -10])
 
   return (
-    <div ref={ref} className={cn("relative aspect-[1672/941]", className)}>
+    <div ref={ref} className={cn("relative overflow-hidden", className)}>
       <motion.div
         initial={reduce ? false : { opacity: 0, scale: 0.97 }}
         animate={reduce || inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.97 }}
-        transition={{ duration: 0.9, ease: EASE_OUT, delay: reduce ? 0 : 0.2 }}
-        className="absolute inset-0 overflow-hidden rounded-[24px] bg-canvas shadow-[0_30px_60px_-40px_rgba(18,56,245,0.45)] lg:rounded-r-none lg:rounded-l-[28px]" // taste-skill-ignore: bayangan lembut visual 2 (brief §15)
+        transition={{ duration: 0.9, ease: EASE_OUT, delay: reduce ? 0 : 0.25 }}
+        className="absolute inset-0 lg:[mask-image:linear-gradient(to_right,transparent,#000_26%)]" // taste-skill-ignore: tepi kiri memudar ke panel (referensi Fahren)
       >
-        <motion.div style={reduce ? undefined : { y }} className="absolute -inset-y-4 inset-x-0">
+        <motion.div style={reduce ? undefined : { y }} className="absolute -inset-y-3 inset-x-0">
           <Image
             src="/images/landing/bukan-toko-perjalanan.webp"
             alt="Tumpukan buku berlabel Coding, Design, Gaming, dan Kuliah di meja dengan tulisan tangan: bukan sekadar spesifikasi, tapi solusi yang sesuai dengan perjalanan kuliahmu"
             fill
-            sizes="(min-width: 1024px) 50vw, 92vw"
-            className="object-cover object-left"
+            sizes="(min-width: 1024px) 34rem, 92vw"
+            className="object-cover object-[62%_50%]"
           />
         </motion.div>
       </motion.div>

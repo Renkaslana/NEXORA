@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 export function FinalCta() {
   const tier = HERO_TIERS["10-15"]
   return (
-    <section aria-labelledby="cta-title" data-tone="cobalt" className="bg-canvas px-3 pb-3 sm:px-6 lg:px-10">
+    <section id="mulai" aria-labelledby="cta-title" data-tone="cobalt" className="scroll-mt-20 bg-canvas px-3 pb-3 sm:px-6 lg:px-10">
       <div className="mx-auto grid max-w-[1240px] items-center gap-10 overflow-hidden rounded-[28px] bg-data-blue px-6 py-14 text-white md:px-12 md:py-20 lg:grid-cols-12 lg:gap-8">
         <div className="flex flex-col items-start gap-6 lg:col-span-7">
           <Reveal variant="clip">
