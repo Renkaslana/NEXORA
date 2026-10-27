@@ -137,6 +137,12 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   #cara-kerja) dengan panah, redup kartu lain (`:has`), glow kursor via CSS var. Fakta + visual kedua = satu
   panel putih seperti referensi Fahren: 3 fakta berikon dengan pemisah, visual menempel di kanan (tepi kiri
   memudar lewat mask, paralaks ±10 px), lalu tautan "Lanjut ke rekomendasi" ke `#mulai` (FinalCta).
+- CTA akhir (#mulai, Okt 2026, brief REDESIGN CTA SECTION + referensi Fahren): satu bidang foto (aset Fahren,
+  `public/images/landing/cta-langit.webp`, mentah di `img/`, diperbesar 1,5x) dengan teks rata tengah di langit:
+  label SPECO → eyebrow → judul → deskripsi → tombol kuning → 3 info singkat (tanpa ikon). Laptop menyatu dengan
+  foto, jadi gerak (reveal skala 1,05→1, paralaks ±12 px, geser/miring kursor ≤ 0,8° di lg) ada di lapisan foto
+  (`final-cta-scene.tsx`); veil putih tipis di atas langit untuk keterbacaan. Tinggi lg 54rem agar laptop mulai
+  di bawah baris info. Mobile: teks → tombol → foto sebagai blok → info.
 - Hero: wadah foto wajib `isolate` agar scrim selalu di atas foto; tanpa itu, saat skala scroll = 1 Motion
   menulis `transform: none` dan foto aktif (z-2) naik di atas scrim (sisi kiri terang tidak konsisten).
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
