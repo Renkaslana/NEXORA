@@ -6,6 +6,9 @@ import {
   gamingRequirement,
   gpuSoftware,
   heavyComboCpuBonus,
+  budgetNeedFit,
+  budgetNeeds,
+  budgetPreviewRange,
   landingActivities,
   landingCases,
   personaHighlights,
@@ -141,6 +144,14 @@ export function getLandingContent() {
  */
 export function getLandingStoryContent() {
   return { activities: landingActivities, gamingRequirement, gamingNote, demoBudget, criterionHints };
+}
+
+/**
+ * Pratinjau "Satu budget. Banyak kemungkinan." (landing): kebutuhan, rentang slider, dan angka kecocokan
+ * mock per laptop. Statis; penyaringan harga dan pengurutan dilakukan komponen, tanpa SAW.
+ */
+export function getBudgetPreviewContent() {
+  return { needs: budgetNeeds, range: budgetPreviewRange, fit: budgetNeedFit };
 }
 
 /**

@@ -110,6 +110,15 @@ Landing "Editorial Tech × Product Recommendation" (27 Okt 2026, brief dari Fahr
   berhenti saat hover/fokus/tab tersembunyi lalu lanjut; kelima render ditumpuk (keluar 1→1,03 −20 px, masuk
   0,98 +20 px blur tipis, 800 ms). Paralaks + kursor ≤ 8 px hanya desktop. Copy memakai "budget, kuliah, dan
   aplikasi", bukan "skill" (Wizard tidak menanyakan skill).
+- Section "Satu budget. Banyak kemungkinan." (Okt 2026, brief + 2 gambar referensi Fahren, menggantikan demo
+  "Budget sama. Kebutuhan bisa berbeda."): kiri = slider budget Rp6–20 jt+ + chip kebutuhan (Coding/Desain/
+  Gaming/Kuliah/Office) + CTA kuning ke Wizard (`?budget=&jurusan=`); kanan = panel pratinjau 3 kartu laptop
+  (panah + titik halaman, maks 3 halaman; mobile geser horizontal). Data `getBudgetPreviewContent()`: kecocokan
+  mock per laptop per kebutuhan (`budgetNeedFit`, angka dari skenario mock-results bila ada); komponen hanya
+  menyaring harga ≤ budget + 10% lalu mengurutkan, bukan SAW. Skor < 80 di urutan teratas → catatan kompromi.
+  Gambar kartu = render katalog sebagai placeholder, tiap halaman dipaksa tiga bentuk berbeda (`assignRenders`);
+  ganti dengan foto produk asli nanti. Dua kolom mulai xl (1 : 1,05); di bawahnya bertumpuk. Pengecualian
+  disetujui Fahren khusus section ini: aksen radial biru sangat tipis dan bayangan lembut panel.
 - Mock Gaming (disetujui Fahren): `gamingRequirement` di data/landing.ts (CPU ≥ 75, RAM ≥ 16, SSD ≥ 512, GPU
   terpisah wajib); di Rp8 jt 0 lolos + catatan kompromi. Data landing: `getLandingStoryContent()`,
   `components/landing/sample-data.ts`. Arsip /dev/landing-a|b memakai `archive-sample.ts`.

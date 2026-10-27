@@ -1,5 +1,6 @@
 import { cacheLife } from "next/cache";
 import {
+  getBudgetPreviewContent,
   getCatalogPreview,
   getLandingStoryContent,
   getLaptops,
@@ -9,8 +10,7 @@ import {
   getWizardOptions,
 } from "@/lib/api";
 import { landingMeterRows } from "@/lib/need-meter";
-import { checkSpecs } from "@/lib/spec-check";
-import type { Laptop, LandingMeterRef, RequirementProfile } from "@/types";
+import type { BudgetNeedId, LandingMeterRef } from "@/types";
 
 /**
  * Data landing "Editorial Tech" (brief redesign landing, disetujui Fahren Okt 2026), lewat `lib/api.ts`.
@@ -26,11 +26,6 @@ const SPEC_ROWS: LandingMeterRef[] = [
   { kind: "spec", component: "gpu" },
 ]
 
-/** Laptop lolos bila tidak ada ambang yang kurang dan harganya dalam budget (+10% toleransi). */
-function passes(requirement: RequirementProfile, laptop: Laptop, budget: number) {
-  return laptop.priceIdr <= budget * 1.1 && checkSpecs(requirement, laptop).every((c) => c.status !== "short")
-}
-
 export async function getLandingSample() {
   "use cache"
   cacheLife("max")
@@ -45,33 +40,24 @@ export async function getLandingSample() {
     getLaptops(getCatalogPreview().map((l) => l.id)),
   ])
 
-  // ------------------------------------------------ Demo "Budget sama, kebutuhan berbeda"
-  const activities = await Promise.all(
-    story.activities.map(async (a) => {
-      const req = a.persona
-        ? await getRequirements({ ...getSampleProfile(a.persona), budget: { min: 0, max: story.demoBudget, flexible: true } })
-        : story.gamingRequirement
-      const passing = catalog
-        .filter((l) => passes(req, l, story.demoBudget))
-        .sort((x, y) => x.priceIdr - y.priceIdr)
-      const cheapest = passing[0]
-      return {
-        id: a.id,
-        label: a.label,
-        factors: a.factors,
-        summary: req.summary,
-        meters: landingMeterRows(SPEC_ROWS, req),
-        passCount: passing.length,
-        example: cheapest ? { name: `${cheapest.brand} ${cheapest.model}`, priceIdr: cheapest.priceIdr } : null,
-        note:
-          passing.length === 0
-            ? a.id === "gaming"
-              ? story.gamingNote
-              : (req.warnings[0]?.message ?? "Belum ada laptop di katalog contoh yang memenuhi semua ambang di budget ini.")
-            : null,
-      }
-    })
-  )
+  // ------------------------------------------------ Pratinjau "Satu budget. Banyak kemungkinan."
+  const preview = getBudgetPreviewContent()
+  const budgetPreview = {
+    needs: preview.needs,
+    range: preview.range,
+    laptops: catalog.map((l) => ({
+      id: l.id,
+      slug: l.slug,
+      name: `${l.brand} ${l.model}`,
+      priceIdr: l.priceIdr,
+      image: l.image,
+      cpu: l.cpu.name,
+      ramGb: l.ram.gb,
+      storageGb: l.storage.gb,
+      gpu: l.gpu.name,
+      fit: Object.fromEntries(preview.needs.map((n) => [n.id, preview.fit[n.id][l.id] ?? 0])) as Record<BudgetNeedId, number>,
+    })),
+  }
 
   // ------------------------------------------------ Contoh rekomendasi (Best Match profil Informatika Rp8 jt)
   const best = recommendations.items[0]
@@ -86,7 +72,7 @@ export async function getLandingSample() {
 
   return {
     demoBudget: story.demoBudget,
-    activities,
+    budgetPreview,
     profile: {
       budget: profile.budget.max,
       majorLabel,

@@ -301,6 +301,18 @@ export interface LandingActivity {
   factors: string[];
 }
 
+/** Kebutuhan utama di section landing "Satu budget. Banyak kemungkinan." */
+export type BudgetNeedId = "coding" | "desain" | "gaming" | "kuliah" | "office";
+
+export interface BudgetNeed {
+  id: BudgetNeedId;
+  label: string;
+  /** Jurusan yang diisikan ke Wizard lewat `?jurusan=`. Kosong = pengguna memilih sendiri. */
+  majorId?: string;
+  /** Catatan kompromi bila tidak ada laptop dengan kecocokan ≥ 80% di budget yang dipilih. */
+  compromiseNote: string;
+}
+
 // ---------------------------------------------------------------- Penyimpanan lokal (PRD §20)
 
 export interface SavedLaptop {
