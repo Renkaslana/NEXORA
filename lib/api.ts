@@ -1,20 +1,5 @@
 import { glossary } from "@/data/glossary";
-import {
-  criterionHints,
-  demoBudget,
-  gamingNote,
-  gamingRequirement,
-  gpuSoftware,
-  heavyComboCpuBonus,
-  budgetNeedFit,
-  budgetNeeds,
-  budgetPreviewRange,
-  landingActivities,
-  landingCases,
-  personaHighlights,
-  softwareLoadNeeds,
-  softwareSentenceDefault,
-} from "@/data/landing";
+import { budgetNeedFit, budgetNeeds, budgetPreviewRange, criterionHints, demoBudget } from "@/data/landing";
 import { laptops } from "@/data/laptops";
 import { requirementProfiles } from "@/data/mock-requirements";
 import { scenarios } from "@/data/mock-results";
@@ -133,17 +118,9 @@ export function getNoResultSuggestions(profile: UserProfile) {
   return { constraints, suggestedBudget: next && next.value > profile.budget.max ? next.value : null };
 }
 
-/** Konten landing redesign: kasus "Spek saja tidak menjawab" + kebutuhan khas persona. Statis. */
-export function getLandingContent() {
-  return { cases: landingCases, personaHighlights };
-}
-
-/**
- * Konten landing "Editorial Tech": aktivitas demo + mock gaming, budget demo, dan penjelasan kriteria.
- * Statis; Profil Kebutuhan tiap aktivitas tetap diambil lewat `getRequirements()`.
- */
+/** Konten statis landing: budget contoh dan penjelasan singkat tiap kriteria (tooltip transparansi). */
 export function getLandingStoryContent() {
-  return { activities: landingActivities, gamingRequirement, gamingNote, demoBudget, criterionHints };
+  return { demoBudget, criterionHints };
 }
 
 /**
@@ -152,47 +129,6 @@ export function getLandingStoryContent() {
  */
 export function getBudgetPreviewContent() {
   return { needs: budgetNeeds, range: budgetPreviewRange, fit: budgetNeedFit };
-}
-
-/**
- * Kebutuhan kasar untuk kalimat landing "Laptop buat ___". Sinkron (umpan balik langsung saat chip
- * dipilih): ambil kebutuhan terbesar dari tiap software, lalu hitung laptop katalog yang memenuhi
- * semua ambang. Penyaringan ≥ ambang biasa, bukan penilaian SAW.
- */
-export function getSoftwareNeeds(softwareIds: string[]) {
-  const picked = software.filter((s) => softwareIds.includes(s.id));
-  const loads = picked.map((s) => softwareLoadNeeds[s.load]);
-  const heavy = picked.filter((s) => s.load === "berat").length;
-  const max = (k: "cpuBench" | "ramGb" | "storageGb") => Math.max(0, ...loads.map((l) => l[k]));
-  const needs = {
-    cpuBench: Math.min(95, max("cpuBench") + (heavy >= 2 ? heavyComboCpuBonus : 0)),
-    ramGb: max("ramGb"),
-    storageGb: max("storageGb"),
-    gpuDedicated: picked.some((s) => gpuSoftware.includes(s.id)) ? 1 : 0,
-  };
-  const matching = picked.length
-    ? laptops.filter(
-        (l) =>
-          l.cpu.benchScore >= needs.cpuBench &&
-          l.ram.gb >= needs.ramGb &&
-          l.storage.gb >= needs.storageGb &&
-          (!needs.gpuDedicated || l.gpu.type === "dedicated")
-      )
-    : [];
-  const cheapest = matching.reduce<number | null>((m, l) => (m === null || l.priceIdr < m ? l.priceIdr : m), null);
-  return {
-    picked: picked.map((s) => ({ id: s.id, label: s.label, load: s.load })),
-    gpuFor: picked.filter((s) => gpuSoftware.includes(s.id)).map((s) => s.label),
-    needs,
-    matchingCount: matching.length,
-    cheapestIdr: cheapest,
-    catalogSize: laptops.length,
-  };
-}
-
-/** Pilihan software untuk kalimat landing, dengan pilihan awal. Statis. */
-export function getSoftwareSentenceOptions() {
-  return { software: software.map((s) => ({ id: s.id, label: s.label, load: s.load })), initial: softwareSentenceDefault };
 }
 
 /** Penjelasan awam istilah teknis per komponen (PRD §28). Sinkron: konfigurasi statis. */
@@ -258,9 +194,8 @@ export async function getRecommendations(profile: UserProfile, options?: ApiOpti
   );
 }
 
-/** Semua slug laptop untuk generateStaticParams & validasi rute (sinkron: daftar statis). */
 /**
- * Ringkasan katalog untuk layar Analisis (REDESIGN §14, gerak 8). Sinkron seperti
+ * Ringkasan katalog untuk layar Analisis (PRD §14, §25). Sinkron seperti
  * `getBudgetInsight()`: daftar statis untuk visual "katalog tersaring", bukan hasil penilaian.
  */
 export function getCatalogPreview() {
@@ -272,6 +207,7 @@ export function getCatalogPreview() {
   }));
 }
 
+/** Semua slug laptop untuk generateStaticParams & validasi rute (sinkron: daftar statis). */
 export function getLaptopSlugs(): string[] {
   return laptops.map((l) => l.slug);
 }
@@ -287,11 +223,6 @@ export async function getLaptops(ids: string[], options?: ApiOptions): Promise<L
     ids.map((id) => byId.get(id)).filter((l): l is Laptop => Boolean(l)),
     options
   );
-}
-
-/** Skenario persona contoh, untuk switch persona demo di Hasil (PRD §17). */
-export async function getScenarios(options?: ApiOptions): Promise<Scenario[]> {
-  return respond(scenarios, options);
 }
 
 /** Profil contoh per persona untuk mengisi wizard demo dan halaman dev. */

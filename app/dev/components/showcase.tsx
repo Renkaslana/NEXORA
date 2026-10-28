@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CircleCheck, CircleX } from "lucide-react";
+import { ArrowLeftIcon } from "@phosphor-icons/react/dist/ssr/ArrowLeft";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { CheckCircleIcon } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { XCircleIcon } from "@phosphor-icons/react/dist/ssr/XCircle";
 import { IconTiles, LaptopRenders, MoodPhotos, NeedMeters } from "./redesign-parts";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -77,7 +79,7 @@ function MockIntegrity() {
     <div className="flex flex-col gap-4 rounded-card border border-border p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className={`flex items-center gap-2 type-body font-semibold ${report.ok ? "text-success" : "text-danger"}`}>
-          {report.ok ? <CircleCheck aria-hidden="true" /> : <CircleX aria-hidden="true" />}
+          {report.ok ? <CheckCircleIcon weight="bold" aria-hidden="true" /> : <XCircleIcon weight="bold" aria-hidden="true" />}
           {report.ok
             ? `Semua skor konsisten (${report.rows.length} hasil, 4 skenario)`
             : `${report.issues.length} masalah konsistensi`}
@@ -157,10 +159,10 @@ function Buttons() {
         <Label>Dengan ikon</Label>
         <div className="flex flex-wrap gap-3">
           <Button>
-            Lanjut <ArrowRight aria-hidden="true" />
+            Lanjut <ArrowRightIcon weight="bold" aria-hidden="true" />
           </Button>
           <Button variant="secondary">
-            <ArrowLeft aria-hidden="true" /> Kembali
+            <ArrowLeftIcon weight="bold" aria-hidden="true" /> Kembali
           </Button>
           <Button size="lg">
             Cari Laptop yang Pas <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
@@ -505,7 +507,7 @@ export function Showcase() {
         </Link>
         <h1 className="type-h1 text-text">Komponen inti</h1>
         <p className="max-w-2xl type-body-l text-text-muted">
-          Semua variant komponen inti (PRD §23), ditambah fondasi redesign R1 (docs/REDESIGN.md). Halaman QA, bukan halaman final.
+          Semua variant komponen inti (PRD §23), ditambah fondasi redesign R1 (docs/archive/REDESIGN.md). Halaman QA, bukan halaman final.
         </p>
       </header>
 

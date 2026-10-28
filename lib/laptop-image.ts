@@ -1,6 +1,6 @@
 import type { LaptopAngle, LaptopColor, LaptopShape } from "@/types";
 
-// Render ilustrasi laptop (REDESIGN §24, docs/MIDJOURNEY_PROMPTS.md §0). File statis di
+// Render ilustrasi laptop (REDESIGN §24, docs/archive/MIDJOURNEY_PROMPTS.md §0). File statis di
 // public/images/laptops, latar sudah diratakan ke warna `studio` (#EEF0F4). Manifest ditulis di
 // sini supaya tidak perlu cek ke server; tambahkan nama file baru saat render baru masuk.
 

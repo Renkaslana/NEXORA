@@ -2,12 +2,8 @@ import Link from "next/link";
 
 // Indeks halaman eksplorasi & QA (bukan halaman final).
 const pages = [
-  { href: "/", title: "Landing final", note: "A + preview C · PRD §12–13" },
-  { href: "/dev/components", title: "Komponen inti", note: "Tahap 1 · PRD §23" },
-  { href: "/dev/mockups", title: "Mockup untuk Figma", note: "Daftar layar + data contoh untuk html.to.design" },
-  { href: "/dev/landing-a", title: "Landing A — Hybrid", note: "Tahap 2 · PRD §12 Concept D, §13" },
-  { href: "/dev/landing-b", title: "Landing B — Editorial", note: "Tahap 2 · PRD §12 Concept B" },
-  { href: "/dev/landing-c", title: "Landing C — Konsultasi", note: "Tahap 2 · PRD §12 Concept C" },
+  { href: "/", title: "Landing", note: "Halaman utama SPECO" },
+  { href: "/dev/components", title: "Komponen inti", note: "Katalog komponen + cek konsistensi skor mock · PRD §23, §27" },
 ];
 
 export default function DevIndex() {
@@ -17,7 +13,7 @@ export default function DevIndex() {
         <p className="type-small text-text-muted">SPECO · prototype frontend</p>
         <h1 className="type-h1 text-text">Halaman eksplorasi</h1>
         <p className="max-w-xl type-body text-text-muted">
-          Halaman untuk review desain dan komponen. Varian landing di bawah disimpan sebagai arsip eksplorasi.
+          Halaman untuk review komponen dan pemeriksaan data mock. Bukan bagian dari alur pengguna.
         </p>
       </header>
       <ul className="flex flex-col divide-y divide-border rounded-card border border-border">

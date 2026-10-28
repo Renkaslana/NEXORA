@@ -1,4 +1,4 @@
-// Tipe domain NEXORA. Field mengikuti PRD §29 (skema kartu Modul 2 Trello)
+// Tipe domain SPECO (nama kode: NEXORA). Field mengikuti PRD §29 (skema kartu Modul 2 Trello)
 // supaya nanti tinggal disambung ke REST API tanpa mengubah komponen.
 
 export type PersonaId = "teknik" | "desain" | "umum" | "profesional";
@@ -81,7 +81,7 @@ export interface Laptop {
 export interface Major {
   id: string;
   label: string;
-  /** Nama kunci ikon; dipetakan ke ikon Lucide di komponen. */
+  /** Nama kunci ikon; dipetakan ke ikon Phosphor di `lib/icons.ts`. */
   icon: string;
   persona: PersonaId;
 }
@@ -271,35 +271,10 @@ export interface Scenario {
   isMock: true;
 }
 
-// ---------------------------------------------------------------- Landing (REDESIGN §16)
+// ---------------------------------------------------------------- Landing
 
 /** Satu baris meter di landing: komponen spek dengan ambang profil, atau batas bobot persona. */
 export type LandingMeterRef = { kind: "spec"; component: SpecComponent } | { kind: "weight"; maxKg: number };
-
-/** Kasus "Spek saja tidak menjawab": laptop yang menarik tapi tidak cocok dengan kebutuhan. */
-export interface LandingCase {
-  id: string;
-  persona: PersonaId;
-  personaName: string;
-  majorLabel: string;
-  laptopId: string;
-  title: string;
-  story: string;
-  rows: LandingMeterRef[];
-}
-
-/**
- * Demo landing "Budget sama, kebutuhan berbeda" (brief redesign landing §12, disetujui Fahren).
- * Aktivitas dipetakan ke Profil Kebutuhan persona yang sudah ada, kecuali gaming yang punya mock sendiri.
- */
-export interface LandingActivity {
-  id: "kuliah" | "coding" | "desain" | "gaming" | "kerja";
-  label: string;
-  /** Persona yang Profil Kebutuhannya dipakai. Kosong = memakai `gamingRequirement`. */
-  persona?: PersonaId;
-  /** Tiga faktor yang paling menentukan untuk aktivitas ini (teks pendek). */
-  factors: string[];
-}
 
 /** Kebutuhan utama di section landing "Satu budget. Banyak kemungkinan." */
 export type BudgetNeedId = "coding" | "desain" | "gaming" | "kuliah" | "office";

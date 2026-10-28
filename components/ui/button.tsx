@@ -10,7 +10,7 @@ import { Slot } from "radix-ui"
 // bergeser 3px saat hover; secondary yang `aria-pressed` tampil terpilih.
 // signal/inverse: untuk bidang kobalt (redesign "Kalimat terbelah").
 const buttonVariants = cva(
-  "relative inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] ease-out select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_[data-arrow]]:transition-transform [&_.lucide-arrow-right]:transition-transform hover:[&_[data-arrow]]:translate-x-[3px] hover:[&_.lucide-arrow-right]:translate-x-[3px]",
+  "relative inline-flex shrink-0 items-center justify-center gap-2 rounded-control font-semibold whitespace-nowrap transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] ease-out select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50 aria-busy:cursor-progress [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_[data-arrow]]:transition-transform hover:[&_[data-arrow]]:translate-x-[3px]",
   {
     variants: {
       variant: {

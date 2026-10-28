@@ -14,7 +14,7 @@ import { METRIC_SCALES, needMeterRows } from "@/lib/need-meter";
 import { useApi } from "@/lib/use-api";
 import type { CriterionId } from "@/types";
 
-// Komponen fondasi redesign R1 (docs/REDESIGN.md §10–13, §24, §28) untuk review di /dev/components.
+// Komponen fondasi redesign R1 (docs/archive/REDESIGN.md §10–13, §24, §28) untuk review di /dev/components.
 
 function Label({ children }: { children: React.ReactNode }) {
   return <p className="type-micro tracking-wide text-text-muted uppercase">{children}</p>;
