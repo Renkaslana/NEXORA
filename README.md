@@ -1,16 +1,13 @@
-# NEXORA — Laptop Decision Assistant
+# SPECO — Spec for You
 
-Sistem pendukung keputusan (SPK) pemilihan laptop untuk mahasiswa Indonesia. Pengguna menjawab
-5 pertanyaan (budget, jurusan, aktivitas, software, prioritas), melihat **Profil Kebutuhan**
-(spek minimum + alasannya), lalu rekomendasi laptop dengan skor kecocokan, alasan, trade-off,
-dan komparasi.
+Sistem pendukung keputusan (SPK) pemilihan laptop untuk mahasiswa Indonesia. Pengguna menjawab **5 pertanyaan**
+(budget, jurusan, aktivitas, software, prioritas), melihat **Profil Kebutuhan** (spek minimum + alasannya), lalu
+mendapat rekomendasi laptop dengan **skor kecocokan, alasan, dan trade-off**, serta bisa membandingkan 2–3 laptop.
 
-Proyek RPL Kelompok 7A. Repo ini berisi **frontend saja** dengan **data contoh (mock)**.
-Backend, API, database, dan perhitungan SAW dikerjakan terpisah; frontend tinggal disambungkan
-lewat `lib/api.ts`.
+Proyek RPL Kelompok 7A. Nama kode repo: **NEXORA**.
 
-> Spesifikasi lengkap: [`docs/PRD.md`](docs/PRD.md). Aturan kerja untuk kontributor dan AI
-> assistant: [`CLAUDE.md`](CLAUDE.md).
+> **Status:** frontend selesai dan berjalan dengan **data contoh (mock)**. Backend (API, database, perhitungan SAW)
+> belum ada dan dikerjakan terpisah. Mau melanjutkan backend? Mulai dari **[`docs/BACKEND.md`](docs/BACKEND.md)**.
 
 ## Menjalankan
 
@@ -21,7 +18,7 @@ npm install
 npm run dev
 ```
 
-Buka <http://localhost:3000>. Perintah lain:
+Buka <http://localhost:3000>.
 
 | Perintah | Fungsi |
 | --- | --- |
@@ -30,55 +27,76 @@ Buka <http://localhost:3000>. Perintah lain:
 | `npm run start` | Menjalankan hasil build |
 | `npm run lint` | ESLint |
 
+Variabel lingkungan: salin `.env.example` menjadi `.env.local`. Selama memakai mock, tidak ada yang wajib diisi.
+
 ## Halaman
 
 | Rute | Isi | PRD |
 | --- | --- | --- |
-| `/` | Landing: preview Profil Kebutuhan per budget, cara kerja, persona, CTA | §12–13 |
-| `/rekomendasi/budget` … `/prioritas` | Wizard 5 langkah, jawaban tersimpan di `sessionStorage` | §15 |
-| `/rekomendasi/profil` | Profil Kebutuhan: 6 spek minimum, peringatan budget, kompromi | §16 |
+| `/` | Landing: hero kisaran budget, pratinjau rekomendasi per budget, cara kerja, transparansi skor | §12–13 |
+| `/rekomendasi/budget` … `/prioritas` | Wizard 5 langkah; jawaban tersimpan di `sessionStorage` | §15 |
+| `/rekomendasi/profil` | Profil Kebutuhan: spek minimum, peringatan budget, kompromi | §16 |
 | `/rekomendasi/analisis` | Layar proses 4 tahap, lalu otomatis ke Hasil | §14, §25 |
-| `/rekomendasi/hasil` | Best Match, alternatif berkategori, filter, switch persona, Compare Tray | §17 |
-| `/laptop/[slug]` | Detail: daftar periksa spek, alasan, score breakdown, spesifikasi | §19, §27 |
+| `/rekomendasi/hasil` | Best Match + alasan, alternatif (filter & urutan), pilih untuk dibandingkan | §17 |
+| `/laptop/[slug]` | Detail: kenapa cocok, kebutuhan vs laptop, rincian skor, spesifikasi, alternatif | §19, §27 |
 | `/bandingkan?ids=a,b,c` | Komparasi 2–3 laptop dengan kolom "Kebutuhanmu" | §18 |
-| `/dev`, `/dev/components` | Halaman QA: semua komponen, cek konsistensi skor mock, arsip varian landing | — |
+| `/dev`, `/dev/components` | Halaman QA: katalog komponen + cek konsistensi skor mock | — |
 
-### Tips demo
+**Tips demo:** tambahkan `?mock=error` atau `?mock=empty` di Profil, Analisis, Hasil, Detail, atau Komparasi untuk
+melihat state error dan "tidak ada hasil" (PRD §26).
 
-- Tambahkan `?mock=error` atau `?mock=empty` di Profil, Analisis, Hasil, Detail, atau Komparasi
-  untuk melihat state error dan "tidak ada hasil" (PRD §26).
-- Di halaman Hasil, gunakan **"Lihat contoh persona"** untuk menukar hasil ke persona lain
-  (Raka, Salsa, Dinda, Bima) tanpa mengubah jawaban.
-- Dari landing, chip budget dan tombol "Mulai seperti …" mengisi Wizard lewat `?budget=` dan
-  `?jurusan=`.
-- `/dev/components` menampilkan verifikasi bahwa setiap skor mock = round(Σ bobot × skor / 100).
+## Struktur folder
+
+```text
+app/                    Rute (Next.js App Router)
+components/
+  landing/              Section halaman utama
+  wizard/ profile/      Wizard 5 pertanyaan dan Profil Kebutuhan
+  results/              Analisis, Hasil, kartu laptop, skor, bar bandingkan
+  laptop/               Halaman Detail
+  compare/              Halaman Komparasi
+  layout/               Navbar, header alur, footer
+  ui/                   Komponen dasar (shadcn/ui yang disesuaikan)
+data/                   Data mock: 12 laptop, opsi wizard, profil kebutuhan, skenario hasil, glosarium
+lib/
+  api.ts                ★ Satu-satunya akses ke data. Titik sambung backend
+  spec-check.ts         Daftar periksa spek ≥ ambang (bukan SAW)
+  compare-rows.ts       Penyusun baris tabel Komparasi
+  laptop-image.ts       URL & alt gambar laptop per sudut
+  mock-check.ts         Cek konsistensi skor mock
+  format.ts motion.ts …  Utilitas kecil
+store/                  Zustand: profil (sessionStorage), komparasi, simpanan (localStorage), hasil terakhir
+types/index.ts          Tipe domain (kontrak data, PRD §29)
+public/                 Logo, render ilustrasi laptop, foto editorial
+docs/                   Dokumentasi (lihat di bawah)
+```
+
+## Dokumentasi
+
+| Dokumen | Untuk siapa | Isi |
+| --- | --- | --- |
+| [`docs/PRD.md`](docs/PRD.md) | Semua | Spesifikasi produk & desain (sumber kebenaran) |
+| [`docs/BACKEND.md`](docs/BACKEND.md) | Tim backend | Kontrak API, bentuk data, cara menyambung `lib/api.ts` |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Developer frontend | Keputusan desain & teknis per halaman |
+| [`docs/diagrams/`](docs/diagrams) | Semua | Activity diagram (draw.io + PNG) |
+| [`docs/archive/`](docs/archive) | Arsip | Riwayat proses desain, bukan acuan aktif |
+| [`CLAUDE.md`](CLAUDE.md) | Kontributor & AI assistant | Aturan kerja di repo ini |
+
+## Menyambungkan ke backend (ringkas)
+
+Komponen tidak pernah membaca `data/` secara langsung. Ganti isi fungsi async di [`lib/api.ts`](lib/api.ts)
+(`getRequirements`, `getRecommendations`, `getLaptop`, `getLaptops`) dengan `fetch` ke REST API, dengan bentuk data
+yang sama seperti [`types/index.ts`](types/index.ts). Frontend **tidak** menghitung SAW: skor, bobot, peringkat,
+alasan, dan trade-off datang dari backend. Detail lengkap, contoh JSON, dan daftar periksa ada di
+[`docs/BACKEND.md`](docs/BACKEND.md).
 
 ## Teknologi
 
-Next.js 16 (App Router, Cache Components) · TypeScript · Tailwind CSS v4 · shadcn/ui (Radix) ·
-lucide-react · Zustand · Motion (Framer Motion). Font: Plus Jakarta Sans + JetBrains Mono.
+Next.js 16 (App Router, Cache Components) · React 19 · TypeScript · Tailwind CSS v4 · shadcn/ui (Radix) ·
+Phosphor Icons · Zustand · Motion. Font: Plus Jakarta Sans + JetBrains Mono.
 
-## Struktur
+## Catatan aset
 
-```text
-app/                 Rute (App Router)
-components/
-  ui/                shadcn/ui yang disesuaikan ke token PRD (button, dialog, tabs, ...)
-  landing/ wizard/ profile/ results/ laptop/ compare/ layout/
-data/                Mock: 12 laptop, opsi wizard, profil kebutuhan, 4 skenario hasil, glosarium
-lib/                 api.ts (satu-satunya akses ke data), format, spec-check, compare-rows, ...
-store/               Zustand: profil (sessionStorage), komparasi, simpanan (localStorage), hasil
-types/               Tipe domain sesuai PRD §29
-docs/PRD.md          Spesifikasi produk dan desain
-```
-
-## Menyambungkan ke backend
-
-Komponen tidak pernah membaca `data/` secara langsung. Ganti isi fungsi async di
-[`lib/api.ts`](lib/api.ts) (`getRequirements`, `getRecommendations`, `getLaptop`, `getLaptops`)
-dengan `fetch` ke REST API, dengan bentuk data yang sama seperti `types/index.ts`.
-
-## Catatan
-
-- Semua harga, spek, dan skor adalah **data contoh**, bukan data aktual. Foto laptop masih placeholder.
-- Halaman Should have (`/jelajah`, `/saya`) dan Nice to have (`/admin`, dark mode) belum dibuat.
+Gambar laptop di katalog adalah **render ilustrasi AI**, bukan foto produk asli, dan selalu berlabel "Ilustrasi".
+Foto suasana di landing, Hasil, dan CTA juga dibuat dengan AI. File mentah tidak di-commit (`img/`). Harga, spek,
+dan skor adalah data contoh.
