@@ -218,6 +218,17 @@ Komparasi (PRD §18): `lib/compare-rows.ts` menyusun baris (status ✓/✕ dari 
 sticky; mobile mode kartu per kriteria. "Pilih laptop ini" disimpan sebagai `decision` di
 `store/saved.ts` (localStorage, versi 2).
 
+Detail redesign (Okt 2026, brief REDESIGN DETAIL + referensi Fahren; menggantikan tampilan di bawah):
+- Laporan rekomendasi personal, bukan halaman toko. Hero ringkas di bidang biru muda: info (badge Best Match /
+  kategori, #peringkat dari N, harga + status budget, highlight 4 spek, Bandingkan kuning + simpan) | galeri
+  (`Gallery`: 1 gambar + panah hanya bila ada sebelum/sesudah + thumbnail kecil + panah keyboard, crossfade 250 ms,
+  tanpa autoplay; hanya sudut yang punya render) | panel skor (`subScores`). Mobile: galeri → info → skor.
+- Lalu: "Cocok untuk kebutuhanmu" (`reasons` + kotak trade-off) → "Kebutuhanmu vs laptop ini" (`checkSpecs`, tabel
+  di md+, kartu di mobile) + "Kenapa skornya X%?" (breakdown berbobot + penjelasan buka-tutup, tanpa modal) →
+  spesifikasi 8 kotak + dialog spesifikasi lengkap → kelebihan/kekurangan + "Cocok untuk" → alternatif (kartu Hasil)
+  → CTA bandingkan. Tab/accordion lama dan galeri kobalt tidak dipakai lagi; `CompareBar raised` menggantikan Tray.
+- Komponen di `components/laptop/detail-parts.tsx`; `FlowHeader back` = "Kembali ke hasil" ("Kembali" di mobile).
+
 Detail (PRD §19, §27, §14), keputusan Fahren:
 - `generateStaticParams` dari `getLaptopSlugs()`; slug tak dikenal → `not-found.tsx` (copy §26).
 - Daftar periksa ✓/✕ memakai ambang terstruktur di mock (`checks` pada RequirementProfile,

@@ -31,7 +31,9 @@ export function FlowHeader({
               )}
             >
               <ArrowLeftIcon weight="bold" className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" aria-hidden="true" />
-              {back.label ?? "Kembali"}
+              {/* Layar kecil: label pendek agar header tetap satu baris. */}
+              <span className="sm:hidden">Kembali</span>
+              <span className="hidden sm:inline">{back.label ?? "Kembali"}</span>
             </Link>
           )}
           <Link

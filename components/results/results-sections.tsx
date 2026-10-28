@@ -43,7 +43,7 @@ export interface CardState {
 
 // ---------------------------------------------------------------- Kenapa direkomendasikan
 
-function reasonIcon(text: string): Icon {
+export function reasonIcon(text: string): Icon {
   if (/budget|harga/i.test(text)) return WalletIcon
   if (/ringan|kg|bawa|portab/i.test(text)) return FeatherIcon
   if (/baterai/i.test(text)) return BatteryFullIcon
@@ -114,7 +114,7 @@ const MAX_BRAND_PILLS = 4
  * Satu keunggulan per laptop yang dihitung dari data hasil (maks/min biasa, seperti "Unggul" di Komparasi,
  * bukan SAW): paling ringan, paling hemat, baterai terbesar, CPU tertinggi. Kategori hasil dipakai lebih dulu.
  */
-function highlights(items: RecommendationItem[]) {
+export function highlights(items: RecommendationItem[]) {
   const pick = (score: (i: RecommendationItem) => number) => items.reduce((a, b) => (score(b) > score(a) ? b : a)).laptop.id
   const derived: Record<string, string> = {}
   const add = (id: string, label: string) => {
@@ -127,7 +127,7 @@ function highlights(items: RecommendationItem[]) {
   return derived
 }
 
-function AlternativeCard({ item, rank, extra, state, index }: { item: RecommendationItem; rank: number; extra?: string; state: CardState; index: number }) {
+export function AlternativeCard({ item, rank, extra, state, index }: { item: RecommendationItem; rank: number; extra?: string; state: CardState; index: number }) {
   const { laptop, result } = item
   const name = `${laptop.brand} ${laptop.model}`
   const reduce = useReducedMotion()
@@ -376,7 +376,7 @@ export function CompareCta({ fallbackIds }: { fallbackIds: string[] }) {
 
 // ---------------------------------------------------------------- Bar bandingkan (muncul mulai 2 laptop)
 
-export function CompareBar() {
+export function CompareBar({ raised = false }: { raised?: boolean }) {
   const reduce = useReducedMotion()
   const items = useCompareStore((s) => s.items)
   const clear = useCompareStore((s) => s.clear)
@@ -390,7 +390,7 @@ export function CompareBar() {
           animate={{ opacity: 1, y: 0 }}
           exit={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.3, ease: EASE_OUT }}
-          className="fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-[40rem] items-center gap-3 rounded-[18px] border border-border bg-bg p-2.5 pl-4 shadow-lg sm:inset-x-6 sm:bottom-6" // taste-skill-ignore: bar menempel (overlay)
+          className={cn("fixed inset-x-3 z-40 mx-auto flex max-w-[40rem] items-center gap-3 rounded-[18px] border border-border bg-bg p-2.5 pl-4 shadow-lg sm:inset-x-6", raised ? "bottom-[5.5rem] lg:bottom-6" : "bottom-3 sm:bottom-6")} // taste-skill-ignore: bar menempel (overlay)
         >
           <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary">
             <ArrowsLeftRightIcon weight="bold" className="size-4" aria-hidden="true" />
