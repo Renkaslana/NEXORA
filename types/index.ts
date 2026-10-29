@@ -73,7 +73,7 @@ export interface Laptop {
   /** Render ilustrasi yang mewakili laptop ini; URL per sudut disusun `lib/laptop-image.ts`. */
   image: { shape: LaptopShape; color: LaptopColor };
   marketplaceUrl: string;
-  isMock: true;
+  isMock: boolean;
 }
 
 // ---------------------------------------------------------------- Opsi wizard (PRD §15)
@@ -216,7 +216,7 @@ export interface RequirementProfile {
   checks?: Partial<Record<SpecComponent, SpecCheck>>;
   /** Karakter laptop yang dicari, 1 = rendah … 3 = tinggi (kartu gelap Profil, REDESIGN §18). Mock statis. */
   character?: { performa: 1 | 2 | 3; mobilitas: 1 | 2 | 3 };
-  isMock: true;
+  isMock: boolean;
 }
 
 // ---------------------------------------------------------------- Hasil (PRD §17, §27)
@@ -268,7 +268,7 @@ export interface Scenario {
   profile: UserProfile;
   /** Hasil terurut dari skor tertinggi. Indeks 0 = Best Match. */
   results: RecommendationResult[];
-  isMock: true;
+  isMock: boolean;
 }
 
 // ---------------------------------------------------------------- Landing

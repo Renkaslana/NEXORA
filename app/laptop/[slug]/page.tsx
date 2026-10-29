@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FlowHeader } from "@/components/layout/flow-header";
 import { DetailView } from "@/components/laptop/detail-view";
-import { getLaptopSlugs } from "@/lib/api";
+import { getLaptopSlugs, usingBackend } from "@/lib/api";
 
 // /laptop/[slug] — Detail Laptop (PRD §8, §19). Mendukung ?mock=error (PRD §26).
 
@@ -26,6 +26,7 @@ export default function LaptopPage({ params }: { params: Params }) {
 
 async function LaptopDetail({ params }: { params: Params }) {
   const { slug } = await params;
-  if (!getLaptopSlugs().includes(slug)) notFound();
+  // Mock: slug di luar katalog contoh langsung 404. Backend: biarkan getLaptop() yang menentukan (null → 404).
+  if (!usingBackend && !getLaptopSlugs().includes(slug)) notFound();
   return <DetailView slug={slug} />;
 }

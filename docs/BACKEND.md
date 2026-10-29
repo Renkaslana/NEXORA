@@ -7,6 +7,52 @@ lalu mengganti isi fungsi di [`lib/api.ts`](../lib/api.ts) dengan panggilan ke A
 > Spesifikasi produk lengkap: [`PRD.md`](PRD.md) (model data §29, penjelasan skor §27, state kosong/error §26).
 > Tipe data yang menjadi kontrak: [`types/index.ts`](../types/index.ts).
 
+## 0. Status integrasi (Okt 2026)
+
+Backend Laravel ada di branch **`backend`** (riwayat terpisah, dikerjakan tim backend). Endpoint §3 sudah tersedia
+dan `lib/api.ts` sudah punya saklar:
+
+- `NEXT_PUBLIC_API_URL` **kosong** (default, juga di Vercel) → data mock seperti biasa.
+- `NEXT_PUBLIC_API_URL` **diisi** (mis. `http://127.0.0.1:8000` di `.env.local`) → Profil Kebutuhan, Hasil, Detail,
+  dan Komparasi memakai backend. Landing dan halaman QA `/dev` tetap memakai mock (`{ source: "mock" }`).
+
+### Menjalankan backend di lokal (Windows + Laragon, tanpa Docker)
+
+```bash
+# 1. Checkout branch backend ke folder terpisah (sekali saja)
+git worktree add --track -b backend ../NEXORA-backend origin/backend
+cd ../NEXORA-backend
+
+# 2. Dependensi + konfigurasi (php.ini Laragon: aktifkan extension=zip)
+composer install
+cp .env.example .env        # lalu set DB_CONNECTION=mysql, DB_DATABASE=carispek, DB_USERNAME=root
+php artisan key:generate
+
+# 3. Nyalakan MySQL di Laragon (Start All), buat database `carispek`, lalu isi data 450 laptop
+php artisan migrate:fresh --seed
+
+# 4. Jalankan API
+php artisan serve --host=127.0.0.1 --port=8000
+```
+
+Lalu di folder frontend buat `.env.local` berisi `NEXT_PUBLIC_API_URL=http://127.0.0.1:8000` dan jalankan ulang
+`npm run dev` (variabel `NEXT_PUBLIC_*` hanya dibaca saat server mulai). Alternatif dengan Docker: lihat README di
+branch `backend` (DDEV).
+
+### Catatan kontrak untuk tim backend
+
+Hasil uji endpoint terhadap kontrak ini (semua field wajib ada, urutan skor benar, 404 dan CORS sesuai). Dua hal
+yang masih perlu disesuaikan di backend:
+
+1. **`checks` persona desain** memakai kunci `srgb`; kuncinya harus komponen spek (`layar`) agar daftar periksa
+   "Kebutuhanmu vs laptop ini" bisa menilai layar. Saat ini layar tampil "Tidak dicek".
+2. **`breakdown` tidak konsisten dengan `matchScore`.** Bobotnya tetap (30/25/20/15/10) dan bukan bobot SAW yang
+   dipakai, sehingga Σ bobot × skor ≠ `matchScore` (contoh: 88 vs 90). Halaman Detail menampilkan rumus ini, jadi
+   `breakdown` sebaiknya berisi bobot dan skor ternormalisasi yang benar-benar dipakai SAW.
+
+Catatan lain: katalog backend juga berisi PC rakitan/mini PC, jadi Best Match bisa berupa PC (mis. Minisforum
+Venus). Bila produk ditujukan untuk laptop saja, saring tipe perangkat di backend.
+
 ## 1. Prinsip arsitektur
 
 ```text

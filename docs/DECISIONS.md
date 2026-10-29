@@ -125,6 +125,9 @@ Urutan section: hero → "Satu budget. Banyak kemungkinan." → Cara Kerja → p
 ## Data & lapisan API
 
 - Semua data lewat `lib/api.ts`; komponen tidak mengimpor `data/*`. Kontrak untuk backend: [`BACKEND.md`](BACKEND.md).
+- Saklar backend: `NEXT_PUBLIC_API_URL` diisi → fungsi async memanggil Laravel (branch `backend`); kosong → mock.
+  Landing dan `/dev` selalu mock (`{ source: "mock" }`). Saat tersambung, rute Detail tidak lagi menolak slug di luar
+  katalog mock; `getLaptop()` yang mengembalikan `null` untuk 404. Layar Analisis tetap menganimasikan katalog mock.
 - Fungsi konfigurasi (`getWizardOptions`, `getBudgetInsight`, dll.) sinkron; fungsi data async dengan jeda palsu
   600–2500 ms agar state loading terlihat. `?mock=error|empty` memaksa state error/kosong (PRD §26).
 - Skor mock harus konsisten: `matchScore = round(Σ bobot × skor / 100)`, dicek `lib/mock-check.ts` di `/dev/components`.

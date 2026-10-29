@@ -6,8 +6,9 @@ mendapat rekomendasi laptop dengan **skor kecocokan, alasan, dan trade-off**, se
 
 Proyek RPL Kelompok 7A. Nama kode repo: **NEXORA**.
 
-> **Status:** frontend selesai dan berjalan dengan **data contoh (mock)**. Backend (API, database, perhitungan SAW)
-> belum ada dan dikerjakan terpisah. Mau melanjutkan backend? Mulai dari **[`docs/BACKEND.md`](docs/BACKEND.md)**.
+> **Status:** frontend selesai. Tanpa konfigurasi ia berjalan dengan **data contoh (mock)**; backend Laravel (API,
+> 450 laptop, perhitungan SAW) ada di branch **`backend`** dan bisa disambungkan lewat `NEXT_PUBLIC_API_URL`.
+> Panduan lengkap: **[`docs/BACKEND.md`](docs/BACKEND.md)**.
 
 ## Menjalankan
 
@@ -27,7 +28,9 @@ Buka <http://localhost:3000>.
 | `npm run start` | Menjalankan hasil build |
 | `npm run lint` | ESLint |
 
-Variabel lingkungan: salin `.env.example` menjadi `.env.local`. Selama memakai mock, tidak ada yang wajib diisi.
+Variabel lingkungan: salin `.env.example` menjadi `.env.local`. Tanpa isian apa pun, aplikasi memakai data mock.
+Isi `NEXT_PUBLIC_API_URL` (mis. `http://127.0.0.1:8000`) untuk memakai backend Laravel dari branch `backend`;
+cara menjalankannya di lokal ada di [`docs/BACKEND.md`](docs/BACKEND.md) §0.
 
 ## Halaman
 

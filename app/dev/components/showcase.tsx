@@ -46,11 +46,11 @@ const wizardSteps = [
   { id: "software", label: "Software" },
   { id: "prioritas", label: "Prioritas" },
 ];
-const loadRaka = () => getRecommendations(getSampleProfile("teknik"));
+const loadRaka = () => getRecommendations(getSampleProfile("teknik"), { source: "mock" });
 const tightProfile = { ...getSampleProfile("teknik"), budget: { min: 0, max: 5_000_000, flexible: false } };
-const loadTight = () => getRequirements(tightProfile);
+const loadTight = () => getRequirements(tightProfile, { source: "mock" });
 const loadDetailDemo = () =>
-  Promise.all([getRecommendations(getSampleProfile("teknik")), getRequirements(getSampleProfile("teknik"))]);
+  Promise.all([getRecommendations(getSampleProfile("teknik"), { source: "mock" }), getRequirements(getSampleProfile("teknik"), { source: "mock" })]);
 
 function Section({ id, title, prd, children }: { id: string; title: string; prd: string; children: React.ReactNode }) {
   return (

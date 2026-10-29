@@ -62,5 +62,6 @@ Hasil, Komparasi, Detail · §22–23 design system · §26–28 state, explaina
 - [x] Brand SPECO + redesign landing, Hasil, dan Detail (Okt 2026).
 - [x] Repo dirapikan untuk fork backend: `docs/BACKEND.md`, `docs/DECISIONS.md`, arsip desain, kode warisan dihapus.
 - [ ] Should have: `/jelajah`, `/saya` (data simpanan & keputusan sudah ada di `store/saved.ts`).
-- [ ] Sambung ke backend sungguhan (`lib/api.ts`, lihat `docs/BACKEND.md`).
+- [x] Saklar backend di `lib/api.ts` (`NEXT_PUBLIC_API_URL`), diuji lokal dengan Laravel dari branch `backend`.
+- [ ] Backend: perbaiki `checks` desain (`srgb` → `layar`) dan `breakdown` agar konsisten dengan `matchScore`.
 - [ ] Foto produk asli menggantikan render ilustrasi (`lib/laptop-image.ts`, `components/ui/laptop-render.tsx`).
