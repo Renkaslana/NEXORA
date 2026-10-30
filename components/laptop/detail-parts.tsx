@@ -119,7 +119,14 @@ export function Gallery({ name, laptop }: { name: string; laptop: Laptop }) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: EASE_OUT }}
           >
-            <LaptopRender image={laptop.image} angle={angle} sizes="(min-width: 1024px) 34vw, 92vw" eager={index === 0} className="h-full" />
+            <LaptopRender
+              image={laptop.image}
+              customSrc={index === 0 ? (laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)) : undefined}
+              angle={angle}
+              sizes="(min-width: 1024px) 34vw, 92vw"
+              eager={index === 0}
+              className="h-full"
+            />
           </motion.div>
         </AnimatePresence>
         {arrow(-1)}

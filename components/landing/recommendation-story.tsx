@@ -47,11 +47,11 @@ function MatchScore({ value, run }: { value: number; run: boolean }) {
   return (
     <div className="flex flex-col gap-2" role="img" aria-label={run ? `Kecocokan ${value} persen` : "Skor belum dihitung"}>
       <div className="flex items-baseline justify-between" aria-hidden="true">
-        <span className="type-small text-ink-soft">Kecocokan</span>
-        <motion.span className="text-5xl leading-none font-extrabold tracking-[-0.05em] text-data-blue tabular-nums">{text}</motion.span>
+        <span className="type-small text-slate-500 font-semibold">Skor Kecocokan</span>
+        <motion.span className="text-5xl leading-none font-extrabold tracking-[-0.05em] text-teal-700 tabular-nums">{text}</motion.span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-canvas" aria-hidden="true">
-        <motion.div className="h-full origin-left rounded-full bg-data-blue" style={{ scaleX }} />
+      <div className="h-2 overflow-hidden rounded-full bg-slate-100" aria-hidden="true">
+        <motion.div className="h-full origin-left rounded-full bg-teal-600" style={{ scaleX }} />
       </div>
     </div>
   )
@@ -181,7 +181,7 @@ export function RecommendationStory({ sample }: { sample: Sample }) {
     <div className="flex max-w-[40rem] flex-col gap-4">
       <Reveal variant="clip">
         <h2 id="rekomendasi-title" className="text-[2.25rem] leading-[1.02] font-extrabold tracking-[-0.045em] text-ink-strong md:text-[3.5rem]">
-          Dari jawabanmu, kami menemukan kecocokan.
+          Dari jawabanmu, kami menemukan <span className="italic font-serif text-teal-600 font-normal">kecocokan.</span>
         </h2>
       </Reveal>
       <Reveal delay={0.08}>

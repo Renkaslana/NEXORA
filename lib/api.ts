@@ -26,19 +26,16 @@ import type {
   UserProfile,
 } from "@/types";
 
-// Lapisan service (PRD §29). Satu-satunya pintu data untuk komponen.
-// - `NEXT_PUBLIC_API_URL` kosong (default, juga di Vercel): data mock di `data/` dengan jeda palsu 600–2500 ms.
-// - `NEXT_PUBLIC_API_URL` diisi: fungsi async memanggil backend Laravel (kontrak di docs/BACKEND.md).
-// `?mock=error|empty` dan `{ source: "mock" }` (konten contoh landing) selalu memakai mock.
-// Frontend tidak menghitung SAW: skor, bobot, dan peringkat datang dari backend (atau skenario mock).
+// Lapisan service (PRD §29). Satu-satunya pintu ke data mock di `data/`.
+// Nanti isi fungsi async diganti `fetch` ke REST API tanpa mengubah komponen.
+// Fungsi async memberi jeda palsu 600–2500 ms agar state loading terlihat.
+// Frontend tidak menghitung SAW: skenario dipilih dengan lookup statis per persona.
 
 export type MockMode = "error" | "empty";
 
 export interface ApiOptions {
   /** Paksa state demo (PRD §26: `?mock=error`, `?mock=empty`). */
   mock?: MockMode | null;
-  /** "mock" = selalu data contoh, mis. konten landing yang merujuk laptop contoh tertentu. */
-  source?: "mock";
 }
 
 export class ApiError extends Error {
@@ -46,34 +43,6 @@ export class ApiError extends Error {
     super(message);
     this.name = "ApiError";
   }
-}
-
-// ---------------------------------------------------------------- Backend (opsional)
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "") || "";
-
-/** True bila frontend tersambung ke backend sungguhan (NEXT_PUBLIC_API_URL diisi). */
-export const usingBackend = API_URL !== "";
-
-function live(options?: ApiOptions): boolean {
-  return usingBackend && !options?.mock && options?.source !== "mock";
-}
-
-/** Panggil backend; galat jaringan atau status non-2xx menjadi `ApiError` (UI menampilkan state error §26). */
-async function backend<T>(path: string, init?: { method?: "GET" | "POST"; body?: unknown }): Promise<T> {
-  let res: Response;
-  try {
-    res = await fetch(`${API_URL}${path}`, {
-      method: init?.method ?? "GET",
-      headers: { Accept: "application/json", ...(init?.body ? { "Content-Type": "application/json" } : {}) },
-      body: init?.body ? JSON.stringify(init.body) : undefined,
-      cache: "no-store",
-    });
-  } catch {
-    throw new ApiError("Tidak bisa terhubung ke server SPECO. Periksa koneksi lalu coba lagi.");
-  }
-  if (!res.ok) throw Object.assign(new ApiError(), { status: res.status });
-  return (await res.json()) as T;
 }
 
 const MIN_DELAY = 600;
@@ -178,10 +147,27 @@ export function getBudgetInsight(budget: number, flexible = false) {
   return { preset, typicalSpec: preset.typicalSpec, laptopCount, catalogSize: laptops.length };
 }
 
-// ---------------------------------------------------------------- Data async (backend atau mock dengan jeda)
+const RAW_API_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_URL = RAW_API_URL ? RAW_API_URL.replace(/\/+$/, "") : undefined;
+
+// ---------------------------------------------------------------- Data async (dengan jeda)
 
 export async function getRequirements(profile: UserProfile, options?: ApiOptions): Promise<RequirementProfile> {
-  if (live(options)) return backend<RequirementProfile>("/api/requirements", { method: "POST", body: profile });
+  if (API_URL && !options?.mock) {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/requirements`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch (e) {
+      console.warn("Backend /requirements unreachable, falling back to local:", e);
+    }
+  }
+
   const persona = getPersonaForMajor(profile.major);
   const tier = getBudgetPreset(profile.budget.max).id;
   return respond(findRequirement(persona, tier), options);
@@ -200,11 +186,26 @@ export interface RecommendationSet {
   profile: UserProfile;
   /** Indeks 0 = Best Match. Kosong saat tidak ada laptop yang lolos (PRD §26). */
   items: RecommendationItem[];
-  isMock: boolean;
+  isMock?: boolean;
 }
 
 export async function getRecommendations(profile: UserProfile, options?: ApiOptions): Promise<RecommendationSet> {
-  if (live(options)) return backend<RecommendationSet>("/api/recommendations", { method: "POST", body: profile });
+  if (API_URL && !options?.mock) {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      console.warn(`Backend /recommendations returned ${res.status}, falling back to local.`);
+    } catch (e) {
+      console.warn("Backend /recommendations unreachable, falling back to local:", e);
+    }
+  }
+
   const scenario = findScenario(getPersonaForMajor(profile.major));
   const items =
     options?.mock === "empty"
@@ -221,7 +222,7 @@ export async function getRecommendations(profile: UserProfile, options?: ApiOpti
       title: scenario.title,
       profile: scenario.profile,
       items,
-      isMock: true,
+      isMock: true as const,
     },
     options
   );
@@ -240,33 +241,33 @@ export function getCatalogPreview() {
   }));
 }
 
-/**
- * Slug laptop mock untuk generateStaticParams & validasi rute (sinkron: daftar statis). Saat tersambung ke
- * backend, slug lain tetap dibuka dinamis dan `getLaptop()` yang menentukan ada atau tidak.
- */
+/** Semua slug laptop untuk generateStaticParams & validasi rute (sinkron: daftar statis). */
 export function getLaptopSlugs(): string[] {
   return laptops.map((l) => l.slug);
 }
 
 /** Mengembalikan `null` bila tidak ditemukan (PRD §26: state 404 di Detail). */
 export async function getLaptop(slug: string, options?: ApiOptions): Promise<Laptop | null> {
-  if (live(options)) {
+  if (API_URL && !options?.mock) {
     try {
-      return await backend<Laptop>(`/api/laptops/${encodeURIComponent(slug)}`);
+      const res = await fetch(`${API_URL}/api/v1/laptops/${slug}`);
+      if (res.status === 404) return null;
+      if (res.ok) return await res.json();
     } catch (e) {
-      if ((e as { status?: number }).status === 404) return null;
-      throw e;
+      console.warn(`Backend /laptops/${slug} unreachable, falling back to local:`, e);
     }
   }
   return respond(laptops.find((l) => l.slug === slug) ?? null, options);
 }
 
 export async function getLaptops(ids: string[], options?: ApiOptions): Promise<Laptop[]> {
-  if (live(options)) {
-    if (ids.length === 0) return [];
-    const found = await backend<Laptop[]>(`/api/laptops?ids=${ids.map(encodeURIComponent).join(",")}`);
-    // Ikuti urutan `ids` seperti versi mock (backend boleh mengembalikan urutan bebas).
-    return ids.map((id) => found.find((l) => l.id === id)).filter((l): l is Laptop => Boolean(l));
+  if (API_URL && !options?.mock && ids.length > 0) {
+    try {
+      const res = await fetch(`${API_URL}/api/v1/laptops?ids=${encodeURIComponent(ids.join(','))}`);
+      if (res.ok) return await res.json();
+    } catch (e) {
+      console.warn("Backend /laptops unreachable, falling back to local:", e);
+    }
   }
   const byId = new Map(laptops.map((l) => [l.id, l]));
   return respond(

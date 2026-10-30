@@ -35,10 +35,9 @@ export async function getLandingSample() {
   const profile = getSampleProfile("teknik")
 
   const [requirement, recommendations, catalog] = await Promise.all([
-    // Konten landing merujuk laptop contoh tertentu, jadi selalu data mock (juga saat backend tersambung).
-    getRequirements(profile, { source: "mock" }),
-    getRecommendations(profile, { source: "mock" }),
-    getLaptops(getCatalogPreview().map((l) => l.id), { source: "mock" }),
+    getRequirements(profile),
+    getRecommendations(profile),
+    getLaptops(getCatalogPreview().map((l) => l.id)),
   ])
 
   // ------------------------------------------------ Pratinjau "Satu budget. Banyak kemungkinan."

@@ -21,9 +21,9 @@ function Label({ children }: { children: React.ReactNode }) {
 }
 
 const ALL_IDS = Array.from({ length: 12 }, (_, i) => `lp-${String(i + 1).padStart(3, "0")}`);
-const loadAll = () => getLaptops(ALL_IDS, { source: "mock" });
+const loadAll = () => getLaptops(ALL_IDS);
 const loadMeterDemo = () =>
-  Promise.all([getRecommendations(getSampleProfile("teknik"), { source: "mock" }), getRequirements(getSampleProfile("teknik"), { source: "mock" })]);
+  Promise.all([getRecommendations(getSampleProfile("teknik")), getRequirements(getSampleProfile("teknik"))]);
 
 export function IconTiles() {
   return (

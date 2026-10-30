@@ -347,41 +347,98 @@ function CompareLoader({ ids, mock, onRetry, announce }: { ids: string[]; mock: 
 
 function EmptyCompare() {
   return (
-    <StateMessage icon={ArrowsLeftRightIcon} title="Pilih minimal 2 laptop untuk dibandingkan." body="Tekan “Bandingkan” di kartu laptop pada halaman hasil, lalu buka lagi dari tray komparasi.">
-      <Button asChild>
-        <Link href={RESULTS_HREF}>
-          <ArrowLeftIcon weight="bold" aria-hidden="true" /> Kembali ke hasil
-        </Link>
-      </Button>
-    </StateMessage>
-  )
+    <div className="flex flex-col items-center justify-center py-12 px-4 max-w-2xl mx-auto text-center space-y-6">
+      <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-800 flex items-center justify-center shadow-sm">
+        <ArrowsLeftRightIcon className="w-8 h-8" />
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+          Pilih 2 atau 3 Laptop untuk Dibandingkan
+        </h2>
+        <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+          Kamu bisa memilih laptop langsung dari katalog 450 laptop di bawah ini, atau gunakan preset komparasi favorit mahasiswa.
+        </p>
+      </div>
+
+      {/* Preset Komparasi Cepat */}
+      <div className="w-full p-5 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3 text-left">
+        <span className="text-xs font-black text-slate-900 uppercase tracking-wider block">
+          Preset Komparasi Populer Mahasiswa 2026:
+        </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+          <Link
+            href="/bandingkan?ids=lp-001,lp-002"
+            className="p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 transition-all font-bold text-slate-800 flex items-center justify-between"
+          >
+            <span>ASUS Vivobook vs Lenovo IdeaPad</span>
+            <span className="text-[10px] text-emerald-700 font-black">Bandingkan →</span>
+          </Link>
+          <Link
+            href="/bandingkan?ids=lp-001,lp-004"
+            className="p-3 rounded-xl border border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/40 transition-all font-bold text-slate-800 flex items-center justify-between"
+          >
+            <span>Vivobook IPS vs Vivobook S OLED</span>
+            <span className="text-[10px] text-emerald-700 font-black">Bandingkan →</span>
+          </Link>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Button asChild className="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs px-5 py-2.5 h-11 shadow-sm">
+          <Link href="/">
+            <ArrowLeftIcon weight="bold" className="w-4 h-4 mr-1.5" aria-hidden="true" />
+            <span>Pilih dari Beranda & Simulasi</span>
+          </Link>
+        </Button>
+        <Button asChild variant="secondary" className="rounded-xl border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs px-5 py-2.5 h-11">
+          <Link href="/rekomendasi/budget">
+            <span>Mulai Kuis Rekomendasi</span>
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 // ---------------------------------------------------------------- Halaman
 
 export function CompareView() {
-  const params = useSearchParams()
-  const mock = parseMockMode(params.get("mock"))
-  const ids = [...new Set((params.get("ids") ?? "").split(",").map((s) => s.trim()).filter(Boolean))].slice(0, MAX_COMPARE)
-  const hydrated = useProfileHydrated()
-  const [attempt, setAttempt] = React.useState(0)
-  const [message, setMessage] = React.useState<string | null>(null)
-  const announce = React.useCallback((m: string) => setMessage(m), [])
+  const params = useSearchParams();
+  const mock = parseMockMode(params.get("mock"));
+  const ids = [...new Set((params.get("ids") ?? "").split(",").map((s) => s.trim()).filter(Boolean))].slice(0, MAX_COMPARE);
+  const hydrated = useProfileHydrated();
+  const [attempt, setAttempt] = React.useState(0);
+  const [message, setMessage] = React.useState<string | null>(null);
+  const announce = React.useCallback((m: string) => setMessage(m), []);
 
   React.useEffect(() => {
-    rehydrateProfile()
-    rehydrateSaved()
-    rehydrateCompare()
-  }, [])
+    rehydrateProfile();
+    rehydrateSaved();
+    rehydrateCompare();
+  }, []);
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader tone="cobalt" />
-      <main className="page-container flex flex-1 flex-col gap-6 pt-6 pb-20 md:pt-8">
-        <Link href={RESULTS_HREF} className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-control type-small text-primary hover:underline">
-          <ArrowLeftIcon weight="bold" className="size-4" aria-hidden="true" /> Kembali ke hasil
-        </Link>
-        <h1 className="text-3xl leading-[1.1] font-extrabold tracking-[-0.035em] text-text md:text-[2.75rem]">Bandingkan laptop</h1>
+    <div className="min-h-screen bg-[#faf8ff] text-[#131b2e] antialiased flex flex-col">
+      <FlowHeader tone="emerald" />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-1 flex-col gap-6 pt-6 pb-20 md:pt-8">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="inline-flex min-h-10 items-center gap-1.5 rounded-xl text-xs font-bold text-emerald-800 hover:text-emerald-950 transition-colors">
+            <ArrowLeftIcon weight="bold" className="w-4 h-4" aria-hidden="true" /> Kembali ke Beranda
+          </Link>
+        </div>
+
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider">
+              Komparasi Head-to-Head
+            </span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+            Bandingkan Spesifikasi Laptop
+          </h1>
+        </div>
+
         {!hydrated ? (
           <CompareSkeleton />
         ) : ids.length < 2 ? (
@@ -394,5 +451,5 @@ export function CompareView() {
         </p>
       </main>
     </div>
-  )
+  );
 }

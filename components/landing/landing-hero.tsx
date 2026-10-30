@@ -266,20 +266,20 @@ export function LandingHero() {
             initial={reduce ? false : { opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE_OUT, delay: 0.1 }}
-            className="text-[2.5rem] leading-[1] font-extrabold tracking-[-0.045em] md:text-[3.5rem]"
+            className="text-[2.5rem] leading-[1.05] font-extrabold tracking-[-0.045em] md:text-[3.5rem]"
           >
-            Laptop buat kuliahmu, <span className="whitespace-nowrap">pas di budget-mu.</span>
+            Laptop yang Pas Buat{" "}
+            <span className="italic font-serif text-teal-300 font-normal">Kebutuhan Kuliahmu</span>
           </motion.h1>
 
           <div className="flex max-w-[32rem] flex-col gap-2">
-            <p className="type-body-l">
-              Jawab beberapa pertanyaan tentang budget dan kebutuhanmu. SPECO menghitung laptop yang paling sesuai
-              untukmu.
+            <p className="type-body-l text-slate-200">
+              Rekomendasi laptop berbasis AI yang dihitung objektif sesuai budget, jurusan kuliah, dan aplikasi harianmu.
             </p>
             <AnimatePresence mode="popLayout" initial={false}>
-              <motion.p key={`spec-${active}`} {...enter(0.18)} className="type-small font-medium">
+              <motion.p key={`spec-${active}`} {...enter(0.18)} className="type-small font-medium text-slate-300">
                 Di {preset.label}: {preset.typicalSpec} ·{" "}
-                <span className="font-bold tabular-nums">{insight.laptopCount} laptop</span> di katalog contoh
+                <span className="font-bold tabular-nums text-teal-300">{insight.laptopCount} laptop</span> di katalog aktif
               </motion.p>
             </AnimatePresence>
           </div>
@@ -289,14 +289,11 @@ export function LandingHero() {
               <motion.div key={`cta-${active}`} {...enter(0.26)}>
                 <Button
                   asChild
-                  variant="signal"
-                  size="lg"
-                  className="rounded-[12px] transition-[background-color,transform] duration-[var(--motion-medium)] hover:-translate-y-0.5 hover:[&_[data-arrow]]:translate-x-1 active:translate-y-0 active:scale-[0.98]"
+                  className="rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-6 py-3 shadow-lg shadow-teal-500/20 transition-[background-color,transform] duration-[var(--motion-medium)] hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
                 >
                   <Link href={`/rekomendasi/budget?budget=${preset.value}`}>
-                    Cari laptop {words.startsWith("di bawah") ? "" : "untuk "}
-                    {words}
-                    <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                    Mulai Simulasi Sekarang
+                    <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" className="w-4 h-4 ml-1" />
                   </Link>
                 </Button>
               </motion.div>

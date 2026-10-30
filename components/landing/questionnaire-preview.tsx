@@ -94,7 +94,7 @@ export function QuestionnairePreview() {
         <div className="flex flex-col gap-6 lg:col-span-5">
           <Reveal variant="clip">
             <h2 id="pertanyaan-title" className="text-[2.25rem] leading-[1.02] font-extrabold tracking-[-0.045em] text-ink-strong md:text-[3.5rem]">
-              5 pertanyaan. Kurang dari 2 menit.
+              5 pertanyaan. Kurang dari <span className="italic font-serif text-teal-600 font-normal">2 menit.</span>
             </h2>
           </Reveal>
           <Reveal delay={0.08}>
@@ -161,13 +161,13 @@ export function QuestionnairePreview() {
                           className={cn(
                             "relative flex min-h-14 items-center rounded-[14px] border px-3.5 py-2.5 text-left type-small transition-[color,background-color,border-color,transform,box-shadow] duration-[var(--motion-fast)] ease-out active:scale-[0.98]",
                             on
-                              ? "scale-[1.02] border-data-blue bg-data-blue/5 text-ink-strong ring-1 ring-data-blue"
-                              : "border-canvas-line bg-white text-ink-strong hover:-translate-y-0.5 hover:shadow-[0_8px_20px_rgba(23,23,23,0.08)]" /* taste-skill-ignore: elevasi hanya saat hover (brief §28) */
+                              ? "scale-[1.02] border-teal-600 bg-teal-50 text-slate-900 ring-1 ring-teal-600 shadow-sm"
+                              : "border-slate-200 bg-white text-slate-800 hover:-translate-y-0.5 hover:border-teal-300"
                           )}
                         >
                           <span className="pr-5">{c.label}</span>
                           {on && (
-                            <CheckIcon weight="bold" className="absolute top-2.5 right-2.5 size-4 text-data-blue" aria-hidden="true" />
+                            <CheckIcon weight="bold" className="absolute top-2.5 right-2.5 size-4 text-teal-600" aria-hidden="true" />
                           )}
                         </button>
                       )
@@ -182,14 +182,14 @@ export function QuestionnairePreview() {
                 variant="ghost"
                 onClick={() => go(-1)}
                 disabled={index === 0}
-                className="rounded-[12px] text-ink-strong hover:bg-canvas"
+                className="rounded-xl text-slate-700 hover:bg-slate-100"
               >
                 <ArrowLeftIcon weight="bold" aria-hidden="true" /> Kembali
               </Button>
               {last ? (
-                <Button asChild variant="signal" className="rounded-[12px]">
+                <Button asChild className="rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold px-5 py-2.5">
                   <Link href={wizardHref}>
-                    Lanjutkan di SPECO <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                    Lihat Hasil Rekomendasi <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" className="w-4 h-4 ml-1" />
                   </Link>
                 </Button>
               ) : (

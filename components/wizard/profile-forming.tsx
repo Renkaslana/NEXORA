@@ -1,68 +1,64 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { AnimatePresence, motion, useReducedMotion } from "motion/react"
-import { cn } from "cn"
-import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown"
-import { LaptopRender } from "@/components/ui/laptop-render"
-import { NeedMeter } from "@/components/ui/need-meter"
-import { RowList, useRows } from "@/components/wizard/profile-summary"
-import { getBudgetPreset, getPersonaForMajor, getRequirements } from "@/lib/api"
-import { representativeRender } from "@/lib/laptop-image"
-import { DURATION, EASE_OUT } from "@/lib/motion"
-import { needMeterRows } from "@/lib/need-meter"
-import { useProfileStore, type WizardStepId } from "@/store/profile"
-import type { RequirementProfile } from "@/types"
+import * as React from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { cn } from "cn";
+import { CaretDownIcon } from "@phosphor-icons/react/dist/ssr/CaretDown";
+import { SparkleIcon } from "@phosphor-icons/react/dist/ssr/Sparkle";
+import { LaptopRender } from "@/components/ui/laptop-render";
+import { NeedMeter } from "@/components/ui/need-meter";
+import { RowList, useRows } from "@/components/wizard/profile-summary";
+import { getBudgetPreset, getPersonaForMajor, getRequirements } from "@/lib/api";
+import { representativeRender } from "@/lib/laptop-image";
+import { DURATION, EASE_OUT } from "@/lib/motion";
+import { needMeterRows } from "@/lib/need-meter";
+import { useProfileStore, type WizardStepId } from "@/store/profile";
+import type { RequirementProfile } from "@/types";
 
-// Panel "Profil kamu terbentuk" (REDESIGN §17, gerak 7; PRD §15, §25). Render mini mengikuti
-// persona + tier budget; meter CPU/RAM/SSD muncul setelah jurusan dipilih, dari getRequirements().
-// Saat budget/jurusan berubah, meter lama tetap tampil (label "memperbarui…") sampai data baru datang.
+const SHOWN = ["cpu", "ram", "storage"] as const;
 
-const SHOWN = ["cpu", "ram", "storage"] as const
-
-/** Dipanggil sekali di WizardShell, lalu dibagi ke panel desktop & strip mobile. */
 export function useFormingRequirement() {
-  const profile = useProfileStore((s) => s.profile)
-  const persona = profile.major ? getPersonaForMajor(profile.major) : null
-  const tier = getBudgetPreset(profile.budget.max).id
-  const key = persona ? `${persona}-${tier}` : null
-  const [state, setState] = React.useState<{ key: string; requirement: RequirementProfile } | null>(null)
+  const profile = useProfileStore((s) => s.profile);
+  const persona = profile.major ? getPersonaForMajor(profile.major) : null;
+  const tier = getBudgetPreset(profile.budget.max).id;
+  const key = persona ? `${persona}-${tier}` : null;
+  const [state, setState] = React.useState<{ key: string; requirement: RequirementProfile } | null>(null);
 
   React.useEffect(() => {
-    if (!key) return
-    let alive = true
+    if (!key) return;
+    let alive = true;
     getRequirements(profile).then(
       (requirement) => alive && setState({ key, requirement }),
       () => {}
-    )
+    );
     return () => {
-      alive = false
-    }
-    // Kebutuhan mock hanya bergantung pada persona + tier, jadi cukup ambil ulang saat key berubah.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key])
+      alive = false;
+    };
+  }, [key]);
 
   return {
     persona,
     tier,
     requirement: key ? state?.requirement : undefined,
     updating: Boolean(key) && state?.key !== key,
-  }
+  };
 }
 
-export type Forming = ReturnType<typeof useFormingRequirement>
+export type Forming = ReturnType<typeof useFormingRequirement>;
 
 function Meters({ forming, size }: { forming: Forming; size: "compact" | "mini" }) {
-  const { persona, requirement, updating } = forming
+  const { persona, requirement, updating } = forming;
   if (!persona) {
     return size === "mini" ? null : (
-      <p className="type-small font-normal text-text-muted">Pilih jurusan untuk melihat spek yang kamu butuh.</p>
-    )
+      <p className="text-xs font-medium text-slate-500">
+        Pilih jurusanmu pada langkah berikutnya untuk melihat rekomendasi spek hardware minimal.
+      </p>
+    );
   }
   if (!requirement) {
-    return <p className="type-small font-normal text-text-muted">Menyusun kebutuhanmu…</p>
+    return <p className="text-xs font-medium text-slate-500">Menyusun kebutuhan hardware...</p>;
   }
-  const rows = needMeterRows(requirement).filter((r) => (SHOWN as readonly string[]).includes(r.component))
+  const rows = needMeterRows(requirement).filter((r) => (SHOWN as readonly string[]).includes(r.component));
   return (
     <div className={cn("flex", size === "mini" ? "gap-3" : "flex-col gap-3.5")} aria-busy={updating}>
       {rows.map((r, i) => (
@@ -77,50 +73,59 @@ function Meters({ forming, size }: { forming: Forming; size: "compact" | "mini" 
         />
       ))}
     </div>
-  )
+  );
 }
 
 function MiniRender({ forming }: { forming: Forming }) {
-  const reduce = useReducedMotion()
-  const image = representativeRender(forming.persona, forming.tier)
+  const reduce = useReducedMotion();
+  const image = representativeRender(forming.persona, forming.tier);
   return (
-    <div className="relative aspect-[16/9] overflow-hidden bg-studio">
+    <div className="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-b from-slate-50 to-emerald-50/20 border-b border-slate-100 flex items-center justify-center p-4">
       <AnimatePresence initial={false}>
         <motion.div
           key={`${image.shape}-${image.color}`}
-          className="absolute inset-0"
+          className="absolute inset-0 p-3 flex items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: reduce ? 0 : DURATION.medium, ease: EASE_OUT }}
         >
-          <LaptopRender image={image} sizes="360px" eager className="h-full bg-transparent" />
+          <LaptopRender image={image} sizes="360px" eager className="h-full object-contain bg-transparent drop-shadow-sm" />
         </motion.div>
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 export function ProfileForming({ current, forming }: { current: WizardStepId; forming: Forming }) {
-  const rows = useRows(current)
-  const { updating, persona } = forming
-  const filled = rows.filter((r) => r.value).length
-  return (
-    <section aria-labelledby="forming-title" className="overflow-hidden rounded-[20px] bg-paper-100">
-      {/* Kepala kobalt (R4): judul + jumlah terisi, lalu render di bidang studio. */}
-      <div data-tone="cobalt" className="flex items-baseline justify-between gap-3 bg-cobalt-600 px-5 py-4 text-white">
-        <h2 id="forming-title" className="type-body font-semibold text-white">
-          Profil kamu terbentuk
-        </h2>
-        <span className="type-small text-cobalt-100 tabular-nums">{filled}/5 terisi</span>
-      </div>
-      <MiniRender forming={forming} />
-      <div className="flex flex-col gap-5 p-5">
+  const rows = useRows(current);
+  const { updating, persona } = forming;
+  const filled = rows.filter((r) => r.value).length;
 
-        <div className="flex flex-col gap-3">
+  return (
+    <section aria-labelledby="forming-title" className="overflow-hidden rounded-3xl bg-white border border-slate-200 shadow-sm">
+      {/* Modern Emerald Header */}
+      <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-emerald-950 via-emerald-900 to-teal-900 px-5 py-4 text-white">
+        <div className="flex items-center gap-2">
+          <SparkleIcon weight="fill" className="text-emerald-400 w-4 h-4" />
+          <h2 id="forming-title" className="text-sm font-extrabold text-white">
+            Profil Kebutuhan
+          </h2>
+        </div>
+        <span className="px-2.5 py-0.5 rounded-full bg-emerald-800 text-[11px] font-black text-emerald-200">
+          {filled}/5 Terisi
+        </span>
+      </div>
+
+      <MiniRender forming={forming} />
+
+      <div className="flex flex-col gap-5 p-5">
+        <div className="flex flex-col gap-2.5">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 className="type-micro text-text-muted">Spek yang kamu butuh</h3>
-            {persona && updating && <span className="type-micro text-primary">memperbarui…</span>}
+            <h3 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
+              Kebutuhan Minimal
+            </h3>
+            {persona && updating && <span className="text-[10px] font-bold text-emerald-700">memperbarui…</span>}
           </div>
           <Meters forming={forming} size="compact" />
         </div>
@@ -128,32 +133,35 @@ export function ProfileForming({ current, forming }: { current: WizardStepId; fo
         <RowList rows={rows} current={current} />
       </div>
     </section>
-  )
+  );
 }
 
-/** Mobile & tablet: strip atas berisi 3 meter mini + tombol buka ringkasan (REDESIGN §17). */
 export function ProfileFormingMobile({ current, forming }: { current: WizardStepId; forming: Forming }) {
-  const rows = useRows(current)
-  const filled = rows.filter((r) => r.value)
+  const rows = useRows(current);
+  const filled = rows.filter((r) => r.value);
+
   return (
-    <details className="group overflow-hidden rounded-[16px] bg-paper-100">
-      <summary className="flex min-h-12 cursor-pointer list-none flex-col gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden">
+    <details className="group overflow-hidden rounded-2xl bg-white border border-slate-200 shadow-2xs">
+      <summary className="flex min-h-12 cursor-pointer list-none flex-col gap-2 px-4 py-3 [&::-webkit-details-marker]:hidden bg-slate-50">
         <span className="flex items-center justify-between gap-3">
-          <span className="type-small text-cobalt-600">Profil kamu terbentuk</span>
-          <span className="flex items-center gap-1 type-micro text-text-muted">
-            <span className="num">{filled.length}/5</span>
+          <span className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+            <SparkleIcon weight="fill" className="text-emerald-700 w-3.5 h-3.5" />
+            Profil Kebutuhan Kamu
+          </span>
+          <span className="flex items-center gap-1.5 text-xs text-slate-500 font-bold">
+            <span>{filled.length}/5 Terisi</span>
             <CaretDownIcon
               weight="bold"
-              className="size-4 transition-transform duration-[var(--motion-medium)] group-open:rotate-180"
+              className="w-4 h-4 transition-transform duration-200 group-open:rotate-180 text-slate-400"
               aria-hidden="true"
             />
           </span>
         </span>
         <Meters forming={forming} size="mini" />
       </summary>
-      <div className="bg-bg px-4 py-4">
+      <div className="bg-white px-4 py-4 border-t border-slate-100">
         <RowList rows={rows} current={current} />
       </div>
     </details>
-  )
+  );
 }

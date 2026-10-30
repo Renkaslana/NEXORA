@@ -125,9 +125,6 @@ Urutan section: hero → "Satu budget. Banyak kemungkinan." → Cara Kerja → p
 ## Data & lapisan API
 
 - Semua data lewat `lib/api.ts`; komponen tidak mengimpor `data/*`. Kontrak untuk backend: [`BACKEND.md`](BACKEND.md).
-- Saklar backend: `NEXT_PUBLIC_API_URL` diisi → fungsi async memanggil Laravel (branch `backend`); kosong → mock.
-  Landing dan `/dev` selalu mock (`{ source: "mock" }`). Saat tersambung, rute Detail tidak lagi menolak slug di luar
-  katalog mock; `getLaptop()` yang mengembalikan `null` untuk 404. Layar Analisis tetap menganimasikan katalog mock.
 - Fungsi konfigurasi (`getWizardOptions`, `getBudgetInsight`, dll.) sinkron; fungsi data async dengan jeda palsu
   600–2500 ms agar state loading terlihat. `?mock=error|empty` memaksa state error/kosong (PRD §26).
 - Skor mock harus konsisten: `matchScore = round(Σ bobot × skor / 100)`, dicek `lib/mock-check.ts` di `/dev/components`.
@@ -140,3 +137,13 @@ Urutan section: hero → "Satu budget. Banyak kemungkinan." → Cara Kerja → p
   bentuk singkat tidak menghasilkan utility.
 - Tailwind v4 memakai properti CSS `translate`/`scale` untuk utilitas transform, bukan `transform`.
 - Saat menambah komponen shadcn, jawab "tidak" bila diminta menimpa `components/ui/button.tsx` (sudah kustom).
+
+## Arsitektur: Transisi dari Laravel ke Next.js Full-Stack + Supabase Cloud (ADR-001)
+
+- **Keputusan**: Mengonversi backend dari PHP Laravel 12 (DDEV / MariaDB) menjadi arsitektur terpadu Next.js 16 Route Handlers (`app/api/*`) dengan managed database Supabase Cloud PostgreSQL.
+- **Rasional**:
+  1. Menghilangkan kebutuhan mengelola VPS / dedicated server fisik dengan konfigurasi OS Linux manual (Nginx, PHP-FPM, supervisord, SSL).
+  2. Memungkinkan deployment serverless terpadu (Vercel / Cloudflare) dengan biaya $0 dan reliabilitas tinggi tanpa resiko server crash.
+  3. Menghilangkan latensi jaringan lintas domain (CORS) antara server frontend dan backend terpisah.
+  4. Database 450 laptop terkelola aman pada Supabase Cloud kawasan Asia Tenggara dengan connection pooler PgBouncer dan Row Level Security (RLS).
+  5. Fitur audit data null, live image preview, filter kelengkapan, dan batch merge Excel berjalan langsung via serverless endpoint `/api/admin/laptops`.

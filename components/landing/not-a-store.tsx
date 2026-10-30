@@ -52,7 +52,7 @@ export function NotAStore({ sample }: { sample: LandingSample }) {
                 <span className="block pt-[0.06em] font-normal tracking-[-0.045em]">Dan itu memang</span>
               </Reveal>
               <Reveal delay={0.24}>
-                <span className="relative isolate inline-block font-extrabold text-data-blue">
+                <span className="relative isolate inline-block font-extrabold text-teal-600 font-serif italic">
                   sengaja.
                   <SengajaUnderline />
                 </span>

@@ -153,6 +153,7 @@ export function AlternativeCard({ item, rank, extra, state, index }: { item: Rec
           <div className="overflow-hidden rounded-[14px]">
             <LaptopRender
               image={laptop.image}
+              customSrc={laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)}
               sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, 92vw"
               decorative
               imageClassName="transition-transform duration-300 ease-out group-hover:scale-[1.02]"

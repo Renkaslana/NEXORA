@@ -184,26 +184,31 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: Hol
         : `${counts.total} laptop di katalog`
 
   return (
-    <main data-tone="cobalt" className="flex flex-1 overflow-x-clip bg-cobalt-600 text-white">
+    <main data-tone="emerald" className="flex flex-1 overflow-x-clip bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white min-h-screen">
       {/* Mobile: judul → katalog (animasinya langsung terlihat) → profil & tahap. lg: kiri 4 kolom, katalog 8. */}
       <section
         aria-labelledby="analysis-title"
-        className="page-container grid content-start gap-7 py-8 md:py-12 lg:grid-cols-12 lg:gap-x-12"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid content-start gap-8 py-8 md:py-12 lg:grid-cols-12 lg:gap-x-12 w-full"
       >
-        <div className="flex flex-col gap-7 lg:col-span-4 lg:row-start-1">
+        <div className="flex flex-col gap-6 lg:col-span-4 lg:row-start-1">
           <header className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full bg-emerald-800 border border-emerald-600 text-[10px] font-mono font-bold text-emerald-200">
+                SPK SAW Algorithm Engine
+              </span>
+            </div>
             <h1
               id="analysis-title"
               ref={headingRef}
               tabIndex={-1}
-              className="text-4xl leading-[1.05] font-extrabold tracking-[-0.04em] text-white outline-none md:text-5xl"
+              className="text-3xl sm:text-4xl leading-[1.08] font-black text-white outline-none md:text-5xl"
             >
-              {finished ? "Rekomendasi siap" : "Menganalisis kebutuhanmu…"}
+              {finished ? "Rekomendasi Siap Dilihat" : "Menghitung Matriks SAW..."}
             </h1>
-            <p className="type-body-l text-cobalt-100">
+            <p className="text-sm sm:text-base text-emerald-100/90 leading-relaxed">
               {finished
-                ? "Membuka laptop yang paling cocok untukmu."
-                : "Kami mencocokkan jawabanmu dengan laptop di katalog. Ini hanya butuh beberapa detik."}
+                ? "Menampilkan laptop terbaik berdasarkan perangkingan preferensi tertinggi."
+                : "Sistem melakukan normalisasi matriks keputusan (benefit & cost) dan pembobotan kriteria."}
             </p>
           </header>
 
@@ -214,23 +219,23 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: Hol
             aria-valuemax={steps.length}
             aria-valuenow={completed}
             aria-valuetext={finished ? "Selesai" : `Tahap ${completed + 1} dari ${steps.length}: ${current.label}`}
-            className="h-2 w-full overflow-hidden rounded-full bg-cobalt-800"
+            className="h-2.5 w-full overflow-hidden rounded-full bg-emerald-950/80 border border-emerald-800/60"
           >
             <div
-              className="h-full origin-left rounded-full bg-signal transition-transform duration-500 ease-out"
+              className="h-full origin-left rounded-full bg-gradient-to-r from-emerald-400 to-teal-300 transition-transform duration-500 ease-out"
               style={{ transform: `scaleX(${completed / steps.length})` }}
             />
           </div>
         </div>
 
         <div className="flex flex-col gap-5 lg:col-span-8 lg:col-start-5 lg:row-span-3 lg:row-start-1">
-          <p className="type-body font-semibold text-white tabular-nums" aria-live="polite">
+          <p className="text-sm font-extrabold text-emerald-200 tabular-nums" aria-live="polite">
             {countText}
           </p>
           <AnalysisCatalog stage={completed} limit={limit} results={results} />
         </div>
 
-        <div className="flex flex-col gap-7 lg:col-span-4 lg:row-start-2">
+        <div className="flex flex-col gap-6 lg:col-span-4 lg:row-start-2">
           <ProfileReceipt rows={receipt} />
 
           <AnalyzingSteps steps={steps} completed={completed} tone="cobalt" />
@@ -240,17 +245,17 @@ function AnalysisRun({ mock, hold, onRetry }: { mock: MockMode | null; hold: Hol
           </p>
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button asChild variant="inverse">
-              <Link href={PROFILE_HREF}>Batal</Link>
+            <Button asChild variant="secondary" className="rounded-xl border-emerald-700/60 bg-emerald-900/60 text-white hover:bg-emerald-800 text-xs font-bold">
+              <Link href={PROFILE_HREF}>Kembali ke Profil</Link>
             </Button>
-            <p className="type-micro font-medium tracking-normal text-cobalt-100">
-              Data contoh (demo); perhitungan asli dilakukan server.
+            <p className="text-[11px] font-medium text-emerald-300/80">
+              Kalkulasi matematis deterministik tanpa bias sponsor.
             </p>
           </div>
         </div>
       </section>
     </main>
-  )
+  );
 }
 
 // ---------------------------------------------------------------- Halaman
@@ -269,8 +274,8 @@ export function AnalysisView() {
   const missing = hydrated ? firstMissingStep(profile) : undefined
 
   return (
-    <div className="flex min-h-full flex-1 flex-col">
-      <FlowHeader tone={hydrated && !missing ? "cobalt" : "default"} />
+    <div className="flex min-h-screen flex-1 flex-col bg-[#faf8ff]">
+      <FlowHeader tone={hydrated && !missing ? "emerald" : "default"} />
       {hydrated && !missing ? (
         <AnalysisRun key={attempt} mock={mock} hold={parseHold(params.get("hold"))} onRetry={() => setAttempt((a) => a + 1)} />
       ) : (

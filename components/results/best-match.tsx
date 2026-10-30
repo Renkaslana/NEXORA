@@ -95,7 +95,13 @@ export function BestMatch({
           animate={{ scale: shown ? 1 : 0.97 }}
           transition={{ duration: 0.8, ease: EASE_OUT }}
         >
-          <LaptopRender image={laptop.image} sizes="(min-width: 1024px) 26vw, 92vw" eager className="h-full min-h-[14rem]" />
+          <LaptopRender
+            image={laptop.image}
+            customSrc={laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)}
+            sizes="(min-width: 1024px) 26vw, 92vw"
+            eager
+            className="h-full min-h-[14rem]"
+          />
         </motion.div>
       </div>
 

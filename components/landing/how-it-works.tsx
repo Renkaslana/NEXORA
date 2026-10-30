@@ -114,7 +114,7 @@ export function HowItWorks() {
             </Reveal>
             <Reveal variant="clip">
               <h2 id="cara-kerja-title" className="text-[2.25rem] leading-[1.02] font-extrabold tracking-[-0.045em] text-balance text-ink-strong md:text-[3.5rem]">
-                Dari kebutuhan hingga <span className="text-data-blue">laptop</span> yang tepat.
+                Dari kebutuhan hingga <span className="italic font-serif text-teal-600 font-normal">laptop</span> yang tepat.
               </h2>
             </Reveal>
           </div>

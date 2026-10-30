@@ -161,7 +161,7 @@ export function InteractiveBudget({ sample }: { sample: LandingSample }) {
               >
                 Satu budget.
                 <br />
-                Banyak <span className="text-data-blue">kemungkinan.</span>
+                Banyak <span className="italic font-serif text-teal-600 font-normal">kemungkinan.</span>
               </h2>
             </Reveal>
             <Reveal delay={0.08}>
@@ -179,7 +179,7 @@ export function InteractiveBudget({ sample }: { sample: LandingSample }) {
                   <p className="type-small text-ink-strong" id="budget-kamu">
                     Budget kamu
                   </p>
-                  <p className="text-[2rem] leading-none font-extrabold tracking-[-0.03em] text-data-blue tabular-nums">
+                  <p className="text-[2rem] leading-none font-extrabold tracking-[-0.03em] text-teal-700 tabular-nums">
                     {formatRupiah(budget)}
                     {atMax && "+"}
                   </p>
@@ -217,8 +217,8 @@ export function InteractiveBudget({ sample }: { sample: LandingSample }) {
                         className={cn(
                           "inline-flex h-11 items-center gap-1.5 rounded-[12px] border px-2.5 type-small transition-[color,background-color,border-color,transform] duration-[var(--motion-fast)] ease-out active:scale-[0.97]",
                           on
-                            ? "border-data-blue bg-data-blue text-white"
-                            : "border-canvas-line bg-white text-ink-strong hover:-translate-y-0.5 hover:border-ink-soft/40"
+                            ? "border-teal-700 bg-teal-700 text-white shadow-sm"
+                            : "border-slate-200 bg-white text-slate-800 hover:-translate-y-0.5 hover:border-teal-300"
                         )}
                       >
                         <Icon weight={on ? "bold" : "regular"} className="size-[18px]" aria-hidden="true" />
@@ -232,9 +232,9 @@ export function InteractiveBudget({ sample }: { sample: LandingSample }) {
           </Reveal>
 
           <Reveal delay={0.24} innerClassName="flex flex-wrap items-center gap-x-6 gap-y-4">
-            <Button asChild variant="signal" size="lg" className="rounded-[14px] transition-[background-color,transform] hover:-translate-y-0.5">
+            <Button asChild size="lg" className="rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold px-6 py-3 shadow-md transition-[background-color,transform] hover:-translate-y-0.5">
               <Link href={ctaHref}>
-                Lihat rekomendasi sekarang <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                Lihat rekomendasi sekarang <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" className="w-4 h-4 ml-1" />
               </Link>
             </Button>
             <Link

@@ -161,7 +161,14 @@ function LaptopCard({
   if (variant === "compact") {
     return (
       <article className={cn(frame, "flex min-w-0 items-center gap-3 p-3")}>
-        <LaptopRender image={laptop.image} sizes="96px" label={false} decorative className="w-24 shrink-0 rounded-control" />
+        <LaptopRender
+          image={laptop.image}
+          customSrc={laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)}
+          sizes="96px"
+          label={false}
+          decorative
+          className="w-24 shrink-0 rounded-control"
+        />
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           {shownCategory && (
             <span className="type-micro text-primary">{categoryLabels[shownCategory]}</span>
@@ -193,6 +200,7 @@ function LaptopCard({
         <div className="overflow-hidden rounded-[18px]">
           <LaptopRender
             image={laptop.image}
+            customSrc={laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)}
             sizes="(min-width: 768px) 40vw, 100vw"
             eager
             className="h-full md:aspect-auto md:min-h-80"
@@ -293,6 +301,7 @@ function LaptopCard({
     <article className={cn(frame, "flex flex-col overflow-hidden")}>
       <LaptopRender
         image={laptop.image}
+        customSrc={laptop.customImageUrl || (laptop.imageUrl?.startsWith('http') ? laptop.imageUrl : undefined)}
         sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw"
         className="border-b border-border"
         imageClassName={renderHover}

@@ -19,7 +19,12 @@ import { Button } from "@/components/ui/button"
 // - Menu aktif ditandai garis tipis di bawah label (IntersectionObserver pada section tujuan).
 
 const links = [
+  { id: "hero", label: "Beranda" },
+  { id: "simulasi-budget", label: "Simulasi Budget" },
   { id: "cara-kerja", label: "Cara Kerja" },
+  { id: "kuis-ai", label: "Kuis AI" },
+  { id: "hasil-analisis", label: "Skor & Hasil" },
+  { id: "brand-laptop", label: "Brand Laptop" },
   { id: "tentang", label: "Tentang" },
 ]
 const THRESHOLD = 48
@@ -130,12 +135,10 @@ export function LandingNav() {
           <div className="flex items-center gap-2">
             <Button
               asChild
-              variant="signal"
-              size="sm"
-              className="hidden rounded-[12px] px-4 transition-[background-color,transform] hover:-translate-y-0.5 md:inline-flex"
+              className="hidden rounded-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs px-5 py-2 shadow-sm transition-[background-color,transform] hover:-translate-y-0.5 md:inline-flex"
             >
               <Link href="/rekomendasi/budget">
-                Mulai Rekomendasi <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
+                Cari Laptop <ArrowRightIcon weight="bold" data-arrow aria-hidden="true" />
               </Link>
             </Button>
             <Button

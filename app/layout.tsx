@@ -17,7 +17,8 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SPECO — Spec for You",
+  metadataBase: new URL("https://speco.nour.web.id"),
+  title: "Speco: Spec for You",
   description:
     "Jawab 5 pertanyaan singkat, lihat spek yang kamu butuh, lalu laptop yang cocok lengkap dengan alasannya.",
 };
